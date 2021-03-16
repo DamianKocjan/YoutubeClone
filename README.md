@@ -1,2 +1,2 @@
 # YoutubeClone
-Youtube clone using python flask
+Youtube clone using python django with rest framework
