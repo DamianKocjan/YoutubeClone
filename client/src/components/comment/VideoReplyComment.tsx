@@ -13,9 +13,13 @@ import {
 import { MoreVert } from '@material-ui/icons';
 
 import timeDifference from '../../utils/timeDifference';
+import ReplyCommentRatingButtons from '../ratingButtons/ReplyComment';
 
 interface Props {
+  replyId: string;
   content: string;
+  likesCount: number;
+  dislikesCount: number;
   createdAt: Date | string;
   authorId: string;
   authorUsername: string;
@@ -23,7 +27,10 @@ interface Props {
 }
 
 const VideoComment: React.FC<Props> = ({
+  replyId,
   content,
+  likesCount,
+  dislikesCount,
   createdAt,
   authorId,
   authorUsername,
@@ -44,6 +51,11 @@ const VideoComment: React.FC<Props> = ({
         secondary={<Typography variant="inherit">{content}</Typography>}
       />
       <ListItemSecondaryAction>
+        <ReplyCommentRatingButtons
+          replyComment={replyId}
+          likesCount={likesCount}
+          dislikesCount={dislikesCount}
+        />
         <IconButton>
           <MoreVert />
         </IconButton>

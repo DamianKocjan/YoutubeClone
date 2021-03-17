@@ -10,6 +10,11 @@ import { useVideoComment, useVideoComments } from './useComment';
 import { usePlaylist, usePlaylists } from './usePlaylist';
 import { useVideoReplyComment, useVideoReplyComments } from './useReplyComment';
 import { useSubscriptions } from './useSubscription';
+import {
+  useUserVideoRatings,
+  useUserReplyCommentRatings,
+  useUserCommentRatings,
+} from './useRating';
 
 export {
   useQuery,
@@ -26,4 +31,7 @@ export {
   useVideoComments,
   useVideoReplyComment,
   useVideoReplyComments,
+  useUserCommentRatings,
+  useUserReplyCommentRatings,
+  useUserVideoRatings,
 };

@@ -6,7 +6,9 @@ from .views import LogoutAndBlacklistRefreshTokenForUserView
 from .views import SignUpView
 from comments.views import CommentViews
 from comments.views import ReplyCommentViews
-# from rating.views import UserRatingViews
+from rating.views import CommentRatingViews
+from rating.views import ReplyCommentRatingViews
+from rating.views import VideoRatingViews
 from accounts.views.subscription_views import SubscriptionViews
 from accounts.views.user_views import UserViews
 from video.views.library_views import LibraryViews
@@ -21,6 +23,9 @@ routes = [
     {'url': r'libraries', 'view': LibraryViews},
     {'url': r'subscriptions', 'view': SubscriptionViews},
     {'url': r'users', 'view': UserViews},
+    {'url': r'comment-rating', 'view': CommentRatingViews},
+    {'url': r'reply-comment-rating', 'view': ReplyCommentRatingViews},
+    {'url': r'video-rating', 'view': VideoRatingViews},
 ]
 
 for route in routes:

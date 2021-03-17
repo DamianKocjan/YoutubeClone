@@ -27,8 +27,6 @@ import {
 import {
   MoreHoriz,
   PlaylistAdd,
-  ThumbDown,
-  ThumbUp,
   Share,
   Sort,
   NotificationsNone,
@@ -46,6 +44,7 @@ import axiosInstance from '../utils/axiosInstance';
 import SubscribeButton from '../components/SubscribeButton';
 import { IVideoComment } from '../types/videoComment';
 import { IVideo } from '../types/video';
+import VideoRatingButtons from '../components/ratingButtons/Video';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -171,10 +170,11 @@ const VideoWatch: React.FC = () => {
                     ).toLocaleDateString()}`}
                   />
                   <ListItemSecondaryAction>
-                    <Button startIcon={<ThumbUp />}>{data.likes_count}</Button>
-                    <Button startIcon={<ThumbDown />}>
-                      {data.dislikes_count}
-                    </Button>
+                    <VideoRatingButtons
+                      video={data.id}
+                      likesCount={data.likes_count}
+                      dislikesCount={data.dislikes_count}
+                    />
                     <Button startIcon={<Share />}>Share</Button>
                     <Button startIcon={<PlaylistAdd />}>Save</Button>
                     <IconButton>
@@ -288,6 +288,8 @@ const VideoWatch: React.FC = () => {
                       key={comment.id}
                       commentId={comment.id}
                       content={comment.content}
+                      likesCount={comment.likes_count}
+                      dislikesCount={comment.dislikes_count}
                       createdAt={comment.created_at}
                       authorId={comment.author.id}
                       authorUsername={comment.author.username}

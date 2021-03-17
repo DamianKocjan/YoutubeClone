@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.db import models
 
+from rating.models import CommentRating
+from rating.models import ReplyCommentRating
+
 
 class CommentBase(models.Model):
     author     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_author')
@@ -16,6 +19,14 @@ class CommentBase(models.Model):
 class Comment(CommentBase):
     video = models.ForeignKey('video.Video', on_delete=models.CASCADE, related_name='comment_video')
 
+    @property
+    def get_likes_count(self) -> int:
+        return CommentRating.objects.filter(comment=self.id, is_liking=True).count()
+
+    @property
+    def get_dislikes_count(self) -> int:
+        return CommentRating.objects.filter(comment=self.id, is_liking=False).count()
+
     class Meta:
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
@@ -27,6 +38,14 @@ class Comment(CommentBase):
 
 class ReplyComment(CommentBase):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replycomment_comment')
+
+    @property
+    def get_likes_count(self) -> int:
+        return ReplyCommentRating.objects.filter(reply_comment=self.id, is_liking=True).count()
+
+    @property
+    def get_dislikes_count(self) -> int:
+        return ReplyCommentRating.objects.filter(reply_comment=self.id, is_liking=False).count()
 
     class Meta:
         verbose_name = 'Reply Comment'

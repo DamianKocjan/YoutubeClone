@@ -25,10 +25,13 @@ import timeDifference from '../../utils/timeDifference';
 import { useVideoReplyComments } from '../../hooks';
 import VideoReplyComment from './VideoReplyComment';
 import { IVideoReplyComment } from '../../types/videoReplyComment';
+import CommentRatingButtons from '../ratingButtons/Comment';
 
 interface Props {
   commentId: string;
   content: string;
+  likesCount: number;
+  dislikesCount: number;
   createdAt: string;
   authorId: string;
   authorUsername: string;
@@ -38,6 +41,8 @@ interface Props {
 const VideoComment: React.FC<Props> = ({
   commentId,
   content,
+  likesCount,
+  dislikesCount,
   createdAt,
   authorId,
   authorUsername,
@@ -104,6 +109,11 @@ const VideoComment: React.FC<Props> = ({
           >
             <AddComment />
           </IconButton>
+          <CommentRatingButtons
+            comment={commentId}
+            likesCount={likesCount}
+            dislikesCount={dislikesCount}
+          />
           <IconButton>
             <MoreVert />
           </IconButton>
@@ -154,7 +164,10 @@ const VideoComment: React.FC<Props> = ({
           data.map((reply: IVideoReplyComment) => (
             <VideoReplyComment
               key={reply.id}
+              replyId={reply.id}
               content={reply.content}
+              likesCount={reply.likes_count}
+              dislikesCount={reply.dislikes_count}
               createdAt={reply.created_at}
               authorId={reply.author.id}
               authorUsername={reply.author.username}
