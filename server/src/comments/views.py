@@ -1,8 +1,10 @@
 from rest_framework.viewsets import ModelViewSet
 
 from api.permissions import IsAuthorOrReadOnly
-from .models import Comment, ReplyComment
-from .serializers import CommentSerializer, ReplyCommentSerializer
+from .models import Comment
+from .models import ReplyComment
+from .serializers import CommentSerializer
+from .serializers import ReplyCommentSerializer
 
 
 class CommentViews(ModelViewSet):

@@ -1,6 +1,8 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import CommentRating, ReplyCommentRating, VideoRating
+from .models import CommentRating
+from .models import ReplyCommentRating
+from .models import VideoRating
 
 
 class RatingBaseSerializer(ModelSerializer):

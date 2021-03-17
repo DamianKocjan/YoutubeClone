@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RRLink, useHistory } from 'react-router-dom';
 
 import {
@@ -50,13 +50,25 @@ const Login: React.FC = () => {
   const dispatch = useAuthDispatch();
   const { isLogged, loading, errorMessage } = useAuthState();
 
-  if (isLogged) {
-    try {
-      history.goBack();
-    } catch {
-      history.push('/');
+  useEffect(() => {
+    if (isLogged) {
+      try {
+        history.goBack();
+      } catch {
+        history.push('/');
+      }
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (isLogged) {
+      try {
+        history.goBack();
+      } catch {
+        history.push('/');
+      }
+    }
+  }, [isLogged]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginDetails({

@@ -5,6 +5,7 @@ from django.dispatch.dispatcher import receiver
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
+from tinytag import TinyTag
 
 from accounts.models import User
 from rating.models import VideoRating
@@ -15,6 +16,17 @@ class ViewBase(models.Model):
 
     class Meta:
         abstract = True
+
+
+class VideoView(ViewBase):
+    video = models.ForeignKey('Video', on_delete=models.CASCADE, related_name='video_view_video')
+
+    class Meta:
+        verbose_name = 'Video View'
+        verbose_name_plural = 'Video Views'
+
+    def __str__(self) -> str:
+        return f'Video View {self.id}, {self.user}, {self.video}'
 
 
 STATUS_TYPES = (
@@ -39,7 +51,7 @@ class Video(models.Model):
     description = models.TextField(max_length=5000, blank=True)
     video       = models.FileField(upload_to=handle_uploaded_video_file)
     thumbnail   = models.ImageField(upload_to=handle_uploaded_thumbnail_file)
-    duration    = models.PositiveSmallIntegerField()
+    duration    = models.PositiveSmallIntegerField(default=0)
     author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
     created_at  = models.DateTimeField(auto_now_add=True)
@@ -76,23 +88,18 @@ class Video(models.Model):
 
         return path
 
+    def get_video_duration(self) -> int:
+        video = TinyTag.get(str(self.video))
+        return int(video.duration)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        self.video = self.rename_file(str(self.video), 'videos')
-        self.thumbnail = self.rename_file(str(self.thumbnail), 'thumbnails')
+        self.video = self.rename_file(str(self.video), 'videos').replace('/', '\\')
+        self.thumbnail = self.rename_file(str(self.thumbnail), 'thumbnails').replace('/', '\\')
+        self.duration = self.get_video_duration()
+
         super().save()
-
-
-class VideoView(ViewBase):
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='video_view_video')
-
-    class Meta:
-        verbose_name = 'Video View'
-        verbose_name_plural = 'Video Views'
-
-    def __str__(self) -> str:
-        return f'Video View {self.id}, {self.user}, {self.video}'
 
 
 class Playlist(models.Model):

@@ -1,8 +1,11 @@
-from django.urls import path, include
+from django.urls import include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from .views import LogoutAndBlacklistRefreshTokenForUserView, SignUpView
-from comments.views import CommentViews, ReplyCommentViews
+from .views import LogoutAndBlacklistRefreshTokenForUserView
+from .views import SignUpView
+from comments.views import CommentViews
+from comments.views import ReplyCommentViews
 # from rating.views import UserRatingViews
 from accounts.views.subscription_views import SubscriptionViews
 from accounts.views.user_views import UserViews

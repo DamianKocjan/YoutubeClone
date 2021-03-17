@@ -1,10 +1,9 @@
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 
 from api.permissions import IsAuthorOrReadOnly
-from video.models import Video, VideoView
+from video.models import Video
+from video.models import VideoView
 from video.serializers import VideoSerializer
 
 
@@ -15,13 +14,13 @@ class VideoViews(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-    # def retrieve(self, request, *args, **kwargs):
-    #     instance = self.get_object()
 
-    #     # VideoView.objects.create(user=request.user, video=instance).save()
-    #     serializer = self.get_serializer(instance)
+    def retrieve(self, request, *args, **kwargs):
+        if not request.user.is_anonymous:
+            view = VideoView.objects.create(user=request.user, video=self.get_object())
+            view.save()
 
-    #     return Response(serializer.data)
+        return super(VideoViews, self).retrieve(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         exclude_video = self.request.query_params.get('exclude')

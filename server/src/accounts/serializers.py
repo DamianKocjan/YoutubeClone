@@ -1,9 +1,12 @@
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import status
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, ReadOnlyField
+from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import PrimaryKeyRelatedField
+from rest_framework.serializers import ReadOnlyField
 from rest_framework.views import Response
 
-from .models import Subscription, User
+from .models import Subscription
+from .models import User
 
 
 class UserSerializer(CountryFieldMixin, ModelSerializer):

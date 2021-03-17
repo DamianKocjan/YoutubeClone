@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Cookies } from 'react-cookie';
 import { Route, Switch } from 'react-router-dom';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
@@ -14,18 +13,16 @@ import SignUp from './views/SignUp';
 import VideoCreate from './views/VideoCreate';
 import VideoWatch from './views/VideoWatch';
 import Channel from './views/channel';
-import { AuthProvider } from './auth';
+import { AuthProvider, useAuthState } from './auth';
 
 const App: React.FC = () => {
-  const cookies = new Cookies();
+  const { isLogged, accessToken } = useAuthState();
 
   useEffect(() => {
-    if (cookies.get('access_token')) {
-      axiosInstance.defaults.headers.Authorization = `Bearer ${cookies.get(
-        'access_token'
-      )}`;
+    if (accessToken) {
+      axiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
     }
-  }, []);
+  }, [isLogged]);
 
   return (
     <AuthProvider>

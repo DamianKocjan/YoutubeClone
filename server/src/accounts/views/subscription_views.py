@@ -1,5 +1,6 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, ListModelMixin
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import DestroyModelMixin
+from rest_framework.mixins import ListModelMixin
 from rest_framework.viewsets import GenericViewSet
 
 from accounts.models import Subscription
@@ -11,9 +12,6 @@ class SubscriptionViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, Gen
     queryset = Subscription.objects.all()
     permission_classes = [IsUserOrReadOnly]
     serializer_class = SubscriptionSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
         user = self.request.query_params.get('user')
