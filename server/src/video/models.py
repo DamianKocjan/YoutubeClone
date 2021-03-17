@@ -89,7 +89,7 @@ class Video(models.Model):
         return path
 
     def get_video_duration(self) -> int:
-        video = TinyTag.get(str(self.video))
+        video = TinyTag.get(os.path.join(settings.MEDIA_ROOT + str(self.video)))
         return int(video.duration)
 
     def save(self, *args, **kwargs):
