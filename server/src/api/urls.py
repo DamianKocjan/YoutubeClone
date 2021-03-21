@@ -12,6 +12,8 @@ from rating.views import VideoRatingViews
 from accounts.views.subscription_views import SubscriptionViews
 from accounts.views.user_views import UserViews
 from video.views.library_views import LibraryViews
+from video.views.playlist_views import PlaylistViews
+from video.views.playlist_views import PlaylistVideoViews
 from video.views.video_views import VideoViews
 
 router = DefaultRouter()
@@ -26,6 +28,8 @@ routes = [
     {'url': r'comment-rating', 'view': CommentRatingViews},
     {'url': r'reply-comment-rating', 'view': ReplyCommentRatingViews},
     {'url': r'video-rating', 'view': VideoRatingViews},
+    {'url': r'playlists', 'view': PlaylistViews},
+    {'url': r'playlists-video', 'view': PlaylistVideoViews},
 ]
 
 for route in routes:

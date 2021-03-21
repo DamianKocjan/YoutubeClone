@@ -102,34 +102,8 @@ class Video(models.Model):
         super().save()
 
 
-class Playlist(models.Model):
-    title       = models.CharField(max_length=50)
-    videos      = models.ManyToManyField(Video, through='PlaylistVideo')
-    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    description = models.CharField(max_length=200)
-    status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Playlist'
-        verbose_name_plural = 'Playlists'
-
-    def __str__(self) -> str:
-        return f'Playlist {self.id}'
-
-
-class PlaylistVideo(models.Model):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
-    video    = models.ForeignKey(Video, on_delete=models.CASCADE)
-    position = models.PositiveSmallIntegerField()
-
-    class Meta:
-        ordering = ['position']
-
-
 class PlaylistView(ViewBase):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='playlist_view_playlist')
+    playlist = models.ForeignKey('Playlist', on_delete=models.CASCADE, related_name='playlist_view_playlist')
 
     class Meta:
         verbose_name = 'Playlist View'
@@ -137,6 +111,44 @@ class PlaylistView(ViewBase):
 
     def __str__(self) -> str:
         return f'Playlist View {self.id}, {self.user}, {self.playlist}'
+
+
+class PlaylistVideo(models.Model):
+    playlist = models.ForeignKey('Playlist', on_delete=models.CASCADE)
+    video    = models.ForeignKey(Video, on_delete=models.CASCADE)
+    position = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ['position']
+        verbose_name = 'Playlist Video'
+        verbose_name_plural = 'Playlist Videos'
+
+    def __str__(self) -> str:
+        return f'Playlist video {self.id}'
+
+
+class Playlist(models.Model):
+    title       = models.CharField(max_length=50)
+    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    description = models.CharField(max_length=200)
+    status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+
+    @property
+    def get_views_count(self) -> int:
+        return PlaylistView.objects.filter(playlist=self.id).count()
+
+    @property
+    def get_videos(self):
+        return PlaylistVideo.objects.filter(playlist=self.id)
+
+    class Meta:
+        verbose_name = 'Playlist'
+        verbose_name_plural = 'Playlists'
+
+    def __str__(self) -> str:
+        return f'Playlist {self.id}'
 
 
 class Library(models.Model):

@@ -38,6 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
+
 const Home: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { status, data, error } = useChannelVideos(id);

@@ -7,6 +7,8 @@ import { initialState, AuthReducer, AuthAction, AuthState } from './reducer';
 const cookies = new Cookies();
 
 const userCookie = cookies.get('user') || {};
+const accessTokenCookie = cookies.get('access_token');
+const refreshTokenCookie = cookies.get('refresh_token');
 
 const user: IChannel = {
   id: userCookie.id || '',
@@ -24,12 +26,14 @@ const user: IChannel = {
 
 const AuthStateContext = createContext<AuthState>({
   user: user,
-  accessToken: cookies.get('access_token') || '',
-  refreshToken: cookies.get('refresh_token') || '',
+  accessToken: accessTokenCookie || '',
+  refreshToken: refreshTokenCookie || '',
   loading: false,
   errorMessage: null,
   isLogged:
-    !!(cookies.get('access_token') && cookies.get('refresh_token')) || false,
+    !!accessTokenCookie === true &&
+    !!refreshTokenCookie === true &&
+    !!userCookie === true,
 });
 const AuthDispatchContext = createContext<React.Dispatch<AuthAction> | any>({});
 

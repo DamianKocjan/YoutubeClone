@@ -13,13 +13,34 @@ export interface AuthState {
   isLogged: boolean;
 }
 
+const userCookie = cookies.get('user') || {};
+const accessTokenCookie = cookies.get('access_token');
+const refreshTokenCookie = cookies.get('refresh_token');
+
+const user: IChannel = {
+  id: userCookie.id || '',
+  first_name: userCookie.first_name || '',
+  last_name: userCookie.last_name || '',
+  username: userCookie.username || '',
+  email: userCookie.email || '',
+  avatar: userCookie.avatar || '',
+  subscribers_count: userCookie.subscribers_count || 0,
+  // background: userCookie.background || '',
+  date_joined: userCookie.date_joined || '',
+  description: userCookie.description || '',
+  location: userCookie.location || '',
+};
+
 export const initialState: AuthState = {
-  user: cookies.get('user') || '',
-  accessToken: cookies.get('access_token') || '',
-  refreshToken: cookies.get('refresh_token') || '',
+  user: user,
+  accessToken: accessTokenCookie || '',
+  refreshToken: refreshTokenCookie || '',
   loading: false,
   errorMessage: null,
-  isLogged: false,
+  isLogged:
+    !!accessTokenCookie === true &&
+    !!refreshTokenCookie === true &&
+    !!userCookie === true,
 };
 
 export interface AuthPayload {

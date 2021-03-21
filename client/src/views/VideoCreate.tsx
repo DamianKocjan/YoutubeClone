@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useHistory, Redirect } from 'react-router';
 import { useMutation } from 'react-query';
 
@@ -46,6 +46,12 @@ const VideoCreate: React.FC = () => {
   );
   const history = useHistory();
   const { isLogged } = useAuthState();
+  const thumbnailRef = useRef<HTMLElement | any>();
+  const videoRef = useRef<HTMLElement | any>();
+  const [hasUploadedVideo, setHasUploadedVideo] = useState<boolean>(false);
+  const [hasUploadedThumbnail, setHasUploadedThumbnail] = useState<boolean>(
+    false
+  );
 
   if (!isLogged) return <Redirect to="/login/" />;
 
@@ -59,6 +65,31 @@ const VideoCreate: React.FC = () => {
 
     if (mutation.isSuccess && mutation.isError === false)
       history.push(`/watch?v=${'id'}`);
+  };
+
+  const handleThumbnail = (e: any) => {
+    const thumbnail = e.target.files[0];
+    const reader = new FileReader();
+
+    if (thumbnail) {
+      setHasUploadedThumbnail(true);
+      reader.onload = (e: any) => {
+        thumbnailRef.current.src = e.target.result;
+      };
+
+      reader.readAsDataURL(thumbnail);
+    }
+  };
+
+  const handleVideo = (e: any) => {
+    const video = e.target.files[0];
+
+    if (video) {
+      setHasUploadedVideo(true);
+      const fileUrl = URL.createObjectURL(video);
+      videoRef.current.src = fileUrl;
+      // videoRef.current.load();
+    }
   };
 
   const error = mutation.error as any;
@@ -115,8 +146,16 @@ const VideoCreate: React.FC = () => {
                 hidden
                 accept=".jpg,.jpeg.,.jfif,.pjpeg,.pjp,.png"
                 name="thumbnail"
+                onChange={handleThumbnail}
               />
             </Button>
+            {hasUploadedThumbnail && (
+              <>
+                <br />
+                <img ref={thumbnailRef} width="200" height="200" />
+                <br />
+              </>
+            )}
             <Button type="submit" disabled={mutation.isLoading}>
               {mutation.isLoading ? 'Creating video...' : 'Create Video'}
             </Button>
@@ -138,8 +177,32 @@ const VideoCreate: React.FC = () => {
               startIcon={<MovieIcon />}
             >
               Upload video
-              <input type="file" hidden accept="video/mp4" name="video" />
+              <input
+                type="file"
+                hidden
+                accept="video/mp4"
+                name="video"
+                onChange={handleVideo}
+              />
             </Button>
+            {hasUploadedVideo && (
+              <div
+                style={{
+                  position: 'relative',
+                  maxWidth: '100%',
+                  maxHeight: '500px',
+                }}
+              >
+                <video
+                  ref={videoRef}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                  }}
+                />
+              </div>
+            )}
           </Paper>
         </Grid>
       </Grid>

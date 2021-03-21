@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import ReactPlayer from 'react-player';
-import { Link as RRLink } from 'react-router-dom';
+import { Link as RRLink, useHistory } from 'react-router-dom';
 import { useMutation, useQueryClient } from 'react-query';
 import remarkGfm from 'remark-gfm';
 
@@ -23,6 +23,11 @@ import {
   Menu,
   MenuItem,
   Link,
+  Card,
+  CardHeader,
+  Chip,
+  CardContent,
+  ListItemIcon,
 } from '@material-ui/core';
 import {
   MoreHoriz,
@@ -30,6 +35,9 @@ import {
   Share,
   Sort,
   NotificationsNone,
+  ExpandLess,
+  ExpandMore,
+  PlayArrow,
 } from '@material-ui/icons';
 
 import {
@@ -37,6 +45,7 @@ import {
   useVideo,
   useVideosWithExclude,
   useVideoComments,
+  usePlaylist,
 } from '../hooks';
 import VideoComment from '../components/comment/VideoComment';
 import VideoWatchItemCard from '../components/video/VideoWatchItemCard';
@@ -70,30 +79,50 @@ const useStyles = makeStyles((theme: Theme) =>
       top: 0,
       left: 0,
     },
+    playlistRoot: {
+      margin: theme.spacing(1),
+      maxHeight: '400px',
+      overflowY: 'scroll',
+    },
   })
 );
 
+interface IPlaylistVideo {
+  id: string;
+  video: IVideo;
+  position: number;
+}
+
 const VideoWatch: React.FC = () => {
   const classes = useStyles();
-  const query = useQuery().get('v') || '';
+  const videoId = useQuery().get('v') || '';
+  const playlistId = useQuery().get('list') || '';
+  const playlistVideoIndex = useQuery().get('index') || '';
   const queryClient = useQueryClient();
-  const { status, data, error } = useVideo(query);
+  const history = useHistory();
+  const { status, data, error } = useVideo(videoId);
   const {
     status: videosStatus,
     data: videosData,
     error: videosError,
-  } = useVideosWithExclude(query);
+  } = useVideosWithExclude(videoId);
   const {
     status: commentsStatus,
     data: commentsData,
     error: commentsError,
-  } = useVideoComments(query);
+  } = useVideoComments(videoId);
+  const {
+    status: playlistStatus,
+    data: playlistData,
+    error: playlistError,
+  } = usePlaylist(playlistId);
 
   const commentMutation = useMutation(
     (newComment: { video: string; content: string }) =>
       axiosInstance.post('/comments/', newComment),
     {
-      onSuccess: () => queryClient.invalidateQueries(['video_comments', query]),
+      onSuccess: () =>
+        queryClient.invalidateQueries(['video_comments', videoId]),
     }
   );
 
@@ -102,6 +131,7 @@ const VideoWatch: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showButtons, setShowButtons] = useState<boolean>(false);
   const [content, setContent] = useState<string>('');
+  const [showPlaylistVideos, setShowPlaylistVideos] = useState<boolean>(true);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -121,7 +151,7 @@ const VideoWatch: React.FC = () => {
   }, []);
 
   const handleCommentCreation = () => {
-    commentMutation.mutate({ video: query, content: content.trim() });
+    commentMutation.mutate({ video: videoId, content: content.trim() });
 
     if (commentMutation.isSuccess) setContent('');
   };
@@ -146,21 +176,22 @@ const VideoWatch: React.FC = () => {
                   light={data.thumbnail}
                   volume={volume}
                   muted={isMuted}
+                  onEnded={() => {
+                    let idx = 0;
+                    playlistData.videos.forEach((video: any, index: number) => {
+                      if (video.video.id === videoId) idx = index;
+                    });
+
+                    history.push(
+                      // eslint-disable-next-line prettier/prettier
+                      `/watch?v=${playlistData.videos[idx + 1].video.id
+                      }&list=${playlistId}`
+                    );
+                  }}
                 >
                   <source src={data.video} type="video/mp4" />
                 </ReactPlayer>
               </div>
-              {/* <Typography variant="h4">{data.title}</Typography>
-              <Typography>some views</Typography>
-              <Grid container justify="flex-end">
-                <Button startIcon={<ThumbUp />}>420</Button>
-                <Button startIcon={<ThumbDown />}>1337</Button>
-                <Button startIcon={<Share />}>Share</Button>
-                <Button startIcon={<PlaylistAdd />}>Save</Button>
-                <IconButton>
-                  <MoreHoriz />
-                </IconButton>
-              </Grid> */}
               <List>
                 <ListItem>
                   <ListItemText
@@ -303,6 +334,75 @@ const VideoWatch: React.FC = () => {
         </Grid>
         <Grid item lg={4} md={12} sm={12}>
           <List>
+            {playlistId && playlistStatus === 'loading' ? (
+              <h1>loading...</h1>
+            ) : playlistStatus === 'error' ? (
+              <h1>{playlistError.message}</h1>
+            ) : playlistData && playlistId.length > 0 ? (
+              <Card className={classes.playlistRoot}>
+                <CardHeader
+                  action={
+                    <IconButton
+                      onClick={() => {
+                        setShowPlaylistVideos(!showPlaylistVideos);
+                      }}
+                    >
+                      {showPlaylistVideos ? <ExpandLess /> : <ExpandMore />}
+                    </IconButton>
+                  }
+                  title={playlistData.title}
+                  subheader={
+                    <Typography>
+                      <Chip label={playlistData.status} size="small" />{' '}
+                      {playlistData.author.username} -{' '}
+                      {playlistVideoIndex ? playlistVideoIndex : 1}/
+                      {playlistData.videos.length}
+                    </Typography>
+                  }
+                />
+                {showPlaylistVideos && (
+                  <CardContent style={{ marginTop: '-30px' }}>
+                    <List>
+                      {playlistData.videos.map((video: IPlaylistVideo) => (
+                        <ListItem
+                          button
+                          key={video.id}
+                          onClick={() => {
+                            history.push(
+                              // eslint-disable-next-line prettier/prettier
+                              `/watch?v=${video.video.id}&list=${playlistId}&index=${video.position + 1}`
+                            );
+                          }}
+                        >
+                          <ListItemIcon>
+                            {+videoId === +video.video.id ? (
+                              <PlayArrow />
+                            ) : (
+                              <>{video.position + 1}</>
+                            )}
+                          </ListItemIcon>
+                          <ListItemAvatar>
+                            <Avatar
+                              variant="square"
+                              src={video.video.thumbnail}
+                              style={{
+                                width: '60px',
+                                marginRight: '5px',
+                                marginLeft: '-15px',
+                              }}
+                            />
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={video.video.title}
+                            secondary={video.video.author.username}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </CardContent>
+                )}
+              </Card>
+            ) : null}
             {videosStatus === 'loading' ? (
               <h1>loading...</h1>
             ) : videosStatus === 'error' ? (

@@ -135,7 +135,18 @@ const Channel: React.FC = () => {
               <Route exact path={path} component={Home} />
               <Route exact path={`${path}/videos`} component={Videos} />
               <Route exact path={`${path}/playlists`} component={Playlists} />
-              <Route exact path={`${path}/about`} component={About} />
+              <Route
+                exact
+                path={`${path}/about`}
+                component={() => (
+                  <About
+                    description={data.description}
+                    joinedDate={data.date_joined}
+                    email={data.email}
+                    location={data.location}
+                  />
+                )}
+              />
             </Switch>
           </>
         )}

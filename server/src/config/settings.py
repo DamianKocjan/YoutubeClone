@@ -121,11 +121,11 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.PageNumberWithPageSizePagination',
     'PAGE_SIZE': 20,
-    # 'DEFAULT_FILTER_BACKENDS': [
+    'DEFAULT_FILTER_BACKENDS': [
     #     'rest_framework.filters.OrderingFilter',
-    #     'django_filters.rest_framework.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
     #     'rest_framework.filters.SearchFilter',
-    # ],
+    ],
 }
 
 # django rest framework simple jwt settings

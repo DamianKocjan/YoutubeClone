@@ -1,9 +1,8 @@
-from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import IntegerField
+from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import ReadOnlyField
 
-from accounts.models import User
 from accounts.serializers import UserSerializer
 from .models import Category
 from .models import Library
@@ -34,18 +33,39 @@ class VideoViewSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class PlaylistVideo(ModelSerializer):
+class PlaylistVideoSerializer(ModelSerializer):
+    video = VideoSerializer(read_only=True)
+    video_id = PrimaryKeyRelatedField(queryset=Video.objects.all(), write_only=True)
+    playlist_id = PrimaryKeyRelatedField(queryset=Playlist.objects.all(), write_only=True)
+
     class Meta:
         model = PlaylistVideo
-        fields = ['playlist', 'video', 'position']
+        exclude = ['playlist']
+
+    def create(self, validated_data):
+        video = validated_data['video_id']
+        playlist = validated_data['playlist_id']
+        position = validated_data['position']
+
+        try:
+            playlist_video = PlaylistVideo.objects.get(video=video, playlist=playlist)
+            playlist_video.position = position
+            playlist_video.save()
+        except PlaylistVideo.DoesNotExist:
+            playlist_video = PlaylistVideo.objects.create(video=video, playlist=playlist, position=position)
+
+        playlist_videos = PlaylistVideo.objects.filter(playlist=playlist).order_by('position', 'id')
+
+        for index, playlist_video in enumerate(playlist_videos):
+            playlist_video.position = index
+            playlist_video.save()
+
+        return playlist_video
 
 
 class PlaylistSerializer(ModelSerializer):
-    author            = UserSerializer(many=False, read_only=True)
-    author_id         = PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
-    videos            = PlaylistVideo(many=True, read_only=True)
-    videos_id         = PrimaryKeyRelatedField(queryset=Video.objects.all(), write_only=True)
-    playlist_to_video = VideoSerializer(many=True)
+    author = UserSerializer(read_only=True)
+    videos = PlaylistVideoSerializer(source='get_videos', many=True, read_only=True)
 
     class Meta:
         model = Playlist

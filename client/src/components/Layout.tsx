@@ -50,8 +50,9 @@ import {
 
 import Logo from '../assets/logo.png';
 import { logout, useAuthDispatch, useAuthState } from '../auth';
-import { useSubscriptions } from '../hooks';
+import { usePlaylists, useSubscriptions } from '../hooks';
 import { ISubscription } from '../types/subscription';
+import { IPlaylist } from '../types/playlist';
 
 interface DrawerListItemProps {
   to: string;
@@ -174,8 +175,19 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
   const menuOpen = !!anchorEl;
   const dispatch = useAuthDispatch();
   const { isLogged, user } = useAuthState();
-  const { status, data, error } = useSubscriptions(user.id);
+  const {
+    status: subscriptionsStatus,
+    data: subscriptionsData,
+    error: subscriptionsError
+  } = useSubscriptions(user.id);
   const [showMoreSubs, setShowMoreSubs] = useState<boolean>(false);
+
+  const {
+    status: playlistsStatus,
+    data: playlistsData,
+    error: playlistsError,
+  } = usePlaylists(user.id);
+  const [showMorePlaylists, setShowMorePlaylists] = useState<boolean>(false);
 
   const handleDrawerOpen = () => {
     setIsOpen(true);
@@ -388,19 +400,66 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
               icon={<ThumbUpIcon />}
               title="Liked Videos"
             />
-            {isOpen && (
-              <>
-                <DrawerListItem
-                  to="/"
-                  icon={<PlaylistPlayIcon />}
-                  title="Random playlist"
-                />
-                <DrawerListItem
-                  to="/"
-                  icon={<ExpandMoreIcon />}
-                  title="Show more"
-                />
-              </>
+            {isOpen && isLogged && (
+              playlistsStatus === 'loading' ? (
+                <ListItem>
+                  <ListItemAvatar>
+                    <></>
+                  </ListItemAvatar>
+                  <ListItemText primary="loading..." />
+                </ListItem>
+              ) : playlistsStatus === 'error' ? (
+                <ListItem>
+                  <ListItemAvatar>
+                    <></>
+                  </ListItemAvatar>
+                  <ListItemText primary={playlistsError.message} />
+                </ListItem>
+              ) : (
+                <>
+                  {showMorePlaylists
+                    ? playlistsData.map((playlist: IPlaylist) => (
+                      <DrawerListItem
+                        key={playlist.id}
+                        to={`/playlist/${playlist.id}`}
+                        icon={<PlaylistPlayIcon />}
+                        title={playlist.title}
+                      />
+                    ))
+                    : playlistsData.slice(0, 8).map((playlist: IPlaylist) => (
+
+                      <DrawerListItem
+                        key={playlist.id}
+                        to={`/playlist/${playlist.id}`}
+                        icon={<PlaylistPlayIcon />}
+                        title={playlist.title}
+                      />
+                    ))}
+                  {playlistsData.length - 7 > 0 && (
+                    <ListItem
+                      button
+                      onClick={() => {
+                        setShowMorePlaylists(!showMorePlaylists);
+                      }}
+                    >
+                      <ListItemIcon>
+                        {showMorePlaylists ? (
+                          <ExpandLessIcon />
+                        ) : (
+                          <ExpandMoreIcon />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={
+                          showMorePlaylists
+                            ? 'Show less'
+                            : `Show ${playlistsData.length - 7} more`
+                        }
+                      />
+                    </ListItem>
+                  )}
+                </>
+              )
             )}
           </div>
         </List>
@@ -410,24 +469,24 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
             <List>
               <div>
                 <ListSubheader color="inherit">Subscriptions</ListSubheader>
-                {status === 'loading' ? (
+                {subscriptionsStatus === 'loading' ? (
                   <ListItem>
                     <ListItemAvatar>
                       <></>
                     </ListItemAvatar>
                     <ListItemText primary="loading..." />
                   </ListItem>
-                ) : status === 'error' ? (
+                ) : subscriptionsStatus === 'error' ? (
                   <ListItem>
                     <ListItemAvatar>
                       <></>
                     </ListItemAvatar>
-                    <ListItemText primary={error.message} />
+                    <ListItemText primary={subscriptionsError.message} />
                   </ListItem>
                 ) : (
                   <>
                     {showMoreSubs
-                      ? data.map((sub: ISubscription) => (
+                      ? subscriptionsData.map((sub: ISubscription) => (
                         <ListItem
                           key={sub.id}
                           onClick={() => {
@@ -440,7 +499,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                           <ListItemText primary={sub.channel.username} />
                         </ListItem>
                       ))
-                      : data.slice(0, 8).map((sub: ISubscription) => (
+                      : subscriptionsData.slice(0, 8).map((sub: ISubscription) => (
                         <ListItem
                           key={sub.id}
                           onClick={() => {
@@ -453,7 +512,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                           <ListItemText primary={sub.channel.username} />
                         </ListItem>
                       ))}
-                    {data.length - 7 > 0 && (
+                    {subscriptionsData.length - 7 > 0 && (
                       <ListItem
                         button
                         onClick={() => {
@@ -471,7 +530,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                           primary={
                             showMoreSubs
                               ? 'Show less'
-                              : `Show ${data.length - 7} more`
+                              : `Show ${subscriptionsData.length - 7} more`
                           }
                         />
                       </ListItem>
