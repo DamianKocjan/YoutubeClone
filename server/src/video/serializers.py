@@ -8,10 +8,8 @@ from .models import Category
 from .models import Library
 from .models import Playlist
 from .models import PlaylistVideo
-from .models import PlaylistView
 from .models import SubCategory
 from .models import Video
-from .models import VideoView
 
 
 class VideoSerializer(ModelSerializer):
@@ -25,12 +23,6 @@ class VideoSerializer(ModelSerializer):
         model = Video
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
-
-
-class VideoViewSerializer(ModelSerializer):
-    class Meta:
-        model = VideoView
-        fields = '__all__'
 
 
 class PlaylistVideoSerializer(ModelSerializer):
@@ -71,12 +63,6 @@ class PlaylistSerializer(ModelSerializer):
         model = Playlist
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
-
-
-class PlaylistViewSerializer(ModelSerializer):
-    class Meta:
-        model = PlaylistView
-        fields = '__all__'
 
 
 class LibrarySerializer(ModelSerializer):

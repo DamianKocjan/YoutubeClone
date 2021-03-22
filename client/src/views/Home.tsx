@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useInfiniteQuery } from 'react-query';
 
 import {
   Container,
@@ -8,9 +9,10 @@ import {
   Theme,
 } from '@material-ui/core';
 
-import { useVideos } from '../hooks';
 import VideoHomeCard from '../components/video/VideoHomeCard';
 import { IVideo } from '../types/video';
+import useIntersectionObserver from '../hooks/useIntersectionObserver';
+import axiosInstance from '../utils/axiosInstance';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,7 +32,38 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Home: React.FC = () => {
   const classes = useStyles();
-  const { status, data, error } = useVideos();
+  const {
+    status,
+    data,
+    error,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery<any, any>(
+    'videos',
+    async ({ pageParam = 1 }) => {
+      let page;
+
+      if (typeof pageParam === 'number') page = pageParam;
+      else if (typeof pageParam === 'string')
+        page = pageParam.split('page=')[1];
+      else page = pageParam;
+
+      const { data } = await axiosInstance.get(`/videos/?page=${page}`);
+      return data;
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.next ?? false,
+    }
+  );
+
+  const loadMoreVideosButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useIntersectionObserver({
+    target: loadMoreVideosButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  });
 
   return (
     <Container>
@@ -39,38 +72,51 @@ const Home: React.FC = () => {
           <h1>loading...</h1>
         ) : status === 'error' ? (
           <h1>{error.message}</h1>
-        ) : data.length > 0 ? (
-          data.map(
-            ({
-              title,
-              id,
-              created_at,
-              views_count,
-              author,
-              thumbnail,
-            }: IVideo) => (
-              <Grid
-                item
-                sm={12}
-                md={4}
-                lg={3}
-                key={id}
-                className={(classes.paper, classes.spacing)}
-              >
-                <VideoHomeCard
-                  title={title}
-                  id={id}
-                  createdAt={created_at}
-                  views={views_count}
-                  authorName={author.username}
-                  authorId={author.id}
-                  authorAvatar={author.avatar}
-                  thumbnail={thumbnail}
-                />
-              </Grid>
-            )
-          )
-        ) : null}
+        ) : (
+          <>
+            {data &&
+              data.pages.map((page: any) => (
+                <React.Fragment key={page.nextId}>
+                  {page.results.map(
+                    ({
+                      title,
+                      id,
+                      created_at,
+                      views_count,
+                      author,
+                      thumbnail,
+                    }: IVideo) => (
+                      <Grid
+                        item
+                        sm={12}
+                        md={4}
+                        lg={3}
+                        key={id}
+                        className={(classes.paper, classes.spacing)}
+                      >
+                        <VideoHomeCard
+                          title={title}
+                          id={id}
+                          createdAt={created_at}
+                          views={views_count}
+                          authorName={author.username}
+                          authorId={author.id}
+                          authorAvatar={author.avatar}
+                          thumbnail={thumbnail}
+                        />
+                      </Grid>
+                    )
+                  )}
+                </React.Fragment>
+              ))}
+            <button
+              ref={loadMoreVideosButtonRef}
+              onClick={() => fetchNextPage()}
+              disabled={!hasNextPage || isFetchingNextPage}
+              style={{ visibility: 'hidden' }}
+            />
+          </>
+        )}
       </Grid>
     </Container>
   );

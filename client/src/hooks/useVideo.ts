@@ -5,7 +5,7 @@ export function useVideos(searchQuery = ''): any {
   return useQuery(['videos', searchQuery], async () => {
     const { data } = await axiosInstance.get('videos/', {
       params: {
-        search_query: searchQuery,
+        search: searchQuery,
       },
     });
     return data.results;

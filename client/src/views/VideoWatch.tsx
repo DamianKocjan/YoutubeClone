@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import ReactPlayer from 'react-player';
 import { Link as RRLink, useHistory } from 'react-router-dom';
-import { useMutation, useQueryClient } from 'react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query';
 import remarkGfm from 'remark-gfm';
 
 import {
@@ -40,13 +40,7 @@ import {
   PlayArrow,
 } from '@material-ui/icons';
 
-import {
-  useQuery,
-  useVideo,
-  useVideosWithExclude,
-  useVideoComments,
-  usePlaylist,
-} from '../hooks';
+import { useQuery, useVideo, usePlaylist } from '../hooks';
 import VideoComment from '../components/comment/VideoComment';
 import VideoWatchItemCard from '../components/video/VideoWatchItemCard';
 import axiosInstance from '../utils/axiosInstance';
@@ -54,6 +48,7 @@ import SubscribeButton from '../components/SubscribeButton';
 import { IVideoComment } from '../types/videoComment';
 import { IVideo } from '../types/video';
 import VideoRatingButtons from '../components/ratingButtons/Video';
+import useIntersectionObserver from '../hooks/useIntersectionObserver';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -105,12 +100,74 @@ const VideoWatch: React.FC = () => {
     status: videosStatus,
     data: videosData,
     error: videosError,
-  } = useVideosWithExclude(videoId);
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery<any, any>(
+    ['videos', videoId],
+    async ({ pageParam = 1 }) => {
+      let page;
+
+      if (typeof pageParam === 'number') page = pageParam;
+      else if (typeof pageParam === 'string')
+        page = pageParam.split('page=')[1];
+      else page = pageParam;
+
+      const { data } = await axiosInstance.get(
+        `/videos/?exclude=${videoId}&page=${page}`
+      );
+
+      return data;
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.next ?? false,
+    }
+  );
+
+  const loadMoreVideosButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useIntersectionObserver({
+    target: loadMoreVideosButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  });
+
   const {
     status: commentsStatus,
     data: commentsData,
     error: commentsError,
-  } = useVideoComments(videoId);
+    isFetchingNextPage: isFetchingNextCommentsPage,
+    fetchNextPage: fetchNextCommentsPage,
+    hasNextPage: hasNextCommentsPage,
+  } = useInfiniteQuery<any, any>(
+    ['video_comments', videoId],
+    async ({ pageParam = 1 }) => {
+      let page;
+
+      if (typeof pageParam === 'number') page = pageParam;
+      else if (typeof pageParam === 'string')
+        page = pageParam.split('page=')[1];
+      else page = pageParam;
+
+      const { data } = await axiosInstance.get(
+        `/comments/?video=${videoId}&page=${page}`
+      );
+
+      return data;
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.next ?? false,
+    }
+  );
+
+  const loadMoreCommentsButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useIntersectionObserver({
+    target: loadMoreCommentsButtonRef,
+    onIntersect: fetchNextCommentsPage,
+    enabled: hasNextCommentsPage,
+  });
+
   const {
     status: playlistStatus,
     data: playlistData,
@@ -177,16 +234,20 @@ const VideoWatch: React.FC = () => {
                   volume={volume}
                   muted={isMuted}
                   onEnded={() => {
-                    let idx = 0;
-                    playlistData.videos.forEach((video: any, index: number) => {
-                      if (video.video.id === videoId) idx = index;
-                    });
+                    if (playlistId) {
+                      let idx = 0;
+                      playlistData.videos.forEach(
+                        (video: IPlaylistVideo, index: number) => {
+                          if (video.video.id === videoId) idx = index;
+                        }
+                      );
 
-                    history.push(
-                      // eslint-disable-next-line prettier/prettier
-                      `/watch?v=${playlistData.videos[idx + 1].video.id
-                      }&list=${playlistId}`
-                    );
+                      history.push(
+                        // eslint-disable-next-line prettier/prettier
+                        `/watch?v=${playlistData.videos[idx + 1].video.id
+                        }&list=${playlistId}`
+                      );
+                    }
                   }}
                 >
                   <source src={data.video} type="video/mp4" />
@@ -257,7 +318,7 @@ const VideoWatch: React.FC = () => {
               </List>
               <hr />
               <Typography>
-                {commentsData ? commentsData.length : 'No'} Comments
+                {commentsData ? commentsData.pages[0].count : 'No'} Comments
                 <Button startIcon={<Sort />} onClick={handleClick}>
                   Sort by
                 </Button>
@@ -313,21 +374,36 @@ const VideoWatch: React.FC = () => {
                   <h1>loading...</h1>
                 ) : commentsStatus === 'error' ? (
                   <h1>{commentsError.message}</h1>
-                ) : commentsData ? (
-                  commentsData.map((comment: IVideoComment) => (
-                    <VideoComment
-                      key={comment.id}
-                      commentId={comment.id}
-                      content={comment.content}
-                      likesCount={comment.likes_count}
-                      dislikesCount={comment.dislikes_count}
-                      createdAt={comment.created_at}
-                      authorId={comment.author.id}
-                      authorUsername={comment.author.username}
-                      authorAvatar={comment.author.avatar}
+                ) : (
+                  <>
+                    {commentsData &&
+                      commentsData.pages.map((page: any) => (
+                        <React.Fragment key={page.nextId}>
+                          {page.results.map((comment: IVideoComment) => (
+                            <VideoComment
+                              key={comment.id}
+                              commentId={comment.id}
+                              content={comment.content}
+                              likesCount={comment.likes_count}
+                              dislikesCount={comment.dislikes_count}
+                              createdAt={comment.created_at}
+                              authorId={comment.author.id}
+                              authorUsername={comment.author.username}
+                              authorAvatar={comment.author.avatar}
+                            />
+                          ))}
+                        </React.Fragment>
+                      ))}
+                    <button
+                      ref={loadMoreCommentsButtonRef}
+                      onClick={() => fetchNextPage()}
+                      disabled={
+                        !hasNextCommentsPage || isFetchingNextCommentsPage
+                      }
+                      style={{ visibility: 'hidden' }}
                     />
-                  ))
-                ) : null}
+                  </>
+                )}
               </List>
             </>
           )}
@@ -408,20 +484,32 @@ const VideoWatch: React.FC = () => {
             ) : videosStatus === 'error' ? (
               <h1>{videosError.message}</h1>
             ) : (
-              videosData.length > 0 &&
-              videosData.map((video: IVideo) => (
-                <VideoWatchItemCard
-                  key={video.id}
-                  id={video.id}
-                  title={video.title}
-                  createdAt={video.created_at}
-                  views={video.views_count}
-                  thumbnail={video.thumbnail}
-                  authorAvatar={video.author.avatar}
-                  authorId={video.author.id}
-                  authorName={video.author.username}
+              <>
+                {videosData &&
+                  videosData.pages.map((page: any) => (
+                    <React.Fragment key={page.nextId}>
+                      {page.results.map((video: IVideo) => (
+                        <VideoWatchItemCard
+                          key={video.id}
+                          id={video.id}
+                          title={video.title}
+                          createdAt={video.created_at}
+                          views={video.views_count}
+                          thumbnail={video.thumbnail}
+                          authorAvatar={video.author.avatar}
+                          authorId={video.author.id}
+                          authorName={video.author.username}
+                        />
+                      ))}
+                    </React.Fragment>
+                  ))}
+                <button
+                  ref={loadMoreVideosButtonRef}
+                  onClick={() => fetchNextPage()}
+                  disabled={!hasNextPage || isFetchingNextPage}
+                  style={{ visibility: 'hidden' }}
                 />
-              ))
+              </>
             )}
           </List>
         </Grid>

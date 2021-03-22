@@ -15,6 +15,8 @@ class PlaylistViews(ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly|IsAuthenticatedOrReadOnly]
     serializer_class = PlaylistSerializer
     queryset = Playlist.objects.all()
+    filter_fields = ('author',)
+    search_fields = ('title',)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -23,22 +25,17 @@ class PlaylistViews(ModelViewSet):
         if not request.user.is_anonymous:
             view = PlaylistView.objects.create(user=request.user, playlist=self.get_object())
             view.save()
+        else:
+            view = PlaylistView.objects.create(playlist=self.get_object())
+            view.save()
 
         return super(PlaylistViews, self).retrieve(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         exclude_playlist = self.request.query_params.get('exclude')
-        search_query = self.request.query_params.get('search_query')
-        author = self.request.query_params.get('author')
 
         if exclude_playlist:
             self.queryset = self.queryset.exclude(id=exclude_playlist)
-
-        if search_query:
-            self.queryset = self.queryset.filter(title__icontains=search_query)
-
-        if author:
-            self.queryset = self.queryset.filter(author=author)
 
         return super(PlaylistViews, self).list(request, *args, **kwargs)
 

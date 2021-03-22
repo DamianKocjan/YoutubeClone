@@ -1,3 +1,4 @@
+from rest_framework.pagination import CursorPagination
 from rest_framework.viewsets import ModelViewSet
 
 from api.permissions import IsAuthorOrReadOnly

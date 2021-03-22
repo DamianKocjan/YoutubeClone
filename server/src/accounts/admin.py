@@ -7,7 +7,7 @@ from .models import User, Subscription
 @admin.register(User)
 class UserAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('username', 'avatar', 'password')}),
+        (None, {'fields': ('username', 'avatar', 'background', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'description', 'location')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),

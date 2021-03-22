@@ -12,7 +12,7 @@ from rating.models import VideoRating
 
 
 class ViewBase(models.Model):
-    user  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_user')
+    user  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_user', blank=True)
 
     class Meta:
         abstract = True
@@ -53,6 +53,7 @@ class Video(models.Model):
     thumbnail   = models.ImageField(upload_to=handle_uploaded_thumbnail_file)
     duration    = models.PositiveSmallIntegerField(default=0)
     author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    category    = models.ForeignKey('SubCategory', on_delete=models.SET(''), null=True, blank=True)
     status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)

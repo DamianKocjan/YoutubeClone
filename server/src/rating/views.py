@@ -16,13 +16,9 @@ class VideoRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, Gene
     permission_classes = [IsUserOrReadOnly]
     serializer_class = VideoRatingSerializer
     queryset = VideoRating.objects.all()
+    filter_fields = ('user',)
 
     def list(self, request, *args, **kwargs):
-        user = self.request.query_params.get('user')
-
-        if user:
-            self.queryset = self.queryset.filter(user=user)
-
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -36,13 +32,9 @@ class CommentRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, Ge
     permission_classes = [IsUserOrReadOnly]
     serializer_class = CommentRatingSerializer
     queryset = CommentRating.objects.all()
+    filter_fields = ('user',)
 
     def list(self, request, *args, **kwargs):
-        user = self.request.query_params.get('user')
-
-        if user:
-            self.queryset = self.queryset.filter(user=user)
-
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -56,13 +48,9 @@ class ReplyCommentRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixi
     permission_classes = [IsUserOrReadOnly]
     serializer_class = ReplyCommentRatingSerializer
     queryset = ReplyCommentRating.objects.all()
+    filter_fields = ('user',)
 
     def list(self, request, *args, **kwargs):
-        user = self.request.query_params.get('user')
-
-        if user:
-            self.queryset = self.queryset.filter(user=user)
-
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):

@@ -12,13 +12,9 @@ class SubscriptionViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, Gen
     queryset = Subscription.objects.all()
     permission_classes = [IsUserOrReadOnly]
     serializer_class = SubscriptionSerializer
+    filter_fields = ('user',)
 
     def list(self, request, *args, **kwargs):
-        user = self.request.query_params.get('user')
-
-        if user:
-            self.queryset = self.queryset.filter(user=user)
-
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
