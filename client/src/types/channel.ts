@@ -6,7 +6,7 @@ export interface IChannel {
   email: string;
   avatar: string;
   subscribers_count: number;
-  // background: string;
+  background: string;
   date_joined: Date | string;
   description: string;
   location: string;

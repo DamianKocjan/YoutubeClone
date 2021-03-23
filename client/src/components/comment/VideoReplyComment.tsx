@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
@@ -9,11 +9,16 @@ import {
   ListItemSecondaryAction,
   IconButton,
   Typography,
+  Menu,
+  MenuItem,
 } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
 
 import timeDifference from '../../utils/timeDifference';
 import ReplyCommentRatingButtons from '../ratingButtons/ReplyComment';
+import { useAuthState } from '../../auth';
+import { useMutation, useQueryClient } from 'react-query';
+import axiosInstance from '../../utils/axiosInstance';
 
 interface Props {
   replyId: string;
@@ -36,6 +41,60 @@ const VideoComment: React.FC<Props> = ({
   authorUsername,
   authorAvatar,
 }: Props) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { isLogged } = useAuthState();
+  const queryClient = useQueryClient();
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const commentUpdateMutation = useMutation(
+    (comment: { content: string }) =>
+      axiosInstance.patch(`reply-comments/${replyId}/`, comment),
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['video_reply_comments', replyId]),
+    }
+  );
+
+  const handleEdit = () => {
+    if (!isLogged) return;
+    let content = prompt()!;
+
+    if (content) content = content.trim();
+    else content = '';
+
+    if (content && content.length > 0)
+      commentUpdateMutation.mutate({
+        content: content,
+      });
+  };
+
+  const commentDeleteMutation = useMutation(
+    () => axiosInstance.delete(`reply-comments/${replyId}/`),
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['video_reply_comments', replyId]),
+    }
+  );
+
+  const handleDelete = () => {
+    if (!isLogged) return;
+    let content = prompt(
+      'Are you sure you want to delete that comment? Type y if you want.'
+    )!;
+
+    if (content) content = content.trim();
+    else content = '';
+
+    if (content && content === 'y') commentDeleteMutation.mutate();
+  };
+
   return (
     <ListItem style={{ marginLeft: '40px' }}>
       <ListItemAvatar>
@@ -56,9 +115,33 @@ const VideoComment: React.FC<Props> = ({
           likesCount={likesCount}
           dislikesCount={dislikesCount}
         />
-        <IconButton>
+        <IconButton onClick={handleClick}>
           <MoreVert />
         </IconButton>
+        <Menu
+          id="comment-actions-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+        >
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleEdit();
+            }}
+          >
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleDelete();
+            }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
       </ListItemSecondaryAction>
     </ListItem>
   );

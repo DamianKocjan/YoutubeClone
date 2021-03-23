@@ -12,6 +12,8 @@ import {
   IconButton,
   TextField,
   Typography,
+  Menu,
+  MenuItem,
 } from '@material-ui/core';
 import {
   AddComment,
@@ -26,6 +28,7 @@ import VideoReplyComment from './VideoReplyComment';
 import { IVideoReplyComment } from '../../types/videoReplyComment';
 import CommentRatingButtons from '../ratingButtons/Comment';
 import useIntersectionObserver from '../../hooks/useIntersectionObserver';
+import { useAuthState } from '../../auth';
 
 interface Props {
   commentId: string;
@@ -88,6 +91,58 @@ const VideoComment: React.FC<Props> = ({
   const [showForm, setShowForm] = useState<boolean>(false);
   const [showButtons, setShowButtons] = useState<boolean>(false);
   const [replyContent, setReplyContent] = useState<string>('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { isLogged } = useAuthState();
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const commentUpdateMutation = useMutation(
+    (comment: { content: string }) =>
+      axiosInstance.patch(`comments/${commentId}/`, comment),
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['video_comments', commentId]),
+    }
+  );
+
+  const handleEdit = () => {
+    if (!isLogged) return;
+    let content = prompt()!;
+
+    if (content) content = content.trim();
+    else content = '';
+
+    if (content && content.length > 0)
+      commentUpdateMutation.mutate({
+        content: content,
+      });
+  };
+
+  const commentDeleteMutation = useMutation(
+    () => axiosInstance.delete(`comments/${commentId}/`),
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['video_comments', commentId]),
+    }
+  );
+
+  const handleDelete = () => {
+    if (!isLogged) return;
+    let content = prompt(
+      'Are you sure you want to delete that comment? Type y if you want.'
+    )!;
+
+    if (content) content = content.trim();
+    else content = '';
+
+    if (content && content === 'y') commentDeleteMutation.mutate();
+  };
 
   const replyCommentMutation = useMutation(
     (newReplyComment: { comment: string; content: string }) =>
@@ -148,11 +203,35 @@ const VideoComment: React.FC<Props> = ({
             likesCount={likesCount}
             dislikesCount={dislikesCount}
           />
-          <IconButton>
+          <IconButton onClick={handleClick}>
             <MoreVert />
           </IconButton>
         </ListItemSecondaryAction>
       </ListItem>
+      <Menu
+        id="comment-actions-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleEdit();
+          }}
+        >
+          Edit
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleDelete();
+          }}
+        >
+          Delete
+        </MenuItem>
+      </Menu>
       {showForm && (
         <ListItem style={{ marginLeft: '40px' }}>
           <ListItemAvatar>

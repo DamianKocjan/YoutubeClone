@@ -18,7 +18,7 @@ const user: IChannel = {
   email: userCookie.email || '',
   avatar: userCookie.avatar || '',
   subscribers_count: userCookie.subscribers_count || 0,
-  // background: userCookie.background || '',
+  background: userCookie.background || '',
   date_joined: userCookie.date_joined || '',
   description: userCookie.description || '',
   location: userCookie.location || '',

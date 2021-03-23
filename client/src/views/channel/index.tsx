@@ -72,20 +72,21 @@ const Channel: React.FC = () => {
 
   return (
     <div>
-      <div
-        className={classes.banner}
-        style={{
-          backgroundImage:
-            'url(https://i.ytimg.com/vi/8GQkEMyMLDI/maxresdefault.jpg)',
-        }}
-      />
-      <Container>
-        {status === 'loading' ? (
-          <h1>loading...</h1>
-        ) : status === 'error' ? (
-          <h1>{error.message}</h1>
-        ) : (
-          <>
+      {status === 'loading' ? (
+        <h1>loading...</h1>
+      ) : status === 'error' ? (
+        <h1>{error.message}</h1>
+      ) : (
+        <>
+          <div
+            className={classes.banner}
+            style={{
+              backgroundImage: data.background
+                ? `url(${data.background})`
+                : 'url(https://i.ytimg.com/vi/8GQkEMyMLDI/maxresdefault.jpg)',
+            }}
+          />
+          <Container>
             <List>
               <ListItem>
                 <ListItemAvatar>
@@ -148,9 +149,9 @@ const Channel: React.FC = () => {
                 )}
               />
             </Switch>
-          </>
-        )}
-      </Container>
+          </Container>
+        </>
+      )}
     </div>
   );
 };

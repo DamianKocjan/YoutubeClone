@@ -33,7 +33,7 @@ export async function loginUser(
         email: '',
         avatar: '',
         subscribers_count: 0,
-        // background: '',
+        background: '',
         date_joined: '',
         description: '',
         location: '',

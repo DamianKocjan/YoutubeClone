@@ -49,6 +49,7 @@ import { IVideoComment } from '../types/videoComment';
 import { IVideo } from '../types/video';
 import VideoRatingButtons from '../components/ratingButtons/Video';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
+import { useAuthState } from '../auth';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -95,6 +96,7 @@ const VideoWatch: React.FC = () => {
   const playlistVideoIndex = useQuery().get('index') || '';
   const queryClient = useQueryClient();
   const history = useHistory();
+  const { isLogged } = useAuthState();
   const { status, data, error } = useVideo(videoId);
   const {
     status: videosStatus,
@@ -208,7 +210,12 @@ const VideoWatch: React.FC = () => {
   }, []);
 
   const handleCommentCreation = () => {
-    commentMutation.mutate({ video: videoId, content: content.trim() });
+    if (!isLogged) return;
+
+    commentMutation.mutate({
+      video: videoId,
+      content: content.trim(),
+    });
 
     if (commentMutation.isSuccess) setContent('');
   };
