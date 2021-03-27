@@ -50,7 +50,7 @@ const VideoRatingButtons: React.FC<Props> = ({
 
   const likingMutation = useMutation(
     () =>
-      axiosInstance.post('/video-rating/', {
+      axiosInstance.post('/video-ratings/', {
         video: video,
         user: user.id,
         is_liking: true,
@@ -64,7 +64,7 @@ const VideoRatingButtons: React.FC<Props> = ({
   );
   const dislikingMutation = useMutation(
     () =>
-      axiosInstance.post('/video-rating/', {
+      axiosInstance.post('/video-ratings/', {
         video: video,
         user: user.id,
         is_liking: false,

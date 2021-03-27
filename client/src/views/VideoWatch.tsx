@@ -96,7 +96,7 @@ const VideoWatch: React.FC = () => {
   const playlistVideoIndex = useQuery().get('index') || '';
   const queryClient = useQueryClient();
   const history = useHistory();
-  const { isLogged } = useAuthState();
+  const { isLogged, user } = useAuthState();
   const { status, data, error } = useVideo(videoId);
   const {
     status: videosStatus,
@@ -343,7 +343,7 @@ const VideoWatch: React.FC = () => {
               <List>
                 <ListItem>
                   <ListItemAvatar>
-                    <Avatar />
+                    <Avatar src={user.avatar} />
                   </ListItemAvatar>
                   <ListItemText>
                     <TextField

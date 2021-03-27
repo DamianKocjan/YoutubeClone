@@ -95,23 +95,6 @@ const Login: React.FC = () => {
       setError(err);
       setErrorAlertIsOpen(true);
     }
-
-    // axiosInstance
-    //   .post('/token/', loginDetails)
-    //   .then((response) => {
-    //     createAccessTokenCookie(response.data.access);
-    //     createRefreshTokenCookie(response.data.refresh);
-    //     setIsLogged(true);
-    //     try {
-    //       history.goBack();
-    //     } catch {
-    //       history.push('/');
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     setError(err.response.data.detail);
-    //     setErrorAlertIsOpen(true);
-    //   });
   };
 
   const handleCloseAlert = () => {

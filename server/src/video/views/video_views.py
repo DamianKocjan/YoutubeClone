@@ -1,14 +1,14 @@
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 
-from api.permissions import IsAuthorOrReadOnly
+from api.permissions import IsAuthor
 from video.models import Video
 from video.models import VideoView
 from video.serializers import VideoSerializer
 
 
 class VideoViews(ModelViewSet):
-    permission_classes = [IsAuthorOrReadOnly|IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthor]
     serializer_class = VideoSerializer
     queryset = Video.objects.all()
     filter_fields = ('author',)

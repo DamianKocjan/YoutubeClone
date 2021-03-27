@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Cookies } from 'react-cookie';
 import { Link as RRLink, useHistory } from 'react-router-dom';
 
 import {
@@ -18,6 +17,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 
 import axiosInstance from '../utils/axiosInstance';
+import { useAuthState } from '../auth';
 
 const useStyles = makeStyles((theme: Theme) => ({
   paper: {
@@ -51,12 +51,16 @@ const SignUp: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [errorAlertIsOpen, setErrorAlertIsOpen] = useState<boolean>(false);
   const classes = useStyles();
-  const cookies = new Cookies();
   const history = useHistory();
+  const { isLogged } = useAuthState();
 
   useEffect(() => {
-    if (cookies.get('access_token')) {
-      history.push('/');
+    if (isLogged) {
+      try {
+        history.goBack();
+      } catch {
+        history.push('/');
+      }
     }
   }, []);
 

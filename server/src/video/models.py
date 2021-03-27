@@ -114,7 +114,7 @@ class PlaylistView(ViewBase):
         return f'Playlist View {self.id}, {self.user}, {self.playlist}'
 
 
-class PlaylistVideo(models.Model):
+class PlaylistVideo(models.Model): # M2M between playlist and video
     playlist = models.ForeignKey('Playlist', on_delete=models.CASCADE)
     video    = models.ForeignKey(Video, on_delete=models.CASCADE)
     position = models.PositiveSmallIntegerField()

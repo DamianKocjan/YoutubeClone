@@ -50,7 +50,7 @@ const CommentRatingButtons: React.FC<Props> = ({
 
   const likingMutation = useMutation(
     () =>
-      axiosInstance.post('/comment-rating/', {
+      axiosInstance.post('/comment-ratings/', {
         comment: comment,
         user: user.id,
         is_liking: true,
@@ -64,7 +64,7 @@ const CommentRatingButtons: React.FC<Props> = ({
   );
   const dislikingMutation = useMutation(
     () =>
-      axiosInstance.post('/comment-rating/', {
+      axiosInstance.post('/comment-ratings/', {
         comment: comment,
         user: user.id,
         is_liking: false,

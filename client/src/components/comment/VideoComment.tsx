@@ -154,6 +154,8 @@ const VideoComment: React.FC<Props> = ({
   );
 
   const handleCommentCreation = () => {
+    if (!isLogged) return;
+
     replyCommentMutation.mutate({
       comment: commentId,
       content: replyContent.trim(),

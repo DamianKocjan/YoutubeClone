@@ -31,6 +31,8 @@ INSTALLED_APPS = [
     'comments',
     'rating',
     'video',
+
+    'django_cleanup',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -108,6 +110,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
+    'http://localhost:5000',
 )
 
 # django rest framework settings

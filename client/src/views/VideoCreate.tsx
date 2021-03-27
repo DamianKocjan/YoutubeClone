@@ -56,6 +56,7 @@ const VideoCreate: React.FC = () => {
   if (!isLogged) return <Redirect to="/login/" />;
 
   const handleSubmit = (e: any) => {
+    if (!isLogged) return;
     e.preventDefault();
 
     const formData = new FormData(e.target);

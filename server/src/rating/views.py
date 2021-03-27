@@ -1,9 +1,10 @@
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import GenericViewSet
 
-from api.permissions import IsUserOrReadOnly
+from api.permissions import IsUser
 from .models import CommentRating
 from .models import ReplyCommentRating
 from .models import VideoRating
@@ -13,7 +14,7 @@ from .serializers import VideoRatingSerializer
 
 
 class VideoRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, GenericViewSet):
-    permission_classes = [IsUserOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsUser]
     serializer_class = VideoRatingSerializer
     queryset = VideoRating.objects.all()
     filter_fields = ('user',)
@@ -29,7 +30,7 @@ class VideoRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, Gene
 
 
 class CommentRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, GenericViewSet):
-    permission_classes = [IsUserOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsUser]
     serializer_class = CommentRatingSerializer
     queryset = CommentRating.objects.all()
     filter_fields = ('user',)
@@ -45,7 +46,7 @@ class CommentRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, Ge
 
 
 class ReplyCommentRatingViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, GenericViewSet):
-    permission_classes = [IsUserOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsUser]
     serializer_class = ReplyCommentRatingSerializer
     queryset = ReplyCommentRating.objects.all()
     filter_fields = ('user',)

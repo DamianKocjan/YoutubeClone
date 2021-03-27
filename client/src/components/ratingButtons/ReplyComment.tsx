@@ -51,7 +51,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
 
   const likingMutation = useMutation(
     () =>
-      axiosInstance.post('/reply-comment-rating/', {
+      axiosInstance.post('/reply-comment-ratings/', {
         reply_comment: replyComment,
         user: user.id,
         is_liking: true,
@@ -65,7 +65,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
   );
   const dislikingMutation = useMutation(
     () =>
-      axiosInstance.post('/reply-comment-rating/', {
+      axiosInstance.post('/reply-comment-ratings/', {
         reply_comment: replyComment,
         user: user.id,
         is_liking: false,

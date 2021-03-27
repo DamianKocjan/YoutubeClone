@@ -1,16 +1,17 @@
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import GenericViewSet
 
 from accounts.models import Subscription
 from accounts.serializers import SubscriptionSerializer
-from api.permissions import IsUserOrReadOnly
+from api.permissions import IsUser
 
 
 class SubscriptionViews(CreateModelMixin, DestroyModelMixin, ListModelMixin, GenericViewSet):
     queryset = Subscription.objects.all()
-    permission_classes = [IsUserOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsUser]
     serializer_class = SubscriptionSerializer
     filter_fields = ('user',)
 

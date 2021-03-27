@@ -1,10 +1,8 @@
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.signals import post_delete
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 from django_countries.fields import CountryField
 from PIL import Image
 
@@ -27,46 +25,38 @@ class User(AbstractUser):
     class Meta:
         db_table = 'auth_user'
 
+    def rename_file(self, file, name: str) -> str:
+        ext = file.split('.')[-1]
+        filename = '%s/%s.%s' % (self.id, name, ext)
+        path = os.path.join('uploads', filename)
+
+        os.rename(
+            os.path.join(settings.MEDIA_ROOT, file),
+            os.path.join(settings.MEDIA_ROOT, path),
+        )
+
+        return path
+
     def save(self, *args, **kwargs):
         super(User, self).save(*args, **kwargs)
 
         if self.avatar:
+            self.avatar = self.rename_file(str(self.avatar), name='avatar').replace('/', '\\')
+            super().save()
+
             avatar = Image.open(self.avatar)
             size = (128, 128)
             avatar = avatar.resize(size, Image.ANTIALIAS)
             avatar.save(self.avatar.path, quality=90)
 
         if self.background:
+            self.background = self.rename_file(str(self.background), name='background').replace('/', '\\')
+            super().save()
+
             background = Image.open(self.background)
             size = (1920, 300)
             background = background.resize(size, Image.ANTIALIAS)
             background.save(self.background.path, quality=90)
-
-
-@receiver(post_delete, sender=User)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.avatar:
-        if os.path.isfile(instance.avatar.path):
-            os.remove(instance.avatar.path)
-
-    if instance.background:
-        if os.path.isfile(instance.background.path):
-            os.remove(instance.background.path)
-
-
-@receiver(pre_save, sender=User)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
 
 
 class Subscription(models.Model):

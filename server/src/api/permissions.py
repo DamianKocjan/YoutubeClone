@@ -1,38 +1,20 @@
-from rest_framework import permissions
+from rest_framework.permissions import BasePermission
+from rest_framework.permissions import SAFE_METHODS
 
 
-class IsAuthorOrReadOnly(permissions.BasePermission):
-    """
-    Object-level permission to only allow authors of an object to edit it.
-    Assumes the model instance has an `author` attribute.
-    """
-
+class IsAuthor(BasePermission):
     def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-
-        if request.method == 'post' and request.user:
+        if request.method in SAFE_METHODS:
             return True
-
-        if request.method in permissions.SAFE_METHODS:
+        elif request.user.is_authenticated and obj.author.id == request.user.id:
             return True
-
-        # Instance must have an attribute named `author`.
-        return obj.author == request.user
+        return False
 
 
-class IsUserOrReadOnly(permissions.BasePermission):
-    """
-    Object-level permission to only allow users of an object to edit it.
-    Assumes the model instance has an `user` attribute.
-    """
-
+class IsUser(BasePermission):
     def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in SAFE_METHODS:
             return True
-
-        # Instance must have an attribute named `user`.
-        return obj.user == request.user
-
+        elif request.user.is_authenticated and obj.user.id == request.user.id:
+            return True
+        return False
