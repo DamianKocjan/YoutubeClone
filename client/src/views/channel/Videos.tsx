@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import {
   Container,
@@ -31,9 +31,10 @@ import { IVideo } from '../../types/video';
 import VideoHomeCard from '../../components/video/VideoHomeCard';
 
 const Videos: React.FC = () => {
+  const classes = useStyles();
+
   const { id } = useParams<{ id: string }>();
   const { status, data, error } = useChannelVideos(id);
-  const classes = useStyles();
 
   return (
     <>

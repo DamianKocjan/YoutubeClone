@@ -60,10 +60,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Channel: React.FC = () => {
   const classes = useStyles();
+
+  const { path, url } = useRouteMatch();
+
   const { id } = useParams<{ id: string }>();
   const { status, data, error } = useChannel(id);
+
   const [value, setValue] = useState<number>(0);
-  const { path, url } = useRouteMatch();
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {

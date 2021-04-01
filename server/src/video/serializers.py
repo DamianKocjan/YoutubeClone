@@ -56,8 +56,9 @@ class PlaylistVideoSerializer(ModelSerializer):
 
 
 class PlaylistSerializer(ModelSerializer):
-    author = UserSerializer(read_only=True)
-    videos = PlaylistVideoSerializer(source='get_videos', many=True, read_only=True)
+    author      = UserSerializer(read_only=True)
+    videos      = PlaylistVideoSerializer(source='get_videos', many=True, read_only=True)
+    views_count = ReadOnlyField(source='get_views_count')
 
     class Meta:
         model = Playlist

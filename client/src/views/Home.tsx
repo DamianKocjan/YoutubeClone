@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Home: React.FC = () => {
   const classes = useStyles();
+
   const {
     status,
     data,

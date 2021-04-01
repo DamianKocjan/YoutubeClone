@@ -5,7 +5,7 @@ export interface IVideo {
   title: string;
   description: string;
   duration: number;
-  created_at: Date | string;
+  created_at: string;
   views_count: number;
   thumbnail: string;
   author: IChannel;

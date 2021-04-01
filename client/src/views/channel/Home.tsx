@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 import {
   Typography,
@@ -40,10 +40,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Home: React.FC = () => {
+  const classes = useStyles();
+
   const { id } = useParams<{ id: string }>();
   const { status, data, error } = useChannelVideos(id);
-  const classes = useStyles();
-  const history = useHistory();
 
   const convertDuration = (seconds: number): string => {
     if (!seconds) return '';
@@ -88,13 +88,7 @@ const Home: React.FC = () => {
           ) : data.length > 0 ? (
             data.map(
               ({ title, id, created_at, thumbnail, duration }: IVideo) => (
-                <GridListTile
-                  key={id}
-                  onClick={() => {
-                    history.push(`/watch?v=${id}`);
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
+                <GridListTile component={Link} to={`/watch?v=${id}`} key={id}>
                   <img
                     src={thumbnail}
                     alt={title}

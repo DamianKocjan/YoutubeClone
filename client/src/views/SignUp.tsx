@@ -40,6 +40,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const SignUp: React.FC = () => {
+  const classes = useStyles();
+  const history = useHistory();
+
   const [signUpDetails, setSignUpDetails] = useState({
     first_name: '',
     last_name: '',
@@ -50,8 +53,7 @@ const SignUp: React.FC = () => {
   });
   const [error, setError] = useState<string>('');
   const [errorAlertIsOpen, setErrorAlertIsOpen] = useState<boolean>(false);
-  const classes = useStyles();
-  const history = useHistory();
+
   const { isLogged } = useAuthState();
 
   useEffect(() => {
@@ -71,12 +73,12 @@ const SignUp: React.FC = () => {
     });
   };
 
-  const handleSubmit = (
+  const handleSubmit = async (
     e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
 
-    axiosInstance
+    await axiosInstance
       .post('/signup/', signUpDetails)
       .then(() => {
         history.push('/login/');
@@ -98,7 +100,7 @@ const SignUp: React.FC = () => {
       });
   };
 
-  const handleCloseAlert = (): void => {
+  const handleCloseAlert = () => {
     setErrorAlertIsOpen(false);
   };
 

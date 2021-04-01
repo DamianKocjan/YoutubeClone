@@ -25,7 +25,7 @@ interface Props {
   content: string;
   likesCount: number;
   dislikesCount: number;
-  createdAt: Date | string;
+  createdAt: string;
   authorId: string;
   authorUsername: string;
   authorAvatar: string;
@@ -41,9 +41,11 @@ const VideoComment: React.FC<Props> = ({
   authorUsername,
   authorAvatar,
 }: Props) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { isLogged } = useAuthState();
   const queryClient = useQueryClient();
+
+  const { isLogged, user } = useAuthState();
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -54,8 +56,8 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentUpdateMutation = useMutation(
-    (comment: { content: string }) =>
-      axiosInstance.patch(`reply-comments/${replyId}/`, comment),
+    async (comment: { content: string }) =>
+      await axiosInstance.patch(`reply-comments/${replyId}/`, comment),
     {
       onSuccess: () =>
         queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -63,7 +65,8 @@ const VideoComment: React.FC<Props> = ({
   );
 
   const handleEdit = () => {
-    if (!isLogged) return;
+    if (!isLogged || user.id !== authorId) return;
+
     let content = prompt()!;
 
     if (content) content = content.trim();
@@ -76,7 +79,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    () => axiosInstance.delete(`reply-comments/${replyId}/`),
+    async () => await axiosInstance.delete(`reply-comments/${replyId}/`),
     {
       onSuccess: () =>
         queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -84,7 +87,8 @@ const VideoComment: React.FC<Props> = ({
   );
 
   const handleDelete = () => {
-    if (!isLogged) return;
+    if (!isLogged || user.id !== authorId) return;
+
     let content = prompt(
       'Are you sure you want to delete that comment? Type y if you want.'
     )!;
@@ -115,33 +119,37 @@ const VideoComment: React.FC<Props> = ({
           likesCount={likesCount}
           dislikesCount={dislikesCount}
         />
-        <IconButton onClick={handleClick}>
-          <MoreVert />
-        </IconButton>
-        <Menu
-          id="comment-actions-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              handleEdit();
-            }}
-          >
-            Edit
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              handleDelete();
-            }}
-          >
-            Delete
-          </MenuItem>
-        </Menu>
+        {user.id === authorId && (
+          <>
+            <IconButton onClick={handleClick}>
+              <MoreVert />
+            </IconButton>
+            <Menu
+              id="comment-actions-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+            >
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  handleEdit();
+                }}
+              >
+                Edit
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  handleDelete();
+                }}
+              >
+                Delete
+              </MenuItem>
+            </Menu>
+          </>
+        )}
       </ListItemSecondaryAction>
     </ListItem>
   );

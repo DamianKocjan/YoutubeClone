@@ -44,7 +44,7 @@ interface Props {
   title: string;
   description: string;
   views: number;
-  createdAt: Date | string;
+  createdAt: string;
   thumbnail: string;
   authorAvatar?: string;
   authorId: string;
@@ -63,6 +63,7 @@ const VideoSearchCard: React.FC<Props> = ({
   authorName,
 }: Props) => {
   const classes = useStyles();
+
   const now = new Date();
 
   return (

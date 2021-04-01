@@ -27,6 +27,7 @@ const VideoRatingButtons: React.FC<Props> = ({
   dislikesCount,
 }: Props) => {
   const { user, isLogged } = useAuthState();
+
   const [isLiking, setIsLiking] = useState<boolean | null>(null);
 
   if (!isLogged)
@@ -49,8 +50,8 @@ const VideoRatingButtons: React.FC<Props> = ({
   }, [data]);
 
   const likingMutation = useMutation(
-    () =>
-      axiosInstance.post('/video-ratings/', {
+    async () =>
+      await axiosInstance.post('/video-ratings/', {
         video: video,
         user: user.id,
         is_liking: true,
@@ -63,8 +64,8 @@ const VideoRatingButtons: React.FC<Props> = ({
     }
   );
   const dislikingMutation = useMutation(
-    () =>
-      axiosInstance.post('/video-ratings/', {
+    async () =>
+      await axiosInstance.post('/video-ratings/', {
         video: video,
         user: user.id,
         is_liking: false,

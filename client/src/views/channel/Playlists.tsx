@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 import {
   Typography,
@@ -40,10 +40,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Playlists: React.FC = () => {
+  const classes = useStyles();
+
   const { id } = useParams<{ id: string }>();
   const { status, data, error } = usePlaylists(id);
-  const classes = useStyles();
-  const history = useHistory();
 
   return (
     <>
@@ -56,15 +56,7 @@ const Playlists: React.FC = () => {
             <h1>{error.message}</h1>
           ) : data.length > 0 ? (
             data.map(({ title, id, videos, created_at }: IPlaylist) => (
-              <GridListTile
-                key={id}
-                onClick={() => {
-                  history.push(
-                    `/watch?v=${videos[0].video.id}&list=${id}&index=1`
-                  );
-                }}
-                style={{ cursor: 'pointer' }}
-              >
+              <GridListTile component={Link} to={`/playlist/${id}`} key={id}>
                 <img
                   src={videos[0].video.thumbnail}
                   alt={title}

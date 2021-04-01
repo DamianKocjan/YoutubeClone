@@ -52,6 +52,7 @@ const VideoComment: React.FC<Props> = ({
   authorAvatar,
 }: Props) => {
   const queryClient = useQueryClient();
+
   const {
     status,
     data,
@@ -88,11 +89,15 @@ const VideoComment: React.FC<Props> = ({
   });
 
   const [showReplies, setShowReplies] = useState<boolean>(false);
+
   const [showForm, setShowForm] = useState<boolean>(false);
-  const [showButtons, setShowButtons] = useState<boolean>(false);
   const [replyContent, setReplyContent] = useState<string>('');
+
+  const [showButtons, setShowButtons] = useState<boolean>(false);
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { isLogged } = useAuthState();
+
+  const { isLogged, user } = useAuthState();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -103,8 +108,8 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentUpdateMutation = useMutation(
-    (comment: { content: string }) =>
-      axiosInstance.patch(`comments/${commentId}/`, comment),
+    async (comment: { content: string }) =>
+      await axiosInstance.patch(`comments/${commentId}/`, comment),
     {
       onSuccess: () =>
         queryClient.invalidateQueries(['video_comments', commentId]),
@@ -112,7 +117,8 @@ const VideoComment: React.FC<Props> = ({
   );
 
   const handleEdit = () => {
-    if (!isLogged) return;
+    if (!isLogged || user.id !== authorId) return;
+
     let content = prompt()!;
 
     if (content) content = content.trim();
@@ -125,7 +131,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    () => axiosInstance.delete(`comments/${commentId}/`),
+    async () => await axiosInstance.delete(`comments/${commentId}/`),
     {
       onSuccess: () =>
         queryClient.invalidateQueries(['video_comments', commentId]),
@@ -133,7 +139,8 @@ const VideoComment: React.FC<Props> = ({
   );
 
   const handleDelete = () => {
-    if (!isLogged) return;
+    if (!isLogged || user.id !== authorId) return;
+
     let content = prompt(
       'Are you sure you want to delete that comment? Type y if you want.'
     )!;
@@ -145,11 +152,15 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const replyCommentMutation = useMutation(
-    (newReplyComment: { comment: string; content: string }) =>
-      axiosInstance.post('reply-comments/', newReplyComment),
+    async (newReplyComment: { comment: string; content: string }) =>
+      await axiosInstance.post('reply-comments/', newReplyComment),
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(['video_reply_comments', commentId]),
+      onSuccess: () => {
+        queryClient.invalidateQueries(['video_reply_comments', commentId]);
+
+        setReplyContent('');
+        setShowForm(false);
+      },
     }
   );
 
@@ -160,11 +171,6 @@ const VideoComment: React.FC<Props> = ({
       comment: commentId,
       content: replyContent.trim(),
     });
-
-    if (replyCommentMutation.isSuccess) {
-      setReplyContent('');
-      setShowForm(false);
-    }
   };
 
   return (
@@ -205,35 +211,39 @@ const VideoComment: React.FC<Props> = ({
             likesCount={likesCount}
             dislikesCount={dislikesCount}
           />
-          <IconButton onClick={handleClick}>
-            <MoreVert />
-          </IconButton>
+          {user.id === authorId && (
+            <IconButton onClick={handleClick}>
+              <MoreVert />
+            </IconButton>
+          )}
         </ListItemSecondaryAction>
       </ListItem>
-      <Menu
-        id="comment-actions-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            handleEdit();
-          }}
+      {user.id === authorId && (
+        <Menu
+          id="comment-actions-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
         >
-          Edit
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            handleDelete();
-          }}
-        >
-          Delete
-        </MenuItem>
-      </Menu>
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleEdit();
+            }}
+          >
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleDelete();
+            }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
+      )}
       {showForm && (
         <ListItem style={{ marginLeft: '40px' }}>
           <ListItemAvatar>
@@ -280,19 +290,28 @@ const VideoComment: React.FC<Props> = ({
             {data &&
               data.pages.map((page: any) => (
                 <React.Fragment key={page.nextId}>
-                  {page.results.map((reply: IVideoReplyComment) => (
-                    <VideoReplyComment
-                      key={reply.id}
-                      replyId={reply.id}
-                      content={reply.content}
-                      likesCount={reply.likes_count}
-                      dislikesCount={reply.dislikes_count}
-                      createdAt={reply.created_at}
-                      authorId={reply.author.id}
-                      authorUsername={reply.author.username}
-                      authorAvatar={reply.author.avatar}
-                    />
-                  ))}
+                  {page.results.map(
+                    ({
+                      id,
+                      content,
+                      likes_count,
+                      dislikes_count,
+                      created_at,
+                      author,
+                    }: IVideoReplyComment) => (
+                      <VideoReplyComment
+                        key={id}
+                        replyId={id}
+                        content={content}
+                        likesCount={likes_count}
+                        dislikesCount={dislikes_count}
+                        createdAt={created_at}
+                        authorId={author.id}
+                        authorUsername={author.username}
+                        authorAvatar={author.avatar}
+                      />
+                    )
+                  )}
                 </React.Fragment>
               ))}
             <button

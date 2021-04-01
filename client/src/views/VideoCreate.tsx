@@ -36,18 +36,32 @@ const useStyles = makeStyles((theme: Theme) =>
     button: {
       margin: theme.spacing(1),
     },
+    videoContainer: {
+      position: 'relative',
+      maxWidth: '100%',
+      maxHeight: '500px',
+    },
+    videoPlayer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+    },
   })
 );
 
 const VideoCreate: React.FC = () => {
   const classes = useStyles();
-  const mutation = useMutation((newVideo: any) =>
-    axiosInstance.post('videos/', newVideo)
-  );
   const history = useHistory();
+
+  const mutation = useMutation(
+    async (newVideo: FormData) => await axiosInstance.post('videos/', newVideo)
+  );
+
   const { isLogged } = useAuthState();
+
   const thumbnailRef = useRef<HTMLElement | any>();
   const videoRef = useRef<HTMLElement | any>();
+
   const [hasUploadedVideo, setHasUploadedVideo] = useState<boolean>(false);
   const [hasUploadedThumbnail, setHasUploadedThumbnail] = useState<boolean>(
     false
@@ -68,8 +82,8 @@ const VideoCreate: React.FC = () => {
       history.push(`/watch?v=${'id'}`);
   };
 
-  const handleThumbnail = (e: any) => {
-    const thumbnail = e.target.files[0];
+  const handleThumbnail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const thumbnail = e.target.files![0];
     const reader = new FileReader();
 
     if (thumbnail) {
@@ -82,8 +96,8 @@ const VideoCreate: React.FC = () => {
     }
   };
 
-  const handleVideo = (e: any) => {
-    const video = e.target.files[0];
+  const handleVideo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const video = e.target.files![0];
 
     if (video) {
       setHasUploadedVideo(true);
@@ -187,21 +201,8 @@ const VideoCreate: React.FC = () => {
               />
             </Button>
             {hasUploadedVideo && (
-              <div
-                style={{
-                  position: 'relative',
-                  maxWidth: '100%',
-                  maxHeight: '500px',
-                }}
-              >
-                <video
-                  ref={videoRef}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                  }}
-                />
+              <div className={classes.videoContainer}>
+                <video ref={videoRef} className={classes.videoPlayer} />
               </div>
             )}
           </Paper>

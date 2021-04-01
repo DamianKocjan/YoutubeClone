@@ -11,6 +11,7 @@ import axiosInstance from '../utils/axiosInstance';
 
 const Search: React.FC = () => {
   const query = useQuery().get('search_query') || '';
+
   const {
     status,
     data,

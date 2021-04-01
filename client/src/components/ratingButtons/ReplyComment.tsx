@@ -27,6 +27,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
   dislikesCount,
 }: Props) => {
   const { user, isLogged } = useAuthState();
+
   const [isLiking, setIsLiking] = useState<boolean | null>(null);
 
   if (!isLogged)
@@ -50,8 +51,8 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
   }, [data]);
 
   const likingMutation = useMutation(
-    () =>
-      axiosInstance.post('/reply-comment-ratings/', {
+    async () =>
+      await axiosInstance.post('/reply-comment-ratings/', {
         reply_comment: replyComment,
         user: user.id,
         is_liking: true,
@@ -64,8 +65,8 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
     }
   );
   const dislikingMutation = useMutation(
-    () =>
-      axiosInstance.post('/reply-comment-ratings/', {
+    async () =>
+      await axiosInstance.post('/reply-comment-ratings/', {
         reply_comment: replyComment,
         user: user.id,
         is_liking: false,

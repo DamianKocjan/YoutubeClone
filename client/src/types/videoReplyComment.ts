@@ -7,5 +7,5 @@ export interface IVideoReplyComment {
   dislikes_count: number;
   comment: string;
   author: IChannel;
-  created_at: Date | string;
+  created_at: string;
 }

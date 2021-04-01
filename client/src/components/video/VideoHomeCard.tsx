@@ -32,7 +32,7 @@ interface Props {
   id: string;
   title: string;
   views: number;
-  createdAt: Date | string;
+  createdAt: string;
   thumbnail: string;
   authorAvatar: string;
   authorId: string;
@@ -50,6 +50,7 @@ const VideoHomeCard: React.FC<Props> = ({
   authorName,
 }: Props) => {
   const classes = useStyles();
+
   const now = new Date();
 
   return (

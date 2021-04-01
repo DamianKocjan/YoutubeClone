@@ -39,14 +39,16 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Login: React.FC = () => {
+  const classes = useStyles();
+  const history = useHistory();
+
   const [loginDetails, setLoginDetails] = useState({
     username: '',
     password: '',
   });
   const [error, setError] = useState<string>('');
   const [errorAlertIsOpen, setErrorAlertIsOpen] = useState<boolean>(false);
-  const classes = useStyles();
-  const history = useHistory();
+
   const dispatch = useAuthDispatch();
   const { isLogged, loading, errorMessage } = useAuthState();
 

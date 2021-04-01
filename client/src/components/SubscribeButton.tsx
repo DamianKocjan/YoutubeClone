@@ -19,7 +19,9 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
     return <Button variant="outlined">Subscribe</Button>;
 
   const queryClient = useQueryClient();
+
   const { status, data, error } = useSubscriptions(user.id);
+
   const [subState, setSubState] = useState<{
     isSubscribing: boolean;
     sub: ISubscription | null;
@@ -35,8 +37,8 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
   }, [data]);
 
   const subscribeMutation = useMutation(
-    (channelId: string) =>
-      axiosInstance.post('/subscriptions/', {
+    async (channelId: string) =>
+      await axiosInstance.post('/subscriptions/', {
         channel_id: channelId,
         user: user.id,
       }),
@@ -48,7 +50,8 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
     }
   );
   const unsubscribeMutation = useMutation(
-    (subId: string) => axiosInstance.delete(`/subscriptions/${subId}`),
+    async (subId: string) =>
+      await axiosInstance.delete(`/subscriptions/${subId}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['subscriptions_user', user.id]);

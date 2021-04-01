@@ -11,29 +11,26 @@ const accessTokenCookie = cookies.get('access_token');
 const refreshTokenCookie = cookies.get('refresh_token');
 
 const user: IChannel = {
-  id: userCookie.id || '',
-  first_name: userCookie.first_name || '',
-  last_name: userCookie.last_name || '',
-  username: userCookie.username || '',
-  email: userCookie.email || '',
-  avatar: userCookie.avatar || '',
-  subscribers_count: userCookie.subscribers_count || 0,
-  background: userCookie.background || '',
-  date_joined: userCookie.date_joined || '',
-  description: userCookie.description || '',
-  location: userCookie.location || '',
+  id: '',
+  first_name: '',
+  last_name: '',
+  username: '',
+  email: '',
+  avatar: '',
+  subscribers_count: 0,
+  background: '',
+  date_joined: '',
+  description: '',
+  location: '',
 };
 
 const AuthStateContext = createContext<AuthState>({
   user: user,
-  accessToken: accessTokenCookie || '',
-  refreshToken: refreshTokenCookie || '',
+  accessToken: '',
+  refreshToken: '',
   loading: false,
   errorMessage: null,
-  isLogged:
-    !!accessTokenCookie === true &&
-    !!refreshTokenCookie === true &&
-    !!userCookie === true,
+  isLogged: false,
 });
 const AuthDispatchContext = createContext<React.Dispatch<AuthAction> | any>({});
 

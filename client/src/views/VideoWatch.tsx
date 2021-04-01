@@ -31,7 +31,6 @@ import {
 } from '@material-ui/core';
 import {
   MoreHoriz,
-  PlaylistAdd,
   Share,
   Sort,
   NotificationsNone,
@@ -50,6 +49,7 @@ import { IVideo } from '../types/video';
 import VideoRatingButtons from '../components/ratingButtons/Video';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
 import { useAuthState } from '../auth';
+import AddToPlaylistButton from '../components/AddToPlaylistButton';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -80,6 +80,11 @@ const useStyles = makeStyles((theme: Theme) =>
       maxHeight: '400px',
       overflowY: 'scroll',
     },
+    playlistVideoAvatar: {
+      width: '60px',
+      marginRight: '5px',
+      marginLeft: '-15px',
+    },
   })
 );
 
@@ -91,13 +96,18 @@ interface IPlaylistVideo {
 
 const VideoWatch: React.FC = () => {
   const classes = useStyles();
+
   const videoId = useQuery().get('v') || '';
   const playlistId = useQuery().get('list') || '';
   const playlistVideoIndex = useQuery().get('index') || '';
+
   const queryClient = useQueryClient();
   const history = useHistory();
+
   const { isLogged, user } = useAuthState();
+
   const { status, data, error } = useVideo(videoId);
+
   const {
     status: videosStatus,
     data: videosData,
@@ -177,8 +187,8 @@ const VideoWatch: React.FC = () => {
   } = usePlaylist(playlistId);
 
   const commentMutation = useMutation(
-    (newComment: { video: string; content: string }) =>
-      axiosInstance.post('/comments/', newComment),
+    async (newComment: { video: string; content: string }) =>
+      await axiosInstance.post('/comments/', newComment),
     {
       onSuccess: () =>
         queryClient.invalidateQueries(['video_comments', videoId]),
@@ -190,6 +200,7 @@ const VideoWatch: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showButtons, setShowButtons] = useState<boolean>(false);
   const [content, setContent] = useState<string>('');
+
   const [showPlaylistVideos, setShowPlaylistVideos] = useState<boolean>(true);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -202,10 +213,12 @@ const VideoWatch: React.FC = () => {
 
   useEffect(() => {
     const localStorageVolume = localStorage.getItem('volume');
+
     if (localStorageVolume) {
       const value = +JSON.parse(localStorageVolume);
       if (value >= 0 && value <= 1) setVolume(value);
     }
+
     setIsMuted(localStorage.getItem('volume') === 'true' ? true : false);
   }, []);
 
@@ -275,7 +288,7 @@ const VideoWatch: React.FC = () => {
                       dislikesCount={data.dislikes_count}
                     />
                     <Button startIcon={<Share />}>Share</Button>
-                    <Button startIcon={<PlaylistAdd />}>Save</Button>
+                    <AddToPlaylistButton videoId={videoId} />
                     <IconButton>
                       <MoreHoriz />
                     </IconButton>
@@ -386,19 +399,28 @@ const VideoWatch: React.FC = () => {
                     {commentsData &&
                       commentsData.pages.map((page: any) => (
                         <React.Fragment key={page.nextId}>
-                          {page.results.map((comment: IVideoComment) => (
-                            <VideoComment
-                              key={comment.id}
-                              commentId={comment.id}
-                              content={comment.content}
-                              likesCount={comment.likes_count}
-                              dislikesCount={comment.dislikes_count}
-                              createdAt={comment.created_at}
-                              authorId={comment.author.id}
-                              authorUsername={comment.author.username}
-                              authorAvatar={comment.author.avatar}
-                            />
-                          ))}
+                          {page.results.map(
+                            ({
+                              id,
+                              content,
+                              likes_count,
+                              dislikes_count,
+                              created_at,
+                              author,
+                            }: IVideoComment) => (
+                              <VideoComment
+                                key={id}
+                                commentId={id}
+                                content={content}
+                                likesCount={likes_count}
+                                dislikesCount={dislikes_count}
+                                createdAt={created_at}
+                                authorId={author.id}
+                                authorUsername={author.username}
+                                authorAvatar={author.avatar}
+                              />
+                            )
+                          )}
                         </React.Fragment>
                       ))}
                     <button
@@ -446,41 +468,39 @@ const VideoWatch: React.FC = () => {
                 {showPlaylistVideos && (
                   <CardContent style={{ marginTop: '-30px' }}>
                     <List>
-                      {playlistData.videos.map((video: IPlaylistVideo) => (
-                        <ListItem
-                          button
-                          key={video.id}
-                          onClick={() => {
-                            history.push(
-                              // eslint-disable-next-line prettier/prettier
-                              `/watch?v=${video.video.id}&list=${playlistId}&index=${video.position + 1}`
-                            );
-                          }}
-                        >
-                          <ListItemIcon>
-                            {+videoId === +video.video.id ? (
-                              <PlayArrow />
-                            ) : (
-                              <>{video.position + 1}</>
-                            )}
-                          </ListItemIcon>
-                          <ListItemAvatar>
-                            <Avatar
-                              variant="square"
-                              src={video.video.thumbnail}
-                              style={{
-                                width: '60px',
-                                marginRight: '5px',
-                                marginLeft: '-15px',
-                              }}
+                      {playlistData.videos.map(
+                        ({ id, video, position }: IPlaylistVideo) => (
+                          <ListItem
+                            button
+                            key={id}
+                            onClick={() => {
+                              history.push(
+                                // eslint-disable-next-line prettier/prettier
+                                `/watch?v=${video.id}&list=${playlistId}&index=${position + 1}`
+                              );
+                            }}
+                          >
+                            <ListItemIcon>
+                              {+videoId === +video.id ? (
+                                <PlayArrow />
+                              ) : (
+                                <>{position + 1}</>
+                              )}
+                            </ListItemIcon>
+                            <ListItemAvatar>
+                              <Avatar
+                                variant="square"
+                                src={video.thumbnail}
+                                className={classes.playlistVideoAvatar}
+                              />
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={video.title}
+                              secondary={video.author.username}
                             />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={video.video.title}
-                            secondary={video.video.author.username}
-                          />
-                        </ListItem>
-                      ))}
+                          </ListItem>
+                        )
+                      )}
                     </List>
                   </CardContent>
                 )}
@@ -495,19 +515,28 @@ const VideoWatch: React.FC = () => {
                 {videosData &&
                   videosData.pages.map((page: any) => (
                     <React.Fragment key={page.nextId}>
-                      {page.results.map((video: IVideo) => (
-                        <VideoWatchItemCard
-                          key={video.id}
-                          id={video.id}
-                          title={video.title}
-                          createdAt={video.created_at}
-                          views={video.views_count}
-                          thumbnail={video.thumbnail}
-                          authorAvatar={video.author.avatar}
-                          authorId={video.author.id}
-                          authorName={video.author.username}
-                        />
-                      ))}
+                      {page.results.map(
+                        ({
+                          id,
+                          title,
+                          created_at,
+                          views_count,
+                          thumbnail,
+                          author,
+                        }: IVideo) => (
+                          <VideoWatchItemCard
+                            key={id}
+                            id={id}
+                            title={title}
+                            createdAt={created_at}
+                            views={views_count}
+                            thumbnail={thumbnail}
+                            authorAvatar={author.avatar}
+                            authorId={author.id}
+                            authorName={author.username}
+                          />
+                        )
+                      )}
                     </React.Fragment>
                   ))}
                 <button

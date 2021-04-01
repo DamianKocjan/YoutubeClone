@@ -158,6 +158,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   iconButton: {
     padding: 10,
   },
+  searchContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+  }
 }));
 
 interface Props {
@@ -167,18 +171,23 @@ interface Props {
 const Layout: React.FC<Props> = ({ children }: Props) => {
   const classes = useStyles();
   const history = useHistory();
+
   const [isOpen, setIsOpen] = useState<boolean>(
     localStorage.getItem('drawerIsOpen')! === 'true' ? true : false
   );
+
   const [searchQuery, setSearchQuery] = useState<string>('');
+
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuOpen = !!anchorEl;
+
   const dispatch = useAuthDispatch();
   const { isLogged, user } = useAuthState();
+
   const {
     status: subscriptionsStatus,
     data: subscriptionsData,
-    error: subscriptionsError
+    error: subscriptionsError,
   } = useSubscriptions(user.id);
   const [showMoreSubs, setShowMoreSubs] = useState<boolean>(false);
 
@@ -245,24 +254,17 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
             color="inherit"
             noWrap
             className={classes.title}
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              if (history.location.pathname !== '/') history.push('/');
-            }}
           >
-            <img src={Logo} height="50" />
+            <Link to="/">
+              <img src={Logo} height="50" />
+            </Link>
           </Typography>
           <Box
             style={{
               flexGrow: 1,
             }}
           />
-          <div
-            style={{
-              flexGrow: 1,
-              alignItems: 'center',
-            }}
-          >
+          <div className={classes.searchContainer}>
             <InputBase
               className={classes.input}
               placeholder="Search Video"
@@ -285,12 +287,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
               <SearchIcon />
             </IconButton>
           </div>
-          <IconButton
-            color="inherit"
-            onClick={() => {
-              history.push('/video/create');
-            }}
-          >
+          <IconButton color="inherit" component={Link} to="/video/create">
             <VideoCallIcon />
           </IconButton>
           <IconButton color="inherit">
@@ -400,8 +397,9 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
               icon={<ThumbUpIcon />}
               title="Liked Videos"
             />
-            {isOpen && isLogged && (
-              playlistsStatus === 'loading' ? (
+            {isOpen &&
+              isLogged &&
+              (playlistsStatus === 'loading' ? (
                 <ListItem>
                   <ListItemAvatar>
                     <></>
@@ -426,15 +424,16 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                         title={playlist.title}
                       />
                     ))
-                    : playlistsData.slice(0, 8).map((playlist: IPlaylist) => (
-
-                      <DrawerListItem
-                        key={playlist.id}
-                        to={`/playlist/${playlist.id}`}
-                        icon={<PlaylistPlayIcon />}
-                        title={playlist.title}
-                      />
-                    ))}
+                    : playlistsData
+                      .slice(0, 8)
+                      .map((playlist: IPlaylist) => (
+                        <DrawerListItem
+                          key={playlist.id}
+                          to={`/playlist/${playlist.id}`}
+                          icon={<PlaylistPlayIcon />}
+                          title={playlist.title}
+                        />
+                      ))}
                   {playlistsData.length - 7 > 0 && (
                     <ListItem
                       button
@@ -459,8 +458,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                     </ListItem>
                   )}
                 </>
-              )
-            )}
+              ))}
           </div>
         </List>
         {isOpen && isLogged && (
@@ -499,19 +497,21 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                           <ListItemText primary={sub.channel.username} />
                         </ListItem>
                       ))
-                      : subscriptionsData.slice(0, 8).map((sub: ISubscription) => (
-                        <ListItem
-                          key={sub.id}
-                          onClick={() => {
-                            history.push(`/channel/${sub.channel.id}`);
-                          }}
-                        >
-                          <ListItemAvatar>
-                            <Avatar src={sub.channel.avatar} />
-                          </ListItemAvatar>
-                          <ListItemText primary={sub.channel.username} />
-                        </ListItem>
-                      ))}
+                      : subscriptionsData
+                        .slice(0, 8)
+                        .map((sub: ISubscription) => (
+                          <ListItem
+                            key={sub.id}
+                            onClick={() => {
+                              history.push(`/channel/${sub.channel.id}`);
+                            }}
+                          >
+                            <ListItemAvatar>
+                              <Avatar src={sub.channel.avatar} />
+                            </ListItemAvatar>
+                            <ListItemText primary={sub.channel.username} />
+                          </ListItem>
+                        ))}
                     {subscriptionsData.length - 7 > 0 && (
                       <ListItem
                         button

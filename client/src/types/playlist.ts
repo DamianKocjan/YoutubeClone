@@ -1,15 +1,10 @@
 import { IChannel } from './channel';
+import { IVideo } from './video';
 
 export interface IPlaylistVideo {
   id: string;
-  title: string;
-  description: string;
-  duration: number;
-  created_at: Date | string;
-  views_count: number;
-  thumbnail: string;
-  author: IChannel;
-  position: string;
+  video: IVideo;
+  position: number;
 }
 
 export interface IPlaylist {
@@ -17,6 +12,7 @@ export interface IPlaylist {
   title: string;
   author: IChannel;
   description: string;
+  status: string;
   videos: IPlaylistVideo[] | any[];
   created_at: string;
   updated_at: string;
