@@ -8,10 +8,10 @@ import {
   Grid,
   Link,
   makeStyles,
+  Snackbar,
   TextField,
   Theme,
   Typography,
-  Snackbar,
 } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';

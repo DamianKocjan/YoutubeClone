@@ -1,14 +1,14 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import {
-  Typography,
-  makeStyles,
-  Theme,
   createStyles,
   GridList,
   GridListTile,
   GridListTileBar,
+  makeStyles,
+  Theme,
+  Typography,
 } from '@material-ui/core';
 
 import { useChannelVideos } from '../../hooks';

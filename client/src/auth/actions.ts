@@ -1,8 +1,5 @@
 import React from 'react';
 import { Cookies } from 'react-cookie';
-
-const cookies = new Cookies();
-
 import {
   createAccessTokenCookie,
   createRefreshTokenCookie,
@@ -11,14 +8,16 @@ import {
 import axiosInstance from '../utils/axiosInstance';
 import { AuthAction } from './reducer';
 
-interface LoginPayload {
+const cookies = new Cookies();
+
+interface ILoginPayload {
   username: string;
   password: string;
 }
 
 export async function loginUser(
   dispatch: React.Dispatch<AuthAction>,
-  loginPayload: LoginPayload
+  loginPayload: ILoginPayload
 ) {
   try {
     dispatch({ type: 'REQUEST_LOGIN' });

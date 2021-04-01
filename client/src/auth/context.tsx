@@ -1,8 +1,8 @@
-import React, { useReducer, createContext, useContext } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 import { Cookies } from 'react-cookie';
 
 import { IChannel } from '../types/channel';
-import { initialState, AuthReducer, AuthAction, AuthState } from './reducer';
+import { AuthAction, AuthReducer, IAuthState, initialState } from './reducer';
 
 const cookies = new Cookies();
 
@@ -11,30 +11,33 @@ const accessTokenCookie = cookies.get('access_token');
 const refreshTokenCookie = cookies.get('refresh_token');
 
 const user: IChannel = {
-  id: '',
-  first_name: '',
-  last_name: '',
-  username: '',
-  email: '',
-  avatar: '',
-  subscribers_count: 0,
-  background: '',
-  date_joined: '',
-  description: '',
-  location: '',
+  id: userCookie.id || '',
+  first_name: userCookie.first_name || '',
+  last_name: userCookie.last_name || '',
+  username: userCookie.username || '',
+  email: userCookie.email || '',
+  avatar: userCookie.avatar || '',
+  subscribers_count: userCookie.subscribers_count || 0,
+  background: userCookie.background || '',
+  date_joined: userCookie.date_joined || '',
+  description: userCookie.description || '',
+  location: userCookie.location || '',
 };
 
-const AuthStateContext = createContext<AuthState>({
+const AuthStateContext = createContext<IAuthState>({
   user: user,
-  accessToken: '',
-  refreshToken: '',
+  accessToken: accessTokenCookie || '',
+  refreshToken: refreshTokenCookie || '',
   loading: false,
   errorMessage: null,
-  isLogged: false,
+  isLogged:
+    !!accessTokenCookie === true &&
+    !!refreshTokenCookie === true &&
+    !!userCookie === true,
 });
 const AuthDispatchContext = createContext<React.Dispatch<AuthAction> | any>({});
 
-export function useAuthState(): AuthState {
+export function useAuthState(): IAuthState {
   const context = useContext(AuthStateContext);
   if (context === undefined) {
     throw new Error('useAuthState must be used within a AuthProvider');
@@ -52,13 +55,13 @@ export function useAuthDispatch(): React.Dispatch<AuthAction> {
   return context;
 }
 
-interface AuthProviderProps {
+interface IAuthProviderProps {
   children: React.ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({
+export const AuthProvider: React.FC<IAuthProviderProps> = ({
   children,
-}: AuthProviderProps) => {
+}: IAuthProviderProps) => {
   const [user, dispatch] = useReducer(AuthReducer, initialState);
 
   return (

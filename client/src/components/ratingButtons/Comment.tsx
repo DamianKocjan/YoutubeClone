@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { useAuthState } from '../../auth';
 
 import { Button } from '@material-ui/core';
-import { ThumbUp, ThumbDown } from '@material-ui/icons';
+import { ThumbDown, ThumbUp } from '@material-ui/icons';
 
 import { useUserCommentRatings } from '../../hooks';
 import axiosInstance from '../../utils/axiosInstance';

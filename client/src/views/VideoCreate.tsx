@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useHistory, Redirect } from 'react-router';
+import { Redirect, useHistory } from 'react-router';
 import { useMutation } from 'react-query';
 
 import {

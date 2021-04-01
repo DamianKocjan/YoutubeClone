@@ -15,37 +15,37 @@ import {
   IconButton,
   InputBase,
   List,
+  ListItem,
+  ListItemAvatar,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
   makeStyles,
   Menu,
   MenuItem,
   Theme,
   Toolbar,
   Typography,
-  ListItem,
-  ListItemAvatar,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
 } from '@material-ui/core';
 import {
   Apps as AppsIcon,
   ChevronLeft as ChevronLeftIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  History as HistoryIcon,
+  Home as HomeIcon,
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
-  Search as SearchIcon,
-  VideoCall as VideoCallIcon,
-  Home as HomeIcon,
-  Whatshot as WhatshotIcon,
-  Subscriptions as SubscriptionsIcon,
-  VideoLibrary as VideoLibraryIcon,
-  History as HistoryIcon,
-  Slideshow as SlideshowIcon,
-  WatchLater as WatchLaterIcon,
-  ThumbUp as ThumbUpIcon,
   PlaylistPlay as PlaylistPlayIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
+  Search as SearchIcon,
   Settings as SettingsIcon,
+  Slideshow as SlideshowIcon,
+  Subscriptions as SubscriptionsIcon,
+  ThumbUp as ThumbUpIcon,
+  VideoCall as VideoCallIcon,
+  VideoLibrary as VideoLibraryIcon,
+  WatchLater as WatchLaterIcon,
+  Whatshot as WhatshotIcon,
 } from '@material-ui/icons';
 
 import Logo from '../assets/logo.png';
@@ -161,7 +161,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   searchContainer: {
     flexGrow: 1,
     alignItems: 'center',
-  }
+  },
 }));
 
 interface Props {
@@ -416,22 +416,22 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
               ) : (
                 <>
                   {showMorePlaylists
-                    ? playlistsData.map((playlist: IPlaylist) => (
+                    ? playlistsData.map(({ id, title }: IPlaylist) => (
                       <DrawerListItem
-                        key={playlist.id}
-                        to={`/playlist/${playlist.id}`}
+                        key={id}
+                        to={`/playlist/${id}`}
                         icon={<PlaylistPlayIcon />}
-                        title={playlist.title}
+                        title={title}
                       />
                     ))
                     : playlistsData
                       .slice(0, 8)
-                      .map((playlist: IPlaylist) => (
+                      .map(({ id, title }: IPlaylist) => (
                         <DrawerListItem
-                          key={playlist.id}
-                          to={`/playlist/${playlist.id}`}
+                          key={id}
+                          to={`/playlist/${id}`}
                           icon={<PlaylistPlayIcon />}
-                          title={playlist.title}
+                          title={title}
                         />
                       ))}
                   {playlistsData.length - 7 > 0 && (
@@ -484,32 +484,34 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                 ) : (
                   <>
                     {showMoreSubs
-                      ? subscriptionsData.map((sub: ISubscription) => (
-                        <ListItem
-                          key={sub.id}
-                          onClick={() => {
-                            history.push(`/channel/${sub.channel.id}`);
-                          }}
-                        >
-                          <ListItemAvatar>
-                            <Avatar src={sub.channel.avatar} />
-                          </ListItemAvatar>
-                          <ListItemText primary={sub.channel.username} />
-                        </ListItem>
-                      ))
-                      : subscriptionsData
-                        .slice(0, 8)
-                        .map((sub: ISubscription) => (
+                      ? subscriptionsData.map(
+                        ({ id, channel }: ISubscription) => (
                           <ListItem
-                            key={sub.id}
+                            key={id}
                             onClick={() => {
-                              history.push(`/channel/${sub.channel.id}`);
+                              history.push(`/channel/${channel.id}`);
                             }}
                           >
                             <ListItemAvatar>
-                              <Avatar src={sub.channel.avatar} />
+                              <Avatar src={channel.avatar} />
                             </ListItemAvatar>
-                            <ListItemText primary={sub.channel.username} />
+                            <ListItemText primary={channel.username} />
+                          </ListItem>
+                        )
+                      )
+                      : subscriptionsData
+                        .slice(0, 8)
+                        .map(({ id, channel }: ISubscription) => (
+                          <ListItem
+                            key={id}
+                            onClick={() => {
+                              history.push(`/channel/${channel.id}`);
+                            }}
+                          >
+                            <ListItemAvatar>
+                              <Avatar src={channel.avatar} />
+                            </ListItemAvatar>
+                            <ListItemText primary={channel.username} />
                           </ListItem>
                         ))}
                     {subscriptionsData.length - 7 > 0 && (

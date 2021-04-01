@@ -4,7 +4,7 @@ import { IChannel } from '../types/channel';
 
 const cookies = new Cookies();
 
-export interface AuthState {
+export interface IAuthState {
   user: IChannel;
   accessToken: string;
   refreshToken: string;
@@ -31,7 +31,7 @@ const user: IChannel = {
   location: userCookie.location || '',
 };
 
-export const initialState: AuthState = {
+export const initialState: IAuthState = {
   user: user,
   accessToken: accessTokenCookie || '',
   refreshToken: refreshTokenCookie || '',
@@ -43,7 +43,7 @@ export const initialState: AuthState = {
     !!userCookie === true,
 };
 
-export interface AuthPayload {
+export interface IAuthPayload {
   user: IChannel;
   accessToken: string;
   refreshToken: string;
@@ -51,13 +51,13 @@ export interface AuthPayload {
 
 export type AuthAction =
   | { type: 'REQUEST_LOGIN' | 'LOGOUT' }
-  | { type: 'LOGIN_SUCCESS'; payload: AuthPayload }
+  | { type: 'LOGIN_SUCCESS'; payload: IAuthPayload }
   | { type: 'LOGIN_ERROR'; error: string };
 
 export const AuthReducer = (
-  initialState: AuthState,
+  initialState: IAuthState,
   action: AuthAction
-): AuthState => {
+): IAuthState => {
   switch (action.type) {
     case 'REQUEST_LOGIN':
       return {

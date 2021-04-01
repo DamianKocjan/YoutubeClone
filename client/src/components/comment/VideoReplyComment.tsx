@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 
 import {
   Avatar,
+  IconButton,
   ListItem,
   ListItemAvatar,
-  ListItemText,
   ListItemSecondaryAction,
-  IconButton,
-  Typography,
+  ListItemText,
   Menu,
   MenuItem,
+  Typography,
 } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
 

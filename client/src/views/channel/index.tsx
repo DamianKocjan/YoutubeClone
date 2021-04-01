@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import {
-  Switch,
+  Link,
   Route,
+  Switch,
   useParams,
   useRouteMatch,
-  Link,
 } from 'react-router-dom';
 
 import {
+  Avatar,
   Container,
   createStyles,
-  makeStyles,
-  Theme,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
-  ListItemText,
   ListItemSecondaryAction,
-  IconButton,
-  Avatar,
-  Tabs,
+  ListItemText,
+  makeStyles,
   Tab,
+  Tabs,
+  Theme,
 } from '@material-ui/core';
 import { NotificationsNone, Search } from '@material-ui/icons';
 

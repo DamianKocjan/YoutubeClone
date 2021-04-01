@@ -8,38 +8,38 @@ import remarkGfm from 'remark-gfm';
 import {
   Avatar,
   Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Chip,
   createStyles,
   Grid,
+  IconButton,
+  Link,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
   makeStyles,
+  Menu,
+  MenuItem,
   TextField,
   Theme,
   Typography,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  ListItemSecondaryAction,
-  Menu,
-  MenuItem,
-  Link,
-  Card,
-  CardHeader,
-  Chip,
-  CardContent,
-  ListItemIcon,
 } from '@material-ui/core';
 import {
-  MoreHoriz,
-  Share,
-  Sort,
-  NotificationsNone,
   ExpandLess,
   ExpandMore,
+  MoreHoriz,
+  NotificationsNone,
   PlayArrow,
+  Share,
+  Sort,
 } from '@material-ui/icons';
 
-import { useQuery, useVideo, usePlaylist } from '../hooks';
+import { usePlaylist, useQuery, useVideo } from '../hooks';
 import VideoComment from '../components/comment/VideoComment';
 import VideoWatchItemCard from '../components/video/VideoWatchItemCard';
 import axiosInstance from '../utils/axiosInstance';

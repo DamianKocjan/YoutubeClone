@@ -5,13 +5,13 @@ import {
   Avatar,
   Box,
   Card,
+  CardContent,
   CardHeader,
   CardMedia,
-  makeStyles,
-  Theme,
   createStyles,
   Link,
-  CardContent,
+  makeStyles,
+  Theme,
   Typography,
 } from '@material-ui/core';
 

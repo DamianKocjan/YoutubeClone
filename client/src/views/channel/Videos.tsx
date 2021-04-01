@@ -3,12 +3,15 @@ import { useParams } from 'react-router-dom';
 
 import {
   Container,
+  createStyles,
   Grid,
-  Typography,
   makeStyles,
   Theme,
-  createStyles,
+  Typography,
 } from '@material-ui/core';
+import { useChannelVideos } from '../../hooks';
+import { IVideo } from '../../types/video';
+import VideoHomeCard from '../../components/video/VideoHomeCard';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,10 +28,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
-import { useChannelVideos } from '../../hooks';
-import { IVideo } from '../../types/video';
-import VideoHomeCard from '../../components/video/VideoHomeCard';
 
 const Videos: React.FC = () => {
   const classes = useStyles();

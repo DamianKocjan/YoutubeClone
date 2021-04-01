@@ -4,21 +4,21 @@ import { useMutation } from 'react-query';
 import {
   Button,
   Checkbox,
+  createStyles,
   Dialog,
   DialogTitle,
   Divider,
+  FormControl,
   List,
   ListItem,
   ListItemIcon,
-  ListItemText,
   ListItemSecondaryAction,
-  TextField,
-  FormControl,
+  ListItemText,
+  makeStyles,
   MenuItem,
   Select,
-  makeStyles,
+  TextField,
   Theme,
-  createStyles,
 } from '@material-ui/core';
 import {
   Add,
@@ -163,26 +163,26 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
           ) : status === 'error' ? (
             <h1>{error.message}</h1>
           ) : data.length > 0 ? (
-            data.map((playlist: IPlaylist) => (
+            data.map(({ id, title, status: playlistStatus }: IPlaylist) => (
               <ListItem
                 button
                 onClick={() => {
-                  handleToggle(playlist.id);
+                  handleToggle(id);
                 }}
-                key={playlist.id}
+                key={id}
               >
                 <ListItemIcon>
                   <Checkbox
-                    checked={selected.indexOf(playlist.id) !== -1}
+                    checked={selected.indexOf(id) !== -1}
                     tabIndex={-1}
                     disableRipple
                   />
                 </ListItemIcon>
-                <ListItemText primary={playlist.title} />
+                <ListItemText primary={title} />
                 <ListItemSecondaryAction>
-                  {playlist.status === 'Public' ? (
+                  {playlistStatus === 'Public' ? (
                     <LockOpen />
-                  ) : playlist.status === 'Private' ? (
+                  ) : playlistStatus === 'Private' ? (
                     <Lock />
                   ) : (
                     <Link />

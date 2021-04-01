@@ -1,4 +1,4 @@
-import { useQuery, UseQueryResult } from 'react-query';
+import { useQuery } from 'react-query';
 import axiosInstance from '../utils/axiosInstance';
 
 export function useChannelVideos(channel = ''): any {

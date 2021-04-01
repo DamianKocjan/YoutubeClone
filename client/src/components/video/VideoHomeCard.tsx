@@ -6,9 +6,9 @@ import {
   Card,
   CardHeader,
   CardMedia,
-  makeStyles,
   createStyles,
   Link,
+  makeStyles,
 } from '@material-ui/core';
 
 import timeDifference from '../../utils/timeDifference';
