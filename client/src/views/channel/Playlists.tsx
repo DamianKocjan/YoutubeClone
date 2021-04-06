@@ -58,6 +58,7 @@ const Playlists: React.FC = () => {
             data.map(({ title, id, videos, created_at }: IPlaylist) => (
               <GridListTile component={Link} to={`/playlist/${id}`} key={id}>
                 <img
+                  loading="lazy"
                   src={videos[0].video.thumbnail}
                   alt={title}
                   className={classes.thumbnail}

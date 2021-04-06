@@ -96,6 +96,7 @@ const Channel: React.FC = () => {
                   <Avatar
                     src={data.avatar}
                     style={{ width: '80px', height: '80px' }}
+                    imgProps={{ loading: 'lazy' }}
                   />
                 </ListItemAvatar>
                 <ListItemText

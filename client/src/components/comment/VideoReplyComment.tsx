@@ -102,7 +102,7 @@ const VideoComment: React.FC<Props> = ({
   return (
     <ListItem style={{ marginLeft: '40px' }}>
       <ListItemAvatar>
-        <Avatar src={authorAvatar} />
+        <Avatar src={authorAvatar} imgProps={{ loading: 'lazy' }} />
       </ListItemAvatar>
       <ListItemText
         primary={

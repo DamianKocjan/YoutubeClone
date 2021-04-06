@@ -50,9 +50,10 @@ import {
 
 import Logo from '../assets/logo.png';
 import { logout, useAuthDispatch, useAuthState } from '../auth';
-import { usePlaylists, useSubscriptions } from '../hooks';
+import { useSubscriptions } from '../hooks';
 import { ISubscription } from '../types/subscription';
 import { IPlaylist } from '../types/playlist';
+import { useUserLibrary } from '../hooks/useLibrary';
 
 interface DrawerListItemProps {
   to: string;
@@ -136,8 +137,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
+    minHeight: '100vh',
+    maxHeight: '100vh',
+    overflowY: 'scroll',
   },
   container: {
     paddingBottom: theme.spacing(4),
@@ -192,10 +194,10 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
   const [showMoreSubs, setShowMoreSubs] = useState<boolean>(false);
 
   const {
-    status: playlistsStatus,
-    data: playlistsData,
-    error: playlistsError,
-  } = usePlaylists(user.id);
+    status: userLibraryStatus,
+    data: userLibraryData,
+    error: userLibraryError,
+  } = useUserLibrary(user.id);
   const [showMorePlaylists, setShowMorePlaylists] = useState<boolean>(false);
 
   const handleDrawerOpen = () => {
@@ -222,8 +224,8 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
       history.push(`/search?search_query=${searchQuery}`);
   };
 
-  const handleLogout = () => {
-    logout(dispatch);
+  const handleLogout = async () => {
+    await logout(dispatch);
     history.push('/login/');
   };
 
@@ -231,7 +233,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
     <div className={classes.root}>
       <CssBaseline />
       <AppBar
-        position="absolute"
+        position="fixed"
         className={clsx(classes.appBar, isOpen && classes.appBarShift)}
         color="inherit"
       >
@@ -307,7 +309,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                 onClick={handleMenuClick}
                 color="inherit"
               >
-                <Avatar src={user.avatar} />
+                <Avatar src={user.avatar} imgProps={{ loading: 'lazy' }} />
               </IconButton>
               <Menu
                 id="menu-appbar"
@@ -399,24 +401,24 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
             />
             {isOpen &&
               isLogged &&
-              (playlistsStatus === 'loading' ? (
+              (userLibraryStatus === 'loading' ? (
                 <ListItem>
                   <ListItemAvatar>
                     <></>
                   </ListItemAvatar>
                   <ListItemText primary="loading..." />
                 </ListItem>
-              ) : playlistsStatus === 'error' ? (
+              ) : userLibraryStatus === 'error' ? (
                 <ListItem>
                   <ListItemAvatar>
                     <></>
                   </ListItemAvatar>
-                  <ListItemText primary={playlistsError.message} />
+                  <ListItemText primary={userLibraryError.message} />
                 </ListItem>
               ) : (
                 <>
                   {showMorePlaylists
-                    ? playlistsData.map(({ id, title }: IPlaylist) => (
+                    ? userLibraryData.playlists.map(({ id, title }: IPlaylist) => (
                       <DrawerListItem
                         key={id}
                         to={`/playlist/${id}`}
@@ -424,7 +426,8 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                         title={title}
                       />
                     ))
-                    : playlistsData
+                    : userLibraryData
+                      .playlists
                       .slice(0, 8)
                       .map(({ id, title }: IPlaylist) => (
                         <DrawerListItem
@@ -434,7 +437,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                           title={title}
                         />
                       ))}
-                  {playlistsData.length - 7 > 0 && (
+                  {userLibraryData.playlists.length - 7 > 0 && (
                     <ListItem
                       button
                       onClick={() => {
@@ -452,7 +455,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                         primary={
                           showMorePlaylists
                             ? 'Show less'
-                            : `Show ${playlistsData.length - 7} more`
+                            : `Show ${userLibraryData.playlists.length - 7} more`
                         }
                       />
                     </ListItem>
@@ -493,7 +496,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                             }}
                           >
                             <ListItemAvatar>
-                              <Avatar src={channel.avatar} />
+                              <Avatar src={channel.avatar} imgProps={{ loading: 'lazy' }} />
                             </ListItemAvatar>
                             <ListItemText primary={channel.username} />
                           </ListItem>
@@ -509,7 +512,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                             }}
                           >
                             <ListItemAvatar>
-                              <Avatar src={channel.avatar} />
+                              <Avatar src={channel.avatar} imgProps={{ loading: 'lazy' }} />
                             </ListItemAvatar>
                             <ListItemText primary={channel.username} />
                           </ListItem>

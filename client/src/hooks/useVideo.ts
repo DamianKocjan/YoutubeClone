@@ -18,7 +18,7 @@ const getVideoById = async (id: string) => {
 };
 
 export function useVideo(videoId: string): any {
-  return useQuery(['video', videoId], () => getVideoById(videoId), {
+  return useQuery(['video', videoId], async () => await getVideoById(videoId), {
     enabled: !!videoId,
   });
 }

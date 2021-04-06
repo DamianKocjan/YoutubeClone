@@ -57,7 +57,13 @@ const VideoHomeCard: React.FC<Props> = ({
     <Card className={classes.root}>
       <CardMedia className={classes.media} image={thumbnail} title={title} />
       <CardHeader
-        avatar={<Avatar aria-label={authorName} src={authorAvatar} />}
+        avatar={
+          <Avatar
+            aria-label={authorName}
+            src={authorAvatar}
+            imgProps={{ loading: 'lazy' }}
+          />
+        }
         title={
           <Link component={RRLink} to={`/watch?v=${id}`} color="inherit">
             {title}

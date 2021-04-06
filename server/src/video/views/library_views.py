@@ -7,11 +7,11 @@ from video.models import Library
 from video.serializers import LibrarySerializer
 
 
-class LibraryViews(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
+class LibraryViews(mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet):
     queryset = Library.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly, IsUser]
     serializer_class = LibrarySerializer
+    filter_fields = ('user',)

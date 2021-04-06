@@ -18,7 +18,7 @@ const getPlaylistById = async (id: string) => {
 };
 
 export function usePlaylist(id: string): any {
-  return useQuery(['playlist', id], () => getPlaylistById(id), {
+  return useQuery(['playlist', id], async () => await getPlaylistById(id), {
     enabled: !!id,
   });
 }

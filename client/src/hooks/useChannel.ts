@@ -7,7 +7,11 @@ const getChannelById = async (id: string) => {
 };
 
 export function useChannel(channelId: string): any {
-  return useQuery(['channel', channelId], () => getChannelById(channelId), {
-    enabled: !!channelId,
-  });
+  return useQuery(
+    ['channel', channelId],
+    async () => await getChannelById(channelId),
+    {
+      enabled: !!channelId,
+    }
+  );
 }

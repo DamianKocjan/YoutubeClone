@@ -131,7 +131,7 @@ class PlaylistVideo(models.Model): # M2M between playlist and video
 class Playlist(models.Model):
     title       = models.CharField(max_length=50)
     author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, blank=True)
     status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
@@ -154,7 +154,7 @@ class Playlist(models.Model):
 
 class Library(models.Model):
     user      = models.OneToOneField(User, on_delete=models.CASCADE)
-    playlists = models.ManyToManyField(Playlist)
+    playlists = models.ManyToManyField(Playlist, blank=True)
 
     class Meta:
         verbose_name = 'Library'

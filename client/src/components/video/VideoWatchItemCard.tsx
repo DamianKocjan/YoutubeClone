@@ -92,6 +92,7 @@ const VideoWatchItemCard: React.FC<Props> = ({
                     aria-label={authorName}
                     src={authorAvatar}
                     style={{ width: '24px', height: '24px' }}
+                    imgProps={{ loading: 'lazy' }}
                   />
                   <Link
                     component={RRLink}

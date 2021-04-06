@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { Container, Grid, Typography } from '@material-ui/core';
+import { Container, Divider, Grid, Typography } from '@material-ui/core';
 
 interface Props {
   description: string;
@@ -24,7 +24,7 @@ const About: React.FC<Props> = ({
           <Typography>Description</Typography>
           <Typography>
             <ReactMarkdown plugins={[remarkGfm]}>{description}</ReactMarkdown>
-            <hr />
+            <Divider />
             <Typography>
               Details <br />
               Location: {location}
@@ -36,9 +36,9 @@ const About: React.FC<Props> = ({
         <Grid item lg={4} md={5} sm={12}>
           <Typography>
             Stats
-            <hr />
+            <Divider />
             Joined {new Date(joinedDate).toLocaleDateString()}
-            <hr />
+            <Divider />
           </Typography>
         </Grid>
       </Grid>

@@ -13,6 +13,7 @@ import {
   CardHeader,
   Chip,
   createStyles,
+  Divider,
   Grid,
   IconButton,
   Link,
@@ -295,13 +296,14 @@ const VideoWatch: React.FC = () => {
                   </ListItemSecondaryAction>
                 </ListItem>
               </List>
-              <hr />
+              <Divider />
               <List>
                 <ListItem>
                   <ListItemAvatar>
                     <Avatar
                       src={data.author.avatar}
                       style={{ width: '48px', height: '48px' }}
+                      imgProps={{ loading: 'lazy' }}
                     />
                   </ListItemAvatar>
                   <ListItemText
@@ -336,7 +338,7 @@ const VideoWatch: React.FC = () => {
                   </ListItemText>
                 </ListItem>
               </List>
-              <hr />
+              <Divider />
               <Typography>
                 {commentsData ? commentsData.pages[0].count : 'No'} Comments
                 <Button startIcon={<Sort />} onClick={handleClick}>
@@ -356,7 +358,7 @@ const VideoWatch: React.FC = () => {
               <List>
                 <ListItem>
                   <ListItemAvatar>
-                    <Avatar src={user.avatar} />
+                    <Avatar src={user.avatar} imgProps={{ loading: 'lazy' }} />
                   </ListItemAvatar>
                   <ListItemText>
                     <TextField
@@ -492,6 +494,7 @@ const VideoWatch: React.FC = () => {
                                 variant="square"
                                 src={video.thumbnail}
                                 className={classes.playlistVideoAvatar}
+                                imgProps={{ loading: 'lazy' }}
                               />
                             </ListItemAvatar>
                             <ListItemText

@@ -48,9 +48,13 @@ class PlaylistVideoSerializer(ModelSerializer):
 
         playlist_videos = PlaylistVideo.objects.filter(playlist=playlist).order_by('position', 'id')
 
-        for index, playlist_video in enumerate(playlist_videos):
-            playlist_video.position = index
-            playlist_video.save()
+        for index, _playlist_video in enumerate(playlist_videos):
+            if index >= position:
+                _playlist_video.position = index + 1
+                _playlist_video.save()
+            else:
+                _playlist_video.position = index
+                _playlist_video.save()
 
         return playlist_video
 
@@ -67,12 +71,25 @@ class PlaylistSerializer(ModelSerializer):
 
 
 class LibrarySerializer(ModelSerializer):
-    playlist    = PlaylistSerializer(many=True, read_only=True)
-    playlist_id = PrimaryKeyRelatedField(queryset=Playlist.objects.all(), many=True, write_only=True)
+    playlists = PlaylistSerializer(many=True, read_only=True)
+    playlists_id = PrimaryKeyRelatedField(queryset=Playlist.objects.all(), many=True, write_only=True, allow_empty=True)
+    user = PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Library
         fields = '__all__'
+
+    def update(self, instance, validated_data):
+        playlists = validated_data['playlists_id']
+
+        instance.playlists.clear()
+
+        for playlist in playlists:
+            instance.playlists.add(playlist)
+
+        instance.save()
+
+        return instance
 
 
 class CategoryBaseSerializer(ModelSerializer):

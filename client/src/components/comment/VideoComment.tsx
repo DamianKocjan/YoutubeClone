@@ -177,7 +177,7 @@ const VideoComment: React.FC<Props> = ({
     <>
       <ListItem>
         <ListItemAvatar>
-          <Avatar src={authorAvatar} />
+          <Avatar src={authorAvatar} imgProps={{ loading: 'lazy' }} />
         </ListItemAvatar>
         <ListItemText
           primary={

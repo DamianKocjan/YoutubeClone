@@ -90,6 +90,7 @@ const Home: React.FC = () => {
               ({ title, id, created_at, thumbnail, duration }: IVideo) => (
                 <GridListTile component={Link} to={`/watch?v=${id}`} key={id}>
                   <img
+                    loading="lazy"
                     src={thumbnail}
                     alt={title}
                     className={classes.thumbnail}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link as RRLink, useHistory, useParams } from 'react-router-dom';
+import { useMutation, useQueryClient } from 'react-query';
 
 import {
   Avatar,
@@ -33,7 +34,6 @@ import {
   MoreHoriz,
   MoreVert,
   PlayArrow,
-  PlaylistAddCheck,
   Public,
   Share,
   Shuffle,
@@ -44,10 +44,10 @@ import { useAuthState } from '../auth';
 import { IPlaylistVideo } from '../types/playlist';
 import SubscribeButton from '../components/SubscribeButton';
 import { IVideo } from '../types/video';
-import { useMutation, useQueryClient } from 'react-query';
 import axiosInstance from '../utils/axiosInstance';
+import AddToLibraryButton from '../components/AddToLibraryButton';
 
-const usePlaylistItemStyles = makeStyles((theme: Theme) => ({
+const usePlaylistItemStyles = makeStyles(() => ({
   playlistAvatar: {
     width: '60px',
     marginRight: '5px',
@@ -112,6 +112,7 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
           variant="square"
           src={video.thumbnail}
           className={classes.playlistAvatar}
+          imgProps={{ loading: 'lazy' }}
         />
       </ListItemAvatar>
       <ListItemText primary={video.title} secondary={video.author.username} />
@@ -390,10 +391,7 @@ const Playlist: React.FC = () => {
               <ListItem>
                 <ListItemText>
                   {user.id !== data.author.id && (
-                    // TODO add to library
-                    <IconButton>
-                      <PlaylistAddCheck />
-                    </IconButton>
+                    <AddToLibraryButton playlistId={id} />
                   )}
                   <IconButton>
                     <Shuffle />
@@ -480,6 +478,7 @@ const Playlist: React.FC = () => {
                     <Avatar
                       src={data.author.avatar}
                       style={{ width: '48px', height: '48px' }}
+                      imgProps={{ loading: 'lazy' }}
                     />
                   </RRLink>
                 </ListItemAvatar>
@@ -501,17 +500,19 @@ const Playlist: React.FC = () => {
           <Grid item lg={10} md={8} sm={12}>
             <Container>
               <List>
-                {data.videos.map(({ id, video, position }: IPlaylistVideo) => (
-                  <PlaylistItem
-                    key={id}
-                    objId={id}
-                    video={video}
-                    position={position}
-                    playlistId={id}
-                    playlistTitle={data.title}
-                    playlistAuthorId={data.author.id}
-                  />
-                ))}
+                {data.videos.map(
+                  ({ id: vId, video, position }: IPlaylistVideo) => (
+                    <PlaylistItem
+                      key={vId}
+                      objId={vId}
+                      video={video}
+                      position={position}
+                      playlistId={id}
+                      playlistTitle={data.title}
+                      playlistAuthorId={data.author.id}
+                    />
+                  )
+                )}
               </List>
             </Container>
           </Grid>

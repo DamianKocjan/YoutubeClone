@@ -33,6 +33,7 @@ import { useAuthState } from '../auth';
 import axiosInstance from '../utils/axiosInstance';
 import { IPlaylist, IPlaylistVideo } from '../types/playlist';
 import { usePlaylists } from '../hooks';
+import { useUserLibrary } from '../hooks/useLibrary';
 
 interface Props {
   videoId: string;
@@ -56,6 +57,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
   const classes = useStyles();
 
   const { status, data, error } = usePlaylists(user.id);
+  const { data: userLibraryData } = useUserLibrary(user.id);
 
   const [open, setOpen] = useState(false);
 
@@ -82,8 +84,6 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
     setSelected([...selected, ...playlistIds]);
   }, []);
 
-  let createdPlaylistId: undefined | number = undefined;
-
   const playlistMutation = useMutation(
     async (newPlaylist: {
       title: string;
@@ -91,9 +91,17 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
       description: string;
       status: string;
     }) =>
-      await axiosInstance
-        .post('/playlists/', newPlaylist)
-        .then((res) => (createdPlaylistId = res.data.id))
+      await axiosInstance.post('/playlists/', newPlaylist).then(async (res) => {
+        await axiosInstance.post('/playlists-video/', {
+          playlist_id: res.data.id,
+          video_id: videoId,
+          position: 0,
+        });
+
+        await axiosInstance.put(`/libraries/${userLibraryData.id}/`, {
+          playlists_id: [...userLibraryData.playlists, res.data.id],
+        });
+      })
   );
 
   const handleToggle = (value: string) => {
@@ -116,8 +124,8 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
   const handleClose = () => {
     setOpen(false);
 
-    selected.forEach((id, index) => {
-      axiosInstance.post('/playlists-video/', {
+    selected.forEach(async (id, index) => {
+      await axiosInstance.post('/playlists-video/', {
         playlist_id: id,
         video_id: videoId,
         position: index,
@@ -141,12 +149,6 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
       author: user.id,
       description: '',
       status: privacyStatus,
-    });
-
-    axiosInstance.post('/playlists-video/', {
-      playlist_id: createdPlaylistId,
-      video_id: videoId,
-      position: 0,
     });
   };
 
