@@ -11,7 +11,7 @@ import {
 
 import VideoHomeCard from '../components/video/VideoHomeCard';
 import { IVideo } from '../types/video';
-import useIntersectionObserver from '../hooks/useIntersectionObserver';
+import { useIntersectionObserver } from '../hooks';
 import axiosInstance from '../utils/axiosInstance';
 
 const useStyles = makeStyles((theme: Theme) =>

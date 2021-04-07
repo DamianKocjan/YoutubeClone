@@ -59,12 +59,12 @@ const VideoComment: React.FC<Props> = ({
     async (comment: { content: string }) =>
       await axiosInstance.patch(`reply-comments/${replyId}/`, comment),
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(['video_reply_comments', replyId]),
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['video_reply_comments', replyId]),
     }
   );
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!isLogged || user.id !== authorId) return;
 
     let content = prompt()!;
@@ -73,7 +73,7 @@ const VideoComment: React.FC<Props> = ({
     else content = '';
 
     if (content && content.length > 0)
-      commentUpdateMutation.mutate({
+      await commentUpdateMutation.mutateAsync({
         content: content,
       });
   };
@@ -81,12 +81,12 @@ const VideoComment: React.FC<Props> = ({
   const commentDeleteMutation = useMutation(
     async () => await axiosInstance.delete(`reply-comments/${replyId}/`),
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(['video_reply_comments', replyId]),
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['video_reply_comments', replyId]),
     }
   );
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!isLogged || user.id !== authorId) return;
 
     let content = prompt(
@@ -96,7 +96,7 @@ const VideoComment: React.FC<Props> = ({
     if (content) content = content.trim();
     else content = '';
 
-    if (content && content === 'y') commentDeleteMutation.mutate();
+    if (content && content === 'y') await commentDeleteMutation.mutateAsync();
   };
 
   return (

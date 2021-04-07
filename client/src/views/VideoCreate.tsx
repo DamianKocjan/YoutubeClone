@@ -69,14 +69,14 @@ const VideoCreate: React.FC = () => {
 
   if (!isLogged) return <Redirect to="/login/" />;
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     if (!isLogged) return;
     e.preventDefault();
 
     const formData = new FormData(e.target);
     formData.append('duration', '1');
 
-    mutation.mutate(formData);
+    await mutation.mutateAsync(formData);
 
     if (mutation.isSuccess && mutation.isError === false)
       history.push(`/watch?v=${'id'}`);

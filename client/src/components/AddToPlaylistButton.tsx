@@ -8,32 +8,22 @@ import {
   Dialog,
   DialogTitle,
   Divider,
-  FormControl,
   List,
   ListItem,
   ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
   makeStyles,
-  MenuItem,
-  Select,
   TextField,
   Theme,
 } from '@material-ui/core';
-import {
-  Add,
-  Link,
-  Lock,
-  LockOpen,
-  PlaylistAdd,
-  Public,
-} from '@material-ui/icons';
+import { Add, Link, Lock, LockOpen, PlaylistAdd } from '@material-ui/icons';
 
 import { useAuthState } from '../auth';
 import axiosInstance from '../utils/axiosInstance';
 import { IPlaylist, IPlaylistVideo } from '../types/playlist';
-import { usePlaylists } from '../hooks';
-import { useUserLibrary } from '../hooks/useLibrary';
+import { usePlaylists, useUserLibrary } from '../hooks';
+import PrivacySelectInput from './PrivacySelectInput';
 
 interface Props {
   videoId: string;
@@ -139,12 +129,12 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
     setPrivacyStatus(event.target.value as string);
   };
 
-  const handlePlaylistCreation = () => {
+  const handlePlaylistCreation = async () => {
     setOpen(false);
 
     if (!isLogged) return;
 
-    playlistMutation.mutate({
+    await playlistMutation.mutateAsync({
       title: title,
       author: user.id,
       description: '',
@@ -222,43 +212,10 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
                     setTitle(e.target.value);
                   }}
                 />
-                <FormControl fullWidth className={classes.input}>
-                  <Select
-                    label="Privacy"
-                    value={privacyStatus}
-                    onChange={handlePrivacyStatusChange}
-                    renderValue={(value) => `${value}`}
-                    fullWidth
-                  >
-                    <MenuItem value="Public">
-                      <ListItemIcon>
-                        <Public />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="Public"
-                        secondary="Anyone can search for and view"
-                      />
-                    </MenuItem>
-                    <MenuItem value="Unlisted">
-                      <ListItemIcon>
-                        <Link />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="Unlisted"
-                        secondary="Anyone with the link can view"
-                      />
-                    </MenuItem>
-                    <MenuItem value="Private">
-                      <ListItemIcon>
-                        <Lock />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="Private"
-                        secondary="Only you can view"
-                      />
-                    </MenuItem>
-                  </Select>
-                </FormControl>
+                <PrivacySelectInput
+                  value={privacyStatus}
+                  handleChange={handlePrivacyStatusChange}
+                />
                 <div className={classes.createBtn}>
                   <Button onClick={handlePlaylistCreation}>Create</Button>
                 </div>

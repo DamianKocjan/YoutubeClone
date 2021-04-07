@@ -57,8 +57,8 @@ const CommentRatingButtons: React.FC<Props> = ({
         is_liking: true,
       }),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['user_comment_ratings', user.id]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(['user_comment_ratings', user.id]);
         setIsLiking(true);
       },
     }
@@ -71,19 +71,19 @@ const CommentRatingButtons: React.FC<Props> = ({
         is_liking: false,
       }),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['user_comment_ratings', user.id]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(['user_comment_ratings', user.id]);
         setIsLiking(false);
       },
     }
   );
 
-  const handleLiking = () => {
-    likingMutation.mutate();
+  const handleLiking = async () => {
+    await likingMutation.mutateAsync();
   };
 
-  const handleDisliking = () => {
-    dislikingMutation.mutate();
+  const handleDisliking = async () => {
+    await dislikingMutation.mutateAsync();
   };
 
   return (

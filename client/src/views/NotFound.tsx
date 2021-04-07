@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Box,
   Container,
+  createStyles,
   makeStyles,
   Theme,
   Typography,
@@ -10,19 +11,21 @@ import {
 
 import PageNotFoundImage from '../assets/undraw_page_not_found_su7k.svg';
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    height: '100%',
-    paddingBottom: theme.spacing(3),
-    paddingTop: theme.spacing(3),
-  },
-  image: {
-    marginTop: 50,
-    display: 'inline-block',
-    maxWidth: '100%',
-    width: 560,
-  },
-}));
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      height: '100%',
+      paddingBottom: theme.spacing(3),
+      paddingTop: theme.spacing(3),
+    },
+    image: {
+      marginTop: 50,
+      display: 'inline-block',
+      maxWidth: '100%',
+      width: 560,
+    },
+  })
+);
 
 const NotFound: React.FC = () => {
   const classes = useStyles();

@@ -3,10 +3,9 @@ import { useInfiniteQuery } from 'react-query';
 
 import { Container } from '@material-ui/core';
 
-import { useQuery } from '../hooks';
+import { useIntersectionObserver, useQuery } from '../hooks';
 import VideoSearchCard from '../components/video/VideoSearchCard';
 import { IVideo } from '../types/video';
-import useIntersectionObserver from '../hooks/useIntersectionObserver';
 import axiosInstance from '../utils/axiosInstance';
 
 const Search: React.FC = () => {

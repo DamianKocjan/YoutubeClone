@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -7,7 +6,7 @@ import PlaylistAdd from '@material-ui/icons/PlaylistAdd';
 import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
 
 import { useAuthState } from '../auth';
-import { useUserLibrary } from '../hooks/useLibrary';
+import { useUserLibrary } from '../hooks';
 import axiosInstance from '../utils/axiosInstance';
 import { IPlaylist } from '../types/playlist';
 

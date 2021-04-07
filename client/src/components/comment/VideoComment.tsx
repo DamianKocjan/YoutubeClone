@@ -27,7 +27,7 @@ import timeDifference from '../../utils/timeDifference';
 import VideoReplyComment from './VideoReplyComment';
 import { IVideoReplyComment } from '../../types/videoReplyComment';
 import CommentRatingButtons from '../ratingButtons/Comment';
-import useIntersectionObserver from '../../hooks/useIntersectionObserver';
+import { useIntersectionObserver } from '../../hooks';
 import { useAuthState } from '../../auth';
 
 interface Props {
@@ -111,12 +111,12 @@ const VideoComment: React.FC<Props> = ({
     async (comment: { content: string }) =>
       await axiosInstance.patch(`comments/${commentId}/`, comment),
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(['video_comments', commentId]),
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['video_comments', commentId]),
     }
   );
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!isLogged || user.id !== authorId) return;
 
     let content = prompt()!;
@@ -125,7 +125,7 @@ const VideoComment: React.FC<Props> = ({
     else content = '';
 
     if (content && content.length > 0)
-      commentUpdateMutation.mutate({
+      await commentUpdateMutation.mutateAsync({
         content: content,
       });
   };
@@ -133,12 +133,12 @@ const VideoComment: React.FC<Props> = ({
   const commentDeleteMutation = useMutation(
     async () => await axiosInstance.delete(`comments/${commentId}/`),
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(['video_comments', commentId]),
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['video_comments', commentId]),
     }
   );
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!isLogged || user.id !== authorId) return;
 
     let content = prompt(
@@ -148,15 +148,18 @@ const VideoComment: React.FC<Props> = ({
     if (content) content = content.trim();
     else content = '';
 
-    if (content && content === 'y') commentDeleteMutation.mutate();
+    if (content && content === 'y') await commentDeleteMutation.mutateAsync();
   };
 
   const replyCommentMutation = useMutation(
     async (newReplyComment: { comment: string; content: string }) =>
       await axiosInstance.post('reply-comments/', newReplyComment),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['video_reply_comments', commentId]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries([
+          'video_reply_comments',
+          commentId,
+        ]);
 
         setReplyContent('');
         setShowForm(false);
@@ -164,10 +167,10 @@ const VideoComment: React.FC<Props> = ({
     }
   );
 
-  const handleCommentCreation = () => {
+  const handleCommentCreation = async () => {
     if (!isLogged) return;
 
-    replyCommentMutation.mutate({
+    await replyCommentMutation.mutateAsync({
       comment: commentId,
       content: replyContent.trim(),
     });

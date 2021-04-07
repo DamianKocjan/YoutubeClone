@@ -6,9 +6,7 @@ import {
   Avatar,
   Button,
   Container,
-  createStyles,
   Divider,
-  FormControl,
   Grid,
   IconButton,
   Link,
@@ -18,21 +16,15 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
-  makeStyles,
   Menu,
   MenuItem,
-  Select,
-  TextField,
-  Theme,
 } from '@material-ui/core';
 import {
   Delete,
-  Edit,
   Flag,
   Link as LinkIcon,
   Lock,
   MoreHoriz,
-  MoreVert,
   PlayArrow,
   Public,
   Share,
@@ -43,128 +35,13 @@ import { usePlaylist } from '../hooks';
 import { useAuthState } from '../auth';
 import { IPlaylistVideo } from '../types/playlist';
 import SubscribeButton from '../components/SubscribeButton';
-import { IVideo } from '../types/video';
 import axiosInstance from '../utils/axiosInstance';
 import AddToLibraryButton from '../components/AddToLibraryButton';
-
-const usePlaylistItemStyles = makeStyles(() => ({
-  playlistAvatar: {
-    width: '60px',
-    marginRight: '5px',
-    marginLeft: '-15px',
-  },
-}));
-
-interface PlaylistItemProps {
-  objId: string;
-  video: IVideo;
-  position: number;
-  playlistId: string;
-  playlistTitle: string;
-  playlistAuthorId: string;
-}
-
-const PlaylistItem: React.FC<PlaylistItemProps> = ({
-  objId,
-  video,
-  position,
-  playlistId,
-  playlistTitle,
-  playlistAuthorId,
-}: PlaylistItemProps) => {
-  const classes = usePlaylistItemStyles();
-  const queryClient = useQueryClient();
-
-  const { isLogged, user } = useAuthState();
-
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const playlistVideoDeleteMutation = useMutation(
-    async () => await axiosInstance.delete(`/playlists-video/${objId}/`),
-    {
-      onSuccess: () => queryClient.invalidateQueries(['playlist', playlistId]),
-    }
-  );
-
-  const handleDelete = () => {
-    if (!isLogged || user.id !== playlistAuthorId) return;
-
-    playlistVideoDeleteMutation.mutate();
-  };
-
-  return (
-    <ListItem
-      button
-      component={RRLink}
-      to={`/watch?v=${video.id}&list=${playlistId}&index=${position + 1}`}
-    >
-      <ListItemIcon>{position + 1}</ListItemIcon>
-      <ListItemAvatar>
-        <Avatar
-          variant="square"
-          src={video.thumbnail}
-          className={classes.playlistAvatar}
-          imgProps={{ loading: 'lazy' }}
-        />
-      </ListItemAvatar>
-      <ListItemText primary={video.title} secondary={video.author.username} />
-      <ListItemSecondaryAction>
-        <IconButton onClick={handleClick}>
-          <MoreVert />
-        </IconButton>
-        <Menu
-          id="sort-by-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          {user.id === playlistAuthorId ? (
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                handleDelete();
-              }}
-            >
-              <ListItemIcon>
-                <Delete />
-              </ListItemIcon>
-              <ListItemText primary={`Remove from ${playlistTitle}`} />
-            </MenuItem>
-          ) : (
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <Flag />
-              </ListItemIcon>
-              <ListItemText primary="Report" />
-            </MenuItem>
-          )}
-        </Menu>
-      </ListItemSecondaryAction>
-    </ListItem>
-  );
-};
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    input: {
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-    },
-    formBtns: { float: 'right', margin: '10px 2px' },
-  })
-);
+import PrivacySelectInput from '../components/PrivacySelectInput';
+import PlaylistEditInputForm from '../components/PlaylistEditInputFormProps';
+import PlaylistItem from '../components/PlaylistItem';
 
 const Playlist: React.FC = () => {
-  const classes = useStyles();
   const queryClient = useQueryClient();
   const history = useHistory();
 
@@ -202,47 +79,47 @@ const Playlist: React.FC = () => {
     async (newPlaylistData: PlaylistMutationData) =>
       await axiosInstance.patch(`/playlists/${id}/`, newPlaylistData),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['playlist', id]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(['playlist', id]);
         setIsTitleFormOpen(false);
         setIsDescriptionFormOpen(false);
       },
     }
   );
 
-  const updateTitle = () => {
+  const updateTitle = async () => {
     if (!isLogged || user.id !== data.author.id) return;
 
-    playlistMutation.mutate({ title: title });
+    await playlistMutation.mutateAsync({ title: title });
   };
 
-  const updateDescription = () => {
+  const updateDescription = async () => {
     if (!isLogged || user.id !== data.author.id) return;
 
-    playlistMutation.mutate({ description: description });
+    await playlistMutation.mutateAsync({ description: description });
   };
 
-  const handlePrivacyStatusChange = (
+  const handlePrivacyStatusChange = async (
     event: React.ChangeEvent<{ value: unknown }>
   ) => {
     if (!isLogged || user.id !== data.author.id) return;
 
     setPrivacyStatus(event.target.value as string);
 
-    playlistMutation.mutate({ status: privacyStatus });
+    await playlistMutation.mutateAsync({ status: privacyStatus });
   };
 
   const playlistDeleteMutation = useMutation(
     async () => await axiosInstance.delete(`/playlists/${id}/`),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['playlists', data.author.id]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(['playlists', data.author.id]);
         history.push('/');
       },
     }
   );
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!isLogged || user.id !== data.author.id) return;
 
     let content = prompt(
@@ -252,7 +129,7 @@ const Playlist: React.FC = () => {
     if (content) content = content.trim();
     else content = '';
 
-    if (content && content === 'y') playlistDeleteMutation.mutate();
+    if (content && content === 'y') await playlistDeleteMutation.mutateAsync();
   };
 
   return (
@@ -276,46 +153,17 @@ const Playlist: React.FC = () => {
               </Button>
             </RRLink>
             <List>
-              <ListItem>
-                <ListItemText>
-                  {isTitleFormOpen && user.id === data.author.id ? (
-                    <>
-                      <TextField
-                        label="Title"
-                        required
-                        fullWidth
-                        value={title}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setTitle(e.target.value);
-                        }}
-                      />
-                      <div className={classes.formBtns}>
-                        <Button
-                          onClick={() => {
-                            setIsTitleFormOpen(false);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button onClick={updateTitle}>Save</Button>
-                      </div>
-                    </>
-                  ) : (
-                    <>{data.title}</>
-                  )}
-                </ListItemText>
-                {!isTitleFormOpen && user.id === data.author.id && (
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      onClick={() => {
-                        setIsTitleFormOpen(true);
-                      }}
-                    >
-                      <Edit />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                )}
-              </ListItem>
+              <PlaylistEditInputForm
+                isFormOpen={isTitleFormOpen}
+                setIsFormOpen={setIsTitleFormOpen}
+                label="Title"
+                displayValue={data.title}
+                value={title}
+                setValue={setTitle}
+                updateValue={updateTitle}
+                user={user}
+                data={data}
+              />
               <ListItem>
                 <ListItemText
                   secondary={
@@ -331,43 +179,10 @@ const Playlist: React.FC = () => {
                 <ListItemText
                   secondary={
                     user.id === data.author.id ? (
-                      <FormControl fullWidth className={classes.input}>
-                        <Select
-                          label="Privacy"
-                          value={privacyStatus}
-                          onChange={handlePrivacyStatusChange}
-                          renderValue={(value) => `${value}`}
-                          fullWidth
-                        >
-                          <MenuItem value="Public">
-                            <ListItemIcon>
-                              <Public />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary="Public"
-                              secondary="Anyone can search for and view"
-                            />
-                          </MenuItem>
-                          <MenuItem value="Unlisted">
-                            <ListItemIcon>
-                              <LinkIcon />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary="Unlisted"
-                              secondary="Anyone with the link can view"
-                            />
-                          </MenuItem>
-                          <MenuItem value="Private">
-                            <ListItemIcon>
-                              <Lock />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary="Private"
-                              secondary="Only you can view"
-                            />
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
+                      <PrivacySelectInput
+                        value={privacyStatus}
+                        handleChange={handlePrivacyStatusChange}
+                      />
                     ) : (
                       <>
                         {privacyStatus === 'Public' ? (
@@ -432,45 +247,17 @@ const Playlist: React.FC = () => {
                   </Menu>
                 </ListItemText>
               </ListItem>
-              <ListItem>
-                <ListItemText>
-                  {isDescriptionFormOpen && user.id === data.author.id ? (
-                    <>
-                      <TextField
-                        label="Description"
-                        fullWidth
-                        value={description}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setDescription(e.target.value);
-                        }}
-                      />
-                      <div className={classes.formBtns}>
-                        <Button
-                          onClick={() => {
-                            setIsDescriptionFormOpen(false);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button onClick={updateDescription}>Save</Button>
-                      </div>
-                    </>
-                  ) : (
-                    <>{data.description}</>
-                  )}
-                </ListItemText>
-                {!isDescriptionFormOpen && user.id === data.author.id && (
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      onClick={() => {
-                        setIsDescriptionFormOpen(true);
-                      }}
-                    >
-                      <Edit />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                )}
-              </ListItem>
+              <PlaylistEditInputForm
+                isFormOpen={isDescriptionFormOpen}
+                setIsFormOpen={setIsDescriptionFormOpen}
+                label="Description"
+                displayValue={data.description}
+                value={description}
+                setValue={setDescription}
+                updateValue={updateDescription}
+                user={user}
+                data={data}
+              />
               <Divider />
               <ListItem>
                 <ListItemAvatar>

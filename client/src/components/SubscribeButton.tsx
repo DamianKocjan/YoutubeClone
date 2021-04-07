@@ -43,8 +43,8 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
         user: user.id,
       }),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['subscriptions_user', user.id]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(['subscriptions_user', user.id]);
         setSubState({ isSubscribing: false, sub: null });
       },
     }
@@ -53,19 +53,19 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
     async (subId: string) =>
       await axiosInstance.delete(`/subscriptions/${subId}`),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['subscriptions_user', user.id]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(['subscriptions_user', user.id]);
         setSubState({ isSubscribing: false, sub: null });
       },
     }
   );
 
-  const handleSubscribe = () => {
-    subscribeMutation.mutate(channel);
+  const handleSubscribe = async () => {
+    await subscribeMutation.mutateAsync(channel);
   };
 
-  const handleUnSubscribe = (subId: string) => {
-    unsubscribeMutation.mutate(subId);
+  const handleUnSubscribe = async (subId: string) => {
+    await unsubscribeMutation.mutateAsync(subId);
   };
 
   return (

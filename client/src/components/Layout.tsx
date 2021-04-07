@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import clsx from 'clsx';
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
@@ -9,17 +8,13 @@ import {
   Badge,
   Box,
   Button,
+  createStyles,
   CssBaseline,
   Divider,
   Drawer,
   IconButton,
   InputBase,
   List,
-  ListItem,
-  ListItemAvatar,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
   makeStyles,
   Menu,
   MenuItem,
@@ -30,13 +25,10 @@ import {
 import {
   Apps as AppsIcon,
   ChevronLeft as ChevronLeftIcon,
-  ExpandLess as ExpandLessIcon,
-  ExpandMore as ExpandMoreIcon,
   History as HistoryIcon,
   Home as HomeIcon,
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
-  PlaylistPlay as PlaylistPlayIcon,
   Search as SearchIcon,
   Settings as SettingsIcon,
   Slideshow as SlideshowIcon,
@@ -50,121 +42,103 @@ import {
 
 import Logo from '../assets/logo.png';
 import { logout, useAuthDispatch, useAuthState } from '../auth';
-import { useSubscriptions } from '../hooks';
-import { ISubscription } from '../types/subscription';
-import { IPlaylist } from '../types/playlist';
-import { useUserLibrary } from '../hooks/useLibrary';
-
-interface DrawerListItemProps {
-  to: string;
-  icon: React.ReactNode;
-  title: string;
-}
-
-const DrawerListItem: React.FC<DrawerListItemProps> = ({
-  to,
-  icon,
-  title,
-}: DrawerListItemProps) => {
-  return (
-    <ListItem button component={Link} to={to}>
-      <ListItemIcon>{icon}</ListItemIcon>
-      <ListItemText primary={title} />
-    </ListItem>
-  );
-};
+import DrawerListItem from './DrawerListItem';
+import Subscriptions from './Subscriptions';
+import UserLibrary from './UserLibrary';
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    display: 'flex',
-  },
-  toolbar: {
-    paddingRight: 24,
-  },
-  toolbarIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  title: {
-    lineHeight: '100%',
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
     },
-  },
-  appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    minHeight: '100vh',
-    maxHeight: '100vh',
-    overflowY: 'scroll',
-  },
-  container: {
-    paddingBottom: theme.spacing(4),
-  },
-  paper: {
-    padding: theme.spacing(2),
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
-  fixedHeight: {
-    height: 240,
-  },
-  input: {
-    marginLeft: theme.spacing(1),
-    flex: 1,
-  },
-  iconButton: {
-    padding: 10,
-  },
-  searchContainer: {
-    flexGrow: 1,
-    alignItems: 'center',
-  },
-}));
+    toolbar: {
+      paddingRight: 24,
+    },
+    toolbarIcon: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      padding: '0 8px',
+      ...theme.mixins.toolbar,
+    },
+    appBar: {
+      zIndex: theme.zIndex.drawer + 1,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+    },
+    appBarShift: {
+      marginLeft: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    menuButton: {
+      marginRight: 36,
+    },
+    menuButtonHidden: {
+      display: 'none',
+    },
+    title: {
+      lineHeight: '100%',
+    },
+    drawerPaper: {
+      position: 'relative',
+      whiteSpace: 'nowrap',
+      width: drawerWidth,
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    drawerPaperClose: {
+      overflowX: 'hidden',
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+      width: theme.spacing(7),
+      [theme.breakpoints.up('sm')]: {
+        width: theme.spacing(9),
+      },
+    },
+    appBarSpacer: theme.mixins.toolbar,
+    content: {
+      flexGrow: 1,
+      minHeight: '100vh',
+      maxHeight: '100vh',
+      overflowY: 'scroll',
+    },
+    container: {
+      paddingBottom: theme.spacing(4),
+    },
+    paper: {
+      padding: theme.spacing(2),
+      display: 'flex',
+      overflow: 'auto',
+      flexDirection: 'column',
+    },
+    fixedHeight: {
+      height: 240,
+    },
+    input: {
+      marginLeft: theme.spacing(1),
+      flex: 1,
+    },
+    iconButton: {
+      padding: 10,
+    },
+    searchContainer: {
+      flexGrow: 1,
+      alignItems: 'center',
+    },
+  })
+);
 
 interface Props {
   children: React.ReactChild;
@@ -185,20 +159,6 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
 
   const dispatch = useAuthDispatch();
   const { isLogged, user } = useAuthState();
-
-  const {
-    status: subscriptionsStatus,
-    data: subscriptionsData,
-    error: subscriptionsError,
-  } = useSubscriptions(user.id);
-  const [showMoreSubs, setShowMoreSubs] = useState<boolean>(false);
-
-  const {
-    status: userLibraryStatus,
-    data: userLibraryData,
-    error: userLibraryError,
-  } = useUserLibrary(user.id);
-  const [showMorePlaylists, setShowMorePlaylists] = useState<boolean>(false);
 
   const handleDrawerOpen = () => {
     setIsOpen(true);
@@ -378,174 +338,24 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
         <Divider />
         <List>
           <div>
-            <DrawerListItem
-              to="/"
-              icon={<VideoLibraryIcon />}
-              title="Library"
-            />
-            <DrawerListItem to="/" icon={<HistoryIcon />} title="History" />
-            <DrawerListItem
-              to="/"
-              icon={<SlideshowIcon />}
-              title="Your videos"
-            />
-            <DrawerListItem
-              to="/"
-              icon={<WatchLaterIcon />}
-              title="Watch later"
-            />
-            <DrawerListItem
-              to="/"
-              icon={<ThumbUpIcon />}
-              title="Liked Videos"
-            />
-            {isOpen &&
-              isLogged &&
-              (userLibraryStatus === 'loading' ? (
-                <ListItem>
-                  <ListItemAvatar>
-                    <></>
-                  </ListItemAvatar>
-                  <ListItemText primary="loading..." />
-                </ListItem>
-              ) : userLibraryStatus === 'error' ? (
-                <ListItem>
-                  <ListItemAvatar>
-                    <></>
-                  </ListItemAvatar>
-                  <ListItemText primary={userLibraryError.message} />
-                </ListItem>
-              ) : (
-                <>
-                  {showMorePlaylists
-                    ? userLibraryData.playlists.map(({ id, title }: IPlaylist) => (
-                      <DrawerListItem
-                        key={id}
-                        to={`/playlist/${id}`}
-                        icon={<PlaylistPlayIcon />}
-                        title={title}
-                      />
-                    ))
-                    : userLibraryData
-                      .playlists
-                      .slice(0, 8)
-                      .map(({ id, title }: IPlaylist) => (
-                        <DrawerListItem
-                          key={id}
-                          to={`/playlist/${id}`}
-                          icon={<PlaylistPlayIcon />}
-                          title={title}
-                        />
-                      ))}
-                  {userLibraryData.playlists.length - 7 > 0 && (
-                    <ListItem
-                      button
-                      onClick={() => {
-                        setShowMorePlaylists(!showMorePlaylists);
-                      }}
-                    >
-                      <ListItemIcon>
-                        {showMorePlaylists ? (
-                          <ExpandLessIcon />
-                        ) : (
-                          <ExpandMoreIcon />
-                        )}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          showMorePlaylists
-                            ? 'Show less'
-                            : `Show ${userLibraryData.playlists.length - 7} more`
-                        }
-                      />
-                    </ListItem>
-                  )}
-                </>
-              ))}
+            {[
+              { to: '/', icon: <VideoLibraryIcon />, title: 'Library' },
+              { to: '/', icon: <HistoryIcon />, title: 'History' },
+              { to: '/', icon: <SlideshowIcon />, title: 'Your videos' },
+              { to: '/', icon: <WatchLaterIcon />, title: 'Watch later' },
+              { to: '/', icon: <ThumbUpIcon />, title: 'Liked Videos' },
+            ].map((el) => (
+              <DrawerListItem
+                key={el.title}
+                to={el.to}
+                icon={el.icon}
+                title={el.title}
+              />
+            ))}
+            <UserLibrary isLogged={isLogged} user={user} isOpen={isOpen} />
           </div>
         </List>
-        {isOpen && isLogged && (
-          <>
-            <Divider />
-            <List>
-              <div>
-                <ListSubheader color="inherit">Subscriptions</ListSubheader>
-                {subscriptionsStatus === 'loading' ? (
-                  <ListItem>
-                    <ListItemAvatar>
-                      <></>
-                    </ListItemAvatar>
-                    <ListItemText primary="loading..." />
-                  </ListItem>
-                ) : subscriptionsStatus === 'error' ? (
-                  <ListItem>
-                    <ListItemAvatar>
-                      <></>
-                    </ListItemAvatar>
-                    <ListItemText primary={subscriptionsError.message} />
-                  </ListItem>
-                ) : (
-                  <>
-                    {showMoreSubs
-                      ? subscriptionsData.map(
-                        ({ id, channel }: ISubscription) => (
-                          <ListItem
-                            key={id}
-                            onClick={() => {
-                              history.push(`/channel/${channel.id}`);
-                            }}
-                          >
-                            <ListItemAvatar>
-                              <Avatar src={channel.avatar} imgProps={{ loading: 'lazy' }} />
-                            </ListItemAvatar>
-                            <ListItemText primary={channel.username} />
-                          </ListItem>
-                        )
-                      )
-                      : subscriptionsData
-                        .slice(0, 8)
-                        .map(({ id, channel }: ISubscription) => (
-                          <ListItem
-                            key={id}
-                            onClick={() => {
-                              history.push(`/channel/${channel.id}`);
-                            }}
-                          >
-                            <ListItemAvatar>
-                              <Avatar src={channel.avatar} imgProps={{ loading: 'lazy' }} />
-                            </ListItemAvatar>
-                            <ListItemText primary={channel.username} />
-                          </ListItem>
-                        ))}
-                    {subscriptionsData.length - 7 > 0 && (
-                      <ListItem
-                        button
-                        onClick={() => {
-                          setShowMoreSubs(!showMoreSubs);
-                        }}
-                      >
-                        <ListItemIcon>
-                          {showMoreSubs ? (
-                            <ExpandLessIcon />
-                          ) : (
-                            <ExpandMoreIcon />
-                          )}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={
-                            showMoreSubs
-                              ? 'Show less'
-                              : `Show ${subscriptionsData.length - 7} more`
-                          }
-                        />
-                      </ListItem>
-                    )}
-                  </>
-                )}
-              </div>
-            </List>
-          </>
-        )}
+        <Subscriptions isLogged={isLogged} user={user} isOpen={isOpen} />
         <Divider />
         <List>
           <div>
