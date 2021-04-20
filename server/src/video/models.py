@@ -79,7 +79,7 @@ class Video(models.Model):
 
     def rename_file(self, file, dir_name):
         ext = file.split('.')[-1]
-        filename = '%s/%s/%s.%s' % (self.author.id, dir_name, self.id, ext)
+        filename = '%s/%s/%s.%s' % (self.author_id, dir_name, self.id, ext)
         path = os.path.join('uploads', filename)
 
         os.renames(
