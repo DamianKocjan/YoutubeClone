@@ -19,14 +19,6 @@ class CommentBase(models.Model):
 class Comment(CommentBase):
     video = models.ForeignKey('video.Video', on_delete=models.CASCADE, related_name='comment_video')
 
-    @property
-    def get_likes_count(self) -> int:
-        return CommentRating.objects.filter(comment=self.id, is_liking=True).count()
-
-    @property
-    def get_dislikes_count(self) -> int:
-        return CommentRating.objects.filter(comment=self.id, is_liking=False).count()
-
     class Meta:
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
@@ -35,17 +27,17 @@ class Comment(CommentBase):
     def __str__(self) -> str:
         return f'Comment - {self.id}'
 
-
-class ReplyComment(CommentBase):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replycomment_comment')
-
     @property
     def get_likes_count(self) -> int:
-        return ReplyCommentRating.objects.filter(reply_comment=self.id, is_liking=True).count()
+        return CommentRating.objects.filter(comment=self.id, is_liking=True).count()
 
     @property
     def get_dislikes_count(self) -> int:
-        return ReplyCommentRating.objects.filter(reply_comment=self.id, is_liking=False).count()
+        return CommentRating.objects.filter(comment=self.id, is_liking=False).count()
+
+
+class ReplyComment(CommentBase):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replycomment_comment')
 
     class Meta:
         verbose_name = 'Reply Comment'
@@ -54,3 +46,11 @@ class ReplyComment(CommentBase):
 
     def __str__(self) -> str:
         return f'Reply Comment - {self.id}'
+
+    @property
+    def get_likes_count(self) -> int:
+        return ReplyCommentRating.objects.filter(reply_comment=self.id, is_liking=True).count()
+
+    @property
+    def get_dislikes_count(self) -> int:
+        return ReplyCommentRating.objects.filter(reply_comment=self.id, is_liking=False).count()

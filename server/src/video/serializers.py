@@ -8,7 +8,7 @@ from .models import Category
 from .models import Library
 from .models import Playlist
 from .models import PlaylistVideo
-from .models import SubCategory
+from .models import Subcategory
 from .models import Video
 
 
@@ -103,6 +103,6 @@ class CategorySerializer(CategoryBaseSerializer):
         model = Category
 
 
-class SubCategorySerializer(CategoryBaseSerializer):
+class SubcategorySerializer(CategoryBaseSerializer):
     class Meta(CategoryBaseSerializer.Meta):
-        model = SubCategory
+        model = Subcategory

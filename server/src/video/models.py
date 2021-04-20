@@ -52,11 +52,27 @@ class Video(models.Model):
     video       = models.FileField(upload_to=handle_uploaded_video_file)
     thumbnail   = models.ImageField(upload_to=handle_uploaded_thumbnail_file)
     duration    = models.PositiveSmallIntegerField(default=0)
-    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    category    = models.ForeignKey('SubCategory', on_delete=models.SET(''), null=True, blank=True)
+    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='video_author')
+    category    = models.ForeignKey('Subcategory', on_delete=models.SET(''), null=True, blank=True, related_name='video_subcategory')
     status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Video'
+        verbose_name_plural = 'Videos'
+
+    def __str__(self) -> str:
+        return f'Video {self.id}'
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        self.video = self.rename_file(str(self.video), 'videos').replace('/', '\\')
+        self.thumbnail = self.rename_file(str(self.thumbnail), 'thumbnails').replace('/', '\\')
+        self.duration = self.get_video_duration()
+
+        super().save()
 
     @property
     def get_views_count(self) -> int:
@@ -70,16 +86,9 @@ class Video(models.Model):
     def get_dislikes_count(self) -> int:
         return VideoRating.objects.filter(video=self.id, is_liking=False).count()
 
-    class Meta:
-        verbose_name = 'Video'
-        verbose_name_plural = 'Videos'
-
-    def __str__(self) -> str:
-        return f'Video {self.id}'
-
     def rename_file(self, file, dir_name):
         ext = file.split('.')[-1]
-        filename = '%s/%s/%s.%s' % (self.author.id, dir_name, self.id, ext)
+        filename = '%s/%s/%s.%s' % (self.author_id, dir_name, self.id, ext)
         path = os.path.join('uploads', filename)
 
         os.renames(
@@ -92,15 +101,6 @@ class Video(models.Model):
     def get_video_duration(self) -> int:
         video = TinyTag.get(os.path.join(settings.MEDIA_ROOT + str(self.video)))
         return int(video.duration)
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        self.video = self.rename_file(str(self.video), 'videos').replace('/', '\\')
-        self.thumbnail = self.rename_file(str(self.thumbnail), 'thumbnails').replace('/', '\\')
-        self.duration = self.get_video_duration()
-
-        super().save()
 
 
 class PlaylistView(ViewBase):
@@ -115,8 +115,8 @@ class PlaylistView(ViewBase):
 
 
 class PlaylistVideo(models.Model): # M2M between playlist and video
-    playlist = models.ForeignKey('Playlist', on_delete=models.CASCADE)
-    video    = models.ForeignKey(Video, on_delete=models.CASCADE)
+    playlist = models.ForeignKey('Playlist', on_delete=models.CASCADE, related_name='playlist_video_playlist')
+    video    = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='playlist_video_video')
     position = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -130,11 +130,18 @@ class PlaylistVideo(models.Model): # M2M between playlist and video
 
 class Playlist(models.Model):
     title       = models.CharField(max_length=50)
-    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='playlist_author')
     description = models.CharField(max_length=200, blank=True)
     status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Playlist'
+        verbose_name_plural = 'Playlists'
+
+    def __str__(self) -> str:
+        return f'Playlist {self.id}'
 
     @property
     def get_views_count(self) -> int:
@@ -143,13 +150,6 @@ class Playlist(models.Model):
     @property
     def get_videos(self):
         return PlaylistVideo.objects.filter(playlist=self.id)
-
-    class Meta:
-        verbose_name = 'Playlist'
-        verbose_name_plural = 'Playlists'
-
-    def __str__(self) -> str:
-        return f'Playlist {self.id}'
 
 
 class Library(models.Model):
@@ -199,9 +199,9 @@ class Category(CategoryBase):
         verbose_name_plural = 'Categories'
 
 
-class SubCategory(CategoryBase):
-    category   = models.ForeignKey(Category, on_delete=models.CASCADE)
+class Subcategory(CategoryBase):
+    category   = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategory_category')
 
     class Meta:
-        verbose_name = 'SubCategory'
-        verbose_name_plural = 'SubCategories'
+        verbose_name = 'Subcategory'
+        verbose_name_plural = 'Subcategories'
