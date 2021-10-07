@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 
 import { useChannelVideos } from '../../hooks';
-import { IVideo } from '../../types/video';
+import type { IVideo } from '../../types/models';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

@@ -1,6 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query';
+import TimeAgo from 'javascript-time-ago';
+
+const timeAgo = new TimeAgo('en-US');
 
 import {
   Avatar,
@@ -22,10 +25,9 @@ import {
   MoreVert,
 } from '@material-ui/icons';
 
-import axiosInstance from '../../utils/axiosInstance';
-import timeDifference from '../../utils/timeDifference';
+import { api } from '../../api';
 import VideoReplyComment from './VideoReplyComment';
-import { IVideoReplyComment } from '../../types/videoReplyComment';
+import type { IVideoReplyComment } from '../../types/models';
 import CommentRatingButtons from '../ratingButtons/Comment';
 import { useIntersectionObserver } from '../../hooks';
 import { useAuthState } from '../../auth';
@@ -70,7 +72,7 @@ const VideoComment: React.FC<Props> = ({
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(
+      const { data } = await api.get(
         `reply-comments/?comment=${commentId}&page=${page}`
       );
       return data;
@@ -109,7 +111,7 @@ const VideoComment: React.FC<Props> = ({
 
   const commentUpdateMutation = useMutation(
     async (comment: { content: string }) =>
-      await axiosInstance.patch(`comments/${commentId}/`, comment),
+      await api.patch(`comments/${commentId}/`, comment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -131,7 +133,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    async () => await axiosInstance.delete(`comments/${commentId}/`),
+    async () => await api.delete(`comments/${commentId}/`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -153,7 +155,7 @@ const VideoComment: React.FC<Props> = ({
 
   const replyCommentMutation = useMutation(
     async (newReplyComment: { comment: string; content: string }) =>
-      await axiosInstance.post('reply-comments/', newReplyComment),
+      await api.post('reply-comments/', newReplyComment),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries([
@@ -186,7 +188,7 @@ const VideoComment: React.FC<Props> = ({
           primary={
             <Typography>
               <Link to={`/channel/${authorId}/`}>{authorUsername}</Link>{' '}
-              {timeDifference(new Date(), new Date(createdAt))}
+              {timeAgo.format(new Date(createdAt))}
             </Typography>
           }
           secondary={<Typography variant="inherit">{content}</Typography>}
@@ -197,16 +199,14 @@ const VideoComment: React.FC<Props> = ({
               onClick={() => {
                 setShowReplies(!showReplies);
                 if (showReplies === false) setShowForm(false);
-              }}
-            >
+              }}>
               {showReplies ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           )}
           <IconButton
             onClick={() => {
               setShowForm(true);
-            }}
-          >
+            }}>
             <AddComment />
           </IconButton>
           <CommentRatingButtons
@@ -227,22 +227,19 @@ const VideoComment: React.FC<Props> = ({
           anchorEl={anchorEl}
           keepMounted
           open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
+          onClose={handleClose}>
           <MenuItem
             onClick={() => {
               handleClose();
               handleEdit();
-            }}
-          >
+            }}>
             Edit
           </MenuItem>
           <MenuItem
             onClick={() => {
               handleClose();
               handleDelete();
-            }}
-          >
+            }}>
             Delete
           </MenuItem>
         </Menu>
@@ -272,8 +269,7 @@ const VideoComment: React.FC<Props> = ({
                   setShowButtons(false);
                   setReplyContent('');
                   setShowForm(false);
-                }}
-              >
+                }}>
                 Cancel
               </Button>
               <Button variant="outlined" onClick={handleCommentCreation}>

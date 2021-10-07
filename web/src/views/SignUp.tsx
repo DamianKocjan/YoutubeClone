@@ -17,7 +17,7 @@ import {
 import MuiAlert from '@material-ui/lab/Alert';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 import { useAuthState } from '../auth';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -81,7 +81,7 @@ const SignUp: React.FC = () => {
   ) => {
     e.preventDefault();
 
-    await axiosInstance
+    await api
       .post('/signup/', signUpDetails)
       .then(() => {
         history.push('/login/');
@@ -214,8 +214,7 @@ const SignUp: React.FC = () => {
             variant="contained"
             color="primary"
             className={classes.submit}
-            disabled={isDisabled}
-          >
+            disabled={isDisabled}>
             Sign Up
           </Button>
           <Grid container justify="flex-end">
@@ -230,14 +229,12 @@ const SignUp: React.FC = () => {
       <Snackbar
         open={errorAlertIsOpen}
         autoHideDuration={6000}
-        onClose={handleCloseAlert}
-      >
+        onClose={handleCloseAlert}>
         <MuiAlert
           elevation={6}
           variant="filled"
           onClose={handleCloseAlert}
-          severity="error"
-        >
+          severity="error">
           {JSON.stringify(error)}
         </MuiAlert>
       </Snackbar>

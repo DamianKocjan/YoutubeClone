@@ -1,9 +1,9 @@
 import { useQuery } from 'react-query';
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 
 export function useChannelVideos(channel = ''): any {
   return useQuery(['channel_videos', channel], async () => {
-    const { data } = await axiosInstance.get('videos/', {
+    const { data } = await api.get('videos/', {
       params: {
         author: channel,
       },
@@ -13,7 +13,7 @@ export function useChannelVideos(channel = ''): any {
 }
 
 const getVideoById = async (id: string) => {
-  const { data } = await axiosInstance.get(`videos/${id}`);
+  const { data } = await api.get(`videos/${id}`);
   return data;
 };
 

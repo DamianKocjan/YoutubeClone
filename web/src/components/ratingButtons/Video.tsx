@@ -6,7 +6,7 @@ import { Button } from '@material-ui/core';
 import { ThumbDown, ThumbUp } from '@material-ui/icons';
 
 import { useUserVideoRatings } from '../../hooks';
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 
 interface Props {
   video: string;
@@ -51,7 +51,7 @@ const VideoRatingButtons: React.FC<Props> = ({
 
   const likingMutation = useMutation(
     async () =>
-      await axiosInstance.post('/video-ratings/', {
+      await api.post('/video-ratings/', {
         video: video,
         user: user.id,
         is_liking: true,
@@ -65,7 +65,7 @@ const VideoRatingButtons: React.FC<Props> = ({
   );
   const dislikingMutation = useMutation(
     async () =>
-      await axiosInstance.post('/video-ratings/', {
+      await api.post('/video-ratings/', {
         video: video,
         user: user.id,
         is_liking: false,
@@ -101,8 +101,7 @@ const VideoRatingButtons: React.FC<Props> = ({
                 handleLiking();
               }
             }}
-            color={isLiking ? 'primary' : 'default'}
-          >
+            color={isLiking ? 'primary' : 'default'}>
             {likesCount}
           </Button>
           <Button
@@ -112,8 +111,7 @@ const VideoRatingButtons: React.FC<Props> = ({
                 handleDisliking();
               }
             }}
-            color={!isLiking && isLiking !== null ? 'primary' : 'default'}
-          >
+            color={!isLiking && isLiking !== null ? 'primary' : 'default'}>
             {dislikesCount}
           </Button>
         </>

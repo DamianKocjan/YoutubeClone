@@ -4,10 +4,13 @@ WORKDIR /home/web
 
 ENV PATH /home/web/node_modules/.bin:$PATH
 
-COPY package*.json ./
+COPY package.json ./
+COPY package-lock.json ./
 
-RUN npm i
+RUN npm install
 
 COPY . ./
 
-CMD ["npm", "start"]
+EXPOSE 3000
+
+CMD ["npm", "run", "dev", "--host"]

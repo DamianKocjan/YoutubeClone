@@ -1,9 +1,9 @@
 import { useQuery } from 'react-query';
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 
 export function useUserVideoRatings(user = ''): any {
   return useQuery(['user_video_ratings', user], async () => {
-    const { data } = await axiosInstance.get('/video-ratings/', {
+    const { data } = await api.get('/video-ratings/', {
       params: {
         user: user,
       },
@@ -14,7 +14,7 @@ export function useUserVideoRatings(user = ''): any {
 
 export function useUserCommentRatings(user = ''): any {
   return useQuery(['user_comment_ratings', user], async () => {
-    const { data } = await axiosInstance.get('/comment-ratings/', {
+    const { data } = await api.get('/comment-ratings/', {
       params: {
         user: user,
       },
@@ -25,7 +25,7 @@ export function useUserCommentRatings(user = ''): any {
 
 export function useUserReplyCommentRatings(user = ''): any {
   return useQuery(['user_reply_comment_ratings', user], async () => {
-    const { data } = await axiosInstance.get('/reply-comment-ratings/', {
+    const { data } = await api.get('/reply-comment-ratings/', {
       params: {
         user: user,
       },

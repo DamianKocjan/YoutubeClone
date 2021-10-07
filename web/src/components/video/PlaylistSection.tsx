@@ -20,7 +20,7 @@ import {
 } from '@material-ui/core';
 import { ExpandLess, ExpandMore, PlayArrow } from '@material-ui/icons';
 
-import { IPlaylistVideo } from '../../types/playlist';
+import type { IPlaylistVideo } from '../../types/models';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -73,8 +73,7 @@ const PlaylistSection: React.FC<Props> = ({
               <IconButton
                 onClick={() => {
                   setShowPlaylistVideos(!showPlaylistVideos);
-                }}
-              >
+                }}>
                 {showPlaylistVideos ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             }
@@ -99,8 +98,7 @@ const PlaylistSection: React.FC<Props> = ({
                         // eslint-disable-next-line prettier/prettier
                         `/watch?v=${video.id}&list=${playlistId}&index=${position + 1}`
                       );
-                    }}
-                  >
+                    }}>
                     <ListItemIcon>
                       {+videoId === +video.id ? (
                         <PlayArrow />

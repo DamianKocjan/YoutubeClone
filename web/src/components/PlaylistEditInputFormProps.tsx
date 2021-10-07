@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import Edit from '@material-ui/icons/Edit';
 
-import { IChannel } from '../types/channel';
+import type { IChannel } from '../types/models';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -63,8 +63,7 @@ const PlaylistEditInputForm: React.FC<Props> = ({
               <Button
                 onClick={() => {
                   setIsFormOpen(false);
-                }}
-              >
+                }}>
                 Cancel
               </Button>
               <Button onClick={updateValue}>Save</Button>
@@ -79,8 +78,7 @@ const PlaylistEditInputForm: React.FC<Props> = ({
           <IconButton
             onClick={() => {
               setIsFormOpen(true);
-            }}
-          >
+            }}>
             <Edit />
           </IconButton>
         </ListItemSecondaryAction>

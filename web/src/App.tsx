@@ -1,50 +1,33 @@
-import React, { useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import React, { Suspense, useEffect } from 'react';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
-import axiosInstance from './utils/axiosInstance';
 import Layout from './components/Layout';
 
-import Home from './views/Home';
-import Login from './views/Login';
-import NotFound from './views/NotFound';
-import Playlist from './views/Playlist';
-import Search from './views/Search';
-import SignUp from './views/SignUp';
-import VideoCreate from './views/video/Create';
-import VideoWatch from './views/video/Watch';
-import Channel from './views/channel';
-
-import { AuthProvider, useAuthState } from './auth';
+import { useAuthState } from './auth';
+import { api } from './api/request';
+import IndexRouter from './routes';
+import IndexProviders from './providers';
 
 const App: React.FC = () => {
   const { isLogged, accessToken } = useAuthState();
 
   useEffect(() => {
     if (accessToken)
-      axiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
-    else axiosInstance.defaults.headers.Authorization = '';
+      api.defaults.headers.Authorization = `Bearer ${accessToken}`;
+    else api.defaults.headers.Authorization = '';
   }, [isLogged]);
 
   return (
-    <AuthProvider>
+    <IndexProviders>
       <Layout>
         <>
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/search" component={Search} />
-            <Route exact path="/video/create" component={VideoCreate} />
-            <Route exact path="/watch" component={VideoWatch} />
-            <Route exact path="/playlist/:id" component={Playlist} />
-            <Route path="/channel/:id" component={Channel} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/signup" component={SignUp} />
-            <Route path="*" component={NotFound} />
-          </Switch>
-          <ReactQueryDevtools />
+          <Suspense fallback={() => 'loading...'}>
+            <IndexRouter />
+          </Suspense>
+          {process.env.NODE_ENV !== 'test' && <ReactQueryDevtools />}
         </>
       </Layout>
-    </AuthProvider>
+    </IndexProviders>
   );
 };
 

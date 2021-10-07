@@ -17,10 +17,10 @@ import {
 import Sort from '@material-ui/icons/Sort';
 
 import { useIntersectionObserver } from '../../hooks';
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 import { useAuthState } from '../../auth';
 import VideoComment from '../comment/VideoComment';
-import { IVideoComment } from '../../types/videoComment';
+import type { IVideoComment } from '../../types/models';
 
 interface Props {
   videoId: string;
@@ -51,7 +51,7 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(
+      const { data } = await api.get(
         `/comments/?video=${videoId}&page=${page}`
       );
 
@@ -72,7 +72,7 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
 
   const commentMutation = useMutation(
     async (newComment: { video: string; content: string }) =>
-      await axiosInstance.post('/comments/', newComment),
+      await api.post('/comments/', newComment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', videoId]),
@@ -111,8 +111,7 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
         anchorEl={anchorEl}
         keepMounted
         open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
+        onClose={handleClose}>
         <MenuItem onClick={handleClose}>Top comments</MenuItem>
         <MenuItem onClick={handleClose}>Newest first</MenuItem>
       </Menu>
@@ -140,8 +139,7 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
                 onClick={() => {
                   setShowButtons(false);
                   setContent('');
-                }}
-              >
+                }}>
                 Cancel
               </Button>
               <Button variant="outlined" onClick={handleCommentCreation}>

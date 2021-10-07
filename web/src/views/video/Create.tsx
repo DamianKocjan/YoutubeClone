@@ -15,7 +15,7 @@ import {
 import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
 import MovieIcon from '@material-ui/icons/Movie';
 
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 import { useAuthState } from '../../auth';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,7 +54,7 @@ const Create: React.FC = () => {
   const history = useHistory();
 
   const mutation = useMutation(
-    async (newVideo: FormData) => await axiosInstance.post('videos/', newVideo)
+    async (newVideo: FormData) => await api.post('videos/', newVideo)
   );
 
   const { isLogged } = useAuthState();
@@ -63,9 +63,8 @@ const Create: React.FC = () => {
   const videoRef = useRef<HTMLElement | any>();
 
   const [hasUploadedVideo, setHasUploadedVideo] = useState<boolean>(false);
-  const [hasUploadedThumbnail, setHasUploadedThumbnail] = useState<boolean>(
-    false
-  );
+  const [hasUploadedThumbnail, setHasUploadedThumbnail] =
+    useState<boolean>(false);
 
   if (!isLogged) return <Redirect to="/login/" />;
 
@@ -115,8 +114,7 @@ const Create: React.FC = () => {
       onSubmit={handleSubmit}
       encType="multipart/form-data"
       method="POST"
-      action=""
-    >
+      action="">
       <Grid container spacing={3}>
         <Grid item xs={6}>
           <Paper className={classes.paper}>
@@ -153,8 +151,7 @@ const Create: React.FC = () => {
               variant="contained"
               component="label"
               className={classes.button}
-              startIcon={<AddPhotoAlternateIcon />}
-            >
+              startIcon={<AddPhotoAlternateIcon />}>
               Upload thumbnail
               <input
                 type="file"
@@ -189,8 +186,7 @@ const Create: React.FC = () => {
               variant="contained"
               component="label"
               className={classes.button}
-              startIcon={<MovieIcon />}
-            >
+              startIcon={<MovieIcon />}>
               Upload video
               <input
                 type="file"

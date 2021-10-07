@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 
 import { usePlaylists } from '../../hooks';
-import { IPlaylist } from '../../types/playlist';
+import type { IPlaylist } from '../../types/models';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

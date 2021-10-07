@@ -33,9 +33,9 @@ import {
 
 import { usePlaylist } from '../hooks';
 import { useAuthState } from '../auth';
-import { IPlaylistVideo } from '../types/playlist';
+import type { IPlaylistVideo } from '../types/models';
 import SubscribeButton from '../components/SubscribeButton';
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 import AddToLibraryButton from '../components/AddToLibraryButton';
 import PrivacySelectInput from '../components/PrivacySelectInput';
 import PlaylistEditInputForm from '../components/PlaylistEditInputFormProps';
@@ -77,7 +77,7 @@ const Playlist: React.FC = () => {
 
   const playlistMutation = useMutation(
     async (newPlaylistData: PlaylistMutationData) =>
-      await axiosInstance.patch(`/playlists/${id}/`, newPlaylistData),
+      await api.patch(`/playlists/${id}/`, newPlaylistData),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries(['playlist', id]);
@@ -110,7 +110,7 @@ const Playlist: React.FC = () => {
   };
 
   const playlistDeleteMutation = useMutation(
-    async () => await axiosInstance.delete(`/playlists/${id}/`),
+    async () => await api.delete(`/playlists/${id}/`),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries(['playlists', data.author.id]);
@@ -146,8 +146,7 @@ const Playlist: React.FC = () => {
               style={{ width: 'calc(100% - 10px)' }}
             />
             <RRLink
-              to={`/watch?v=${data.videos[0].video.id}&list=${id}&index=1`}
-            >
+              to={`/watch?v=${data.videos[0].video.id}&list=${id}&index=1`}>
               <Button fullWidth startIcon={<PlayArrow />}>
                 Play all
               </Button>
@@ -222,15 +221,13 @@ const Playlist: React.FC = () => {
                     anchorEl={anchorEl}
                     keepMounted
                     open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                  >
+                    onClose={handleClose}>
                     {user.id === data.author.id ? (
                       <MenuItem
                         onClick={() => {
                           handleClose();
                           handleDelete();
-                        }}
-                      >
+                        }}>
                         <ListItemIcon>
                           <Delete />
                         </ListItemIcon>
@@ -273,8 +270,7 @@ const Playlist: React.FC = () => {
                   <Link
                     component={RRLink}
                     color="inherit"
-                    to={`/channel/${data.author.id}`}
-                  >
+                    to={`/channel/${data.author.id}`}>
                     {data.author.username}
                   </Link>
                 </ListItemText>

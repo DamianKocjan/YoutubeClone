@@ -1,12 +1,8 @@
 import React from 'react';
 import { Cookies } from 'react-cookie';
-import {
-  createAccessTokenCookie,
-  createRefreshTokenCookie,
-  createUserCookie,
-} from '../utils/authCookies';
-import axiosInstance from '../utils/axiosInstance';
-import { AuthAction } from './reducer';
+
+import { api, createAccessTokenCookie, createRefreshTokenCookie } from '../api';
+import type { IAuthAction } from './reducer';
 
 const cookies = new Cookies();
 
@@ -15,10 +11,28 @@ interface ILoginPayload {
   password: string;
 }
 
+interface ILoginResult {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+    avatar: string;
+    subscribers_count: number;
+    background: string;
+    date_joined: string;
+    description: string;
+    location: string;
+  };
+}
+
 export async function loginUser(
-  dispatch: React.Dispatch<AuthAction>,
+  dispatch: React.Dispatch<IAuthAction>,
   loginPayload: ILoginPayload
-) {
+): Promise<ILoginResult | undefined> {
   try {
     dispatch({ type: 'REQUEST_LOGIN' });
     const data = {
@@ -40,7 +54,7 @@ export async function loginUser(
     };
     let error = '';
 
-    await axiosInstance
+    await api
       .post('/token/', loginPayload)
       .then((res) => {
         data.accessToken = res.data.access;
@@ -50,7 +64,7 @@ export async function loginUser(
         error = String(err.message);
       });
 
-    await axiosInstance
+    await api
       .get(
         `/users/${JSON.parse(atob(data.accessToken.split('.')[1])).user_id}/`
       )
@@ -64,26 +78,27 @@ export async function loginUser(
     if (data.accessToken && data.refreshToken && !error) {
       dispatch({ type: 'LOGIN_SUCCESS', payload: data });
 
-      axiosInstance.defaults.headers.Authorization = `Bearer ${data.accessToken}`;
+      api.defaults.headers.Authorization = `Bearer ${data.accessToken}`;
 
       createAccessTokenCookie(data.accessToken);
       createRefreshTokenCookie(data.refreshToken);
-      createUserCookie(JSON.stringify(data.user));
+      // createUserCookie(JSON.stringify(data.user));
 
       return data;
     }
 
     dispatch({ type: 'LOGIN_ERROR', error: error });
-    return;
   } catch (error) {
-    dispatch({ type: 'LOGIN_ERROR', error: error });
+    dispatch({ type: 'LOGIN_ERROR', error: error as string });
   }
 }
 
-export async function logout(dispatch: React.Dispatch<AuthAction>) {
+export async function logout(
+  dispatch: React.Dispatch<IAuthAction>
+): Promise<void> {
   dispatch({ type: 'LOGOUT' });
 
-  axiosInstance.defaults.headers.Authorization = '';
+  api.defaults.headers.Authorization = '';
 
   cookies.remove('access_token', { path: '/' });
   cookies.remove('refresh_token', { path: '/' });

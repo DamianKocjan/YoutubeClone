@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query';
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 
 const getUserLibraryById = async (id: string) => {
-  const { data } = await axiosInstance.get(`libraries/?user=${id}`);
+  const { data } = await api.get(`libraries/?user=${id}`);
   return data.results[0];
 };
 

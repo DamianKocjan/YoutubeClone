@@ -97,7 +97,7 @@ const Login: React.FC = () => {
 
       if (!res) return;
     } catch (err) {
-      setError(err);
+      setError(err as string);
       setErrorAlertIsOpen(true);
     }
   };
@@ -152,8 +152,7 @@ const Login: React.FC = () => {
             variant="contained"
             color="primary"
             className={classes.submit}
-            disabled={isDisabled}
-          >
+            disabled={isDisabled}>
             Sign In
           </Button>
           <Grid container>
@@ -173,14 +172,12 @@ const Login: React.FC = () => {
       <Snackbar
         open={errorAlertIsOpen}
         autoHideDuration={6000}
-        onClose={handleCloseAlert}
-      >
+        onClose={handleCloseAlert}>
         <MuiAlert
           elevation={6}
           variant="filled"
           onClose={handleCloseAlert}
-          severity="error"
-        >
+          severity="error">
           {error}
         </MuiAlert>
       </Snackbar>

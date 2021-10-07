@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import TimeAgo from 'javascript-time-ago';
+
+const timeAgo = new TimeAgo('en-US');
 
 import {
   Avatar,
@@ -14,11 +17,10 @@ import {
 } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
 
-import timeDifference from '../../utils/timeDifference';
 import ReplyCommentRatingButtons from '../ratingButtons/ReplyComment';
 import { useAuthState } from '../../auth';
 import { useMutation, useQueryClient } from 'react-query';
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 
 interface Props {
   replyId: string;
@@ -57,7 +59,7 @@ const VideoComment: React.FC<Props> = ({
 
   const commentUpdateMutation = useMutation(
     async (comment: { content: string }) =>
-      await axiosInstance.patch(`reply-comments/${replyId}/`, comment),
+      await api.patch(`reply-comments/${replyId}/`, comment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -79,7 +81,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    async () => await axiosInstance.delete(`reply-comments/${replyId}/`),
+    async () => await api.delete(`reply-comments/${replyId}/`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -108,7 +110,7 @@ const VideoComment: React.FC<Props> = ({
         primary={
           <Typography>
             <Link to={`/channel/${authorId}/`}>{authorUsername}</Link>{' '}
-            {timeDifference(new Date(), new Date(createdAt))}
+            {timeAgo.format(new Date(createdAt))}
           </Typography>
         }
         secondary={<Typography variant="inherit">{content}</Typography>}
@@ -129,22 +131,19 @@ const VideoComment: React.FC<Props> = ({
               anchorEl={anchorEl}
               keepMounted
               open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
+              onClose={handleClose}>
               <MenuItem
                 onClick={() => {
                   handleClose();
                   handleEdit();
-                }}
-              >
+                }}>
                 Edit
               </MenuItem>
               <MenuItem
                 onClick={() => {
                   handleClose();
                   handleDelete();
-                }}
-              >
+                }}>
                 Delete
               </MenuItem>
             </Menu>

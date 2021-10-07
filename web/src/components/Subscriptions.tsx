@@ -14,9 +14,8 @@ import {
 } from '@material-ui/core';
 import { ExpandLess, ExpandMore } from '@material-ui/icons';
 
-import { IChannel } from '../types/channel';
+import type { IChannel, ISubscription } from '../types/models';
 import { useSubscriptions } from '../hooks';
-import { ISubscription } from '../types/subscription';
 
 interface Props {
   isLogged: boolean;

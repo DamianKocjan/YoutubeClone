@@ -10,9 +10,9 @@ import {
 } from '@material-ui/core';
 
 import VideoHomeCard from '../components/video/VideoHomeCard';
-import { IVideo } from '../types/video';
+import type { IVideo } from '../types/models';
 import { useIntersectionObserver } from '../hooks';
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -50,7 +50,7 @@ const Home: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(`/videos/?page=${page}`);
+      const { data } = await api.get(`/videos/?page=${page}`);
       return data;
     },
     {
@@ -93,8 +93,7 @@ const Home: React.FC = () => {
                         md={4}
                         lg={3}
                         key={id}
-                        className={(classes.paper, classes.spacing)}
-                      >
+                        className={(classes.paper, classes.spacing)}>
                         <VideoHomeCard
                           title={title}
                           id={id}

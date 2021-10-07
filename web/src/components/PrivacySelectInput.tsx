@@ -41,8 +41,7 @@ const PrivacySelectInput: React.FC<Props> = ({
         value={value}
         onChange={handleChange}
         renderValue={(value) => `${value}`}
-        fullWidth
-      >
+        fullWidth>
         <MenuItem value="Public">
           <ListItemIcon>
             <Public />

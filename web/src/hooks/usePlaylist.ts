@@ -1,9 +1,9 @@
 import { useQuery } from 'react-query';
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 
 export function usePlaylists(author = ''): any {
   return useQuery(['playlists', author], async () => {
-    const { data } = await axiosInstance.get('playlists/', {
+    const { data } = await api.get('playlists/', {
       params: {
         author: author,
       },
@@ -13,7 +13,7 @@ export function usePlaylists(author = ''): any {
 }
 
 const getPlaylistById = async (id: string) => {
-  const { data } = await axiosInstance.get(`playlists/${id}`);
+  const { data } = await api.get(`playlists/${id}`);
   return data;
 };
 

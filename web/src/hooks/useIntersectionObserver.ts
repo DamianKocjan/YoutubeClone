@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-function useIntersectionObserver({
+export function useIntersectionObserver({
   root,
   target,
   onIntersect,
@@ -36,5 +36,3 @@ function useIntersectionObserver({
     };
   }, [target.current, enabled]);
 }
-
-export default useIntersectionObserver;

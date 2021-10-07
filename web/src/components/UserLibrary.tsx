@@ -10,9 +10,8 @@ import {
 import { ExpandLess, ExpandMore, PlaylistPlay } from '@material-ui/icons';
 
 import DrawerListItem from './DrawerListItem';
-import { IPlaylist } from '../types/playlist';
+import type { IChannel, IPlaylist } from '../types/models';
 import { useUserLibrary } from '../hooks';
-import { IChannel } from '../types/channel';
 
 interface Props {
   isLogged: boolean;
@@ -40,7 +39,7 @@ const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
             <ListItemAvatar>
               <></>
             </ListItemAvatar>
-            <ListItemText primary={error.message} />
+            <ListItemText primary={error.message || error} />
           </ListItem>
         ) : (
           <>

@@ -20,8 +20,8 @@ import {
 import { Add, Link, Lock, LockOpen, PlaylistAdd } from '@material-ui/icons';
 
 import { useAuthState } from '../auth';
-import axiosInstance from '../utils/axiosInstance';
-import { IPlaylist, IPlaylistVideo } from '../types/playlist';
+import { api } from '../api';
+import type { IPlaylist, IPlaylistVideo } from '../types/models';
 import { usePlaylists, useUserLibrary } from '../hooks';
 import PrivacySelectInput from './PrivacySelectInput';
 
@@ -81,14 +81,14 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
       description: string;
       status: string;
     }) =>
-      await axiosInstance.post('/playlists/', newPlaylist).then(async (res) => {
-        await axiosInstance.post('/playlists-video/', {
+      await api.post('/playlists/', newPlaylist).then(async (res) => {
+        await api.post('/playlists-video/', {
           playlist_id: res.data.id,
           video_id: videoId,
           position: 0,
         });
 
-        await axiosInstance.put(`/libraries/${userLibraryData.id}/`, {
+        await api.put(`/libraries/${userLibraryData.id}/`, {
           playlists_id: [...userLibraryData.playlists, res.data.id],
         });
       })
@@ -115,7 +115,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
     setOpen(false);
 
     selected.forEach(async (id, index) => {
-      await axiosInstance.post('/playlists-video/', {
+      await api.post('/playlists-video/', {
         playlist_id: id,
         video_id: videoId,
         position: index,
@@ -161,8 +161,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
                 onClick={() => {
                   handleToggle(id);
                 }}
-                key={id}
-              >
+                key={id}>
                 <ListItemIcon>
                   <Checkbox
                     checked={selected.indexOf(id) !== -1}
@@ -189,8 +188,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
               button
               onClick={() => {
                 setOpenForm(true);
-              }}
-            >
+              }}>
               <ListItemIcon>
                 <Add />
               </ListItemIcon>

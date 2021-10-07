@@ -31,14 +31,13 @@ import {
   useVideo,
 } from '../../hooks';
 import VideoWatchItemCard from '../../components/video/VideoWatchItemCard';
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 import SubscribeButton from '../../components/SubscribeButton';
-import { IVideo } from '../../types/video';
+import type { IVideo, IPlaylistVideo } from '../../types/models';
 import VideoRatingButtons from '../../components/ratingButtons/Video';
 import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import CommentSection from '../../components/video/CommentSection';
 import PlaylistSection from '../../components/video/PlaylistSection';
-import { IPlaylistVideo } from '../../types/playlist';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -95,7 +94,7 @@ const Watch: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(
+      const { data } = await api.get(
         `/videos/?exclude=${videoId}&page=${page}`
       );
 
@@ -178,8 +177,7 @@ const Watch: React.FC = () => {
                         }&list=${playlistId}`
                       );
                     }
-                  }}
-                >
+                  }}>
                   <source src={data.video} type="video/mp4" />
                 </ReactPlayer>
               </div>
@@ -220,8 +218,7 @@ const Watch: React.FC = () => {
                       <Link
                         component={RRLink}
                         to={`/channel/${data.author.id}`}
-                        color="inherit"
-                      >
+                        color="inherit">
                         {data.author.username}
                       </Link>
                     }

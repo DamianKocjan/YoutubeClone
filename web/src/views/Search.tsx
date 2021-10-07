@@ -5,8 +5,8 @@ import { Container } from '@material-ui/core';
 
 import { useIntersectionObserver, useQuery } from '../hooks';
 import VideoSearchCard from '../components/video/VideoSearchCard';
-import { IVideo } from '../types/video';
-import axiosInstance from '../utils/axiosInstance';
+import type { IVideo } from '../types/models';
+import { api } from '../api';
 
 const Search: React.FC = () => {
   const query = useQuery().get('search_query') || '';
@@ -28,9 +28,7 @@ const Search: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(
-        `/videos/?page=${page}&search=${query}`
-      );
+      const { data } = await api.get(`/videos/?page=${page}&search=${query}`);
       return data;
     },
     {

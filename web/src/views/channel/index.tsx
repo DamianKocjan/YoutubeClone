@@ -117,8 +117,7 @@ const Channel: React.FC = () => {
                     value={value}
                     indicatorColor="primary"
                     textColor="primary"
-                    onChange={handleChange}
-                  >
+                    onChange={handleChange}>
                     <Tab label="Home" component={Link} to={`${url}`} />
                     <Tab label="Videos" component={Link} to={`${url}/videos`} />
                     <Tab
