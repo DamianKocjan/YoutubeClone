@@ -59,7 +59,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }) => {
     const playlistIds: string[] = [];
 
     if (data) {
-      data.results.forEach((playlist) => {
+      data.forEach((playlist) => {
         playlist.videos.forEach((video) => {
           if (
             new String(video.video.id).valueOf() ===
@@ -154,7 +154,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }) => {
           ) : status === 'error' ? (
             <h1>{error?.message || error}</h1>
           ) : (
-            data?.results.map(({ id, title, status: playlistStatus }) => (
+            data?.map(({ id, title, status: playlistStatus }) => (
               <ListItem
                 button
                 onClick={() => {

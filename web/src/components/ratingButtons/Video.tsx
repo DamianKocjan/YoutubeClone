@@ -43,7 +43,7 @@ const VideoRatingButtons: React.FC<Props> = ({
 
   useEffect(() => {
     if (data) {
-      (data.results as IVideoRating[]).forEach((rating) => {
+      (data as unknown as IVideoRating[]).forEach((rating) => {
         if (rating.video === video) setIsLiking(rating.is_liking);
       });
     }

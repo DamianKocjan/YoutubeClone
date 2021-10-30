@@ -1,11 +1,9 @@
 import { useQuery } from 'react-query';
 import type { UseQueryResult } from 'react-query';
 import { api } from '../api';
-import { IPage, IRating } from '../types/models';
+import { IRating } from '../types/models';
 
-export function useUserVideoRatings(
-  user = ''
-): UseQueryResult<IPage<IRating>, Error> {
+export function useUserVideoRatings(user = ''): UseQueryResult<IRating, Error> {
   return useQuery(['user_video_ratings', user], async () => {
     const { data } = await api.get('/video-ratings', {
       params: {
@@ -18,7 +16,7 @@ export function useUserVideoRatings(
 
 export function useUserCommentRatings(
   user = ''
-): UseQueryResult<IPage<IRating>, Error> {
+): UseQueryResult<IRating, Error> {
   return useQuery(['user_comment_ratings', user], async () => {
     const { data } = await api.get('/comment-ratings', {
       params: {
@@ -31,7 +29,7 @@ export function useUserCommentRatings(
 
 export function useUserReplyCommentRatings(
   user = ''
-): UseQueryResult<IPage<IRating>, Error> {
+): UseQueryResult<IRating, Error> {
   return useQuery(['user_reply_comment_ratings', user], async () => {
     const { data } = await api.get('/reply-comment-ratings', {
       params: {

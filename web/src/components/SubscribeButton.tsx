@@ -29,7 +29,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }) => {
 
   useEffect(() => {
     if (data) {
-      data.results.forEach((sub) => {
+      data.forEach((sub) => {
         if (sub.channel.id === channel)
           setSubState({ isSubscribing: true, sub: sub });
       });

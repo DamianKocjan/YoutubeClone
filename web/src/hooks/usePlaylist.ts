@@ -1,11 +1,9 @@
 import { useQuery } from 'react-query';
 import type { UseQueryResult } from 'react-query';
 import { api } from '../api';
-import { IPage, IPlaylist } from '../types/models';
+import { IPlaylist } from '../types/models';
 
-export function usePlaylists(
-  author = ''
-): UseQueryResult<IPage<IPlaylist>, Error> {
+export function usePlaylists(author = ''): UseQueryResult<IPlaylist[], Error> {
   return useQuery(['playlists', author], async () => {
     const { data } = await api.get('playlists/', {
       params: {

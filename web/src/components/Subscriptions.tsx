@@ -48,13 +48,11 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }) => {
                   </ListItemAvatar>
                   <ListItemText primary={error?.message || error} />
                 </ListItem>
-              ) : (
+              ) : data?.length || 0 > 0 ? (
                 <>
-                  {data?.results && (
-                    <ListSubheader color="inherit">Subscriptions</ListSubheader>
-                  )}
+                  <ListSubheader color="inherit">Subscriptions</ListSubheader>
                   {showMoreSubs
-                    ? data?.results.map(({ id, channel }) => (
+                    ? data?.map(({ id, channel }) => (
                       <ListItem
                         key={id}
                         button
@@ -70,7 +68,7 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }) => {
                         <ListItemText primary={channel.username} />
                       </ListItem>
                     ))
-                    : data?.results.slice(0, 8).map(({ id, channel }) => (
+                    : data?.length || 0 > 7 && data?.slice(0, 8).map(({ id, channel }) => (
                       <ListItem
                         key={id}
                         button
@@ -86,7 +84,7 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }) => {
                         <ListItemText primary={channel.username} />
                       </ListItem>
                     ))}
-                  {(data?.results.length || 0) - 7 && (
+                  {data?.length || 0 - 7 > 0 && (
                     <ListItem
                       button
                       onClick={() => {
@@ -100,13 +98,13 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }) => {
                         primary={
                           showMoreSubs
                             ? 'Show less'
-                            : `Show ${(data?.results.length || 0) - 7} more`
+                            : `Show ${data?.length || 0 - 7} more`
                         }
                       />
                     </ListItem>
                   )}
                 </>
-              )}
+              ) : null}
             </div>
           </List>
         </>

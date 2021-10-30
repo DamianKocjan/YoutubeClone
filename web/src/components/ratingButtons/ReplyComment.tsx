@@ -43,7 +43,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
 
   useEffect(() => {
     if (data) {
-      (data.results as IReplyCommentRating[]).forEach((rating) => {
+      (data as unknown as IReplyCommentRating[]).forEach((rating) => {
         if (rating.reply_comment === replyComment)
           setIsLiking(rating.is_liking);
       });
