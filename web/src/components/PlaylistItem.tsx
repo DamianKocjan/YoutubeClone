@@ -47,13 +47,13 @@ const PlaylistItem: React.FC<Props> = ({
   playlistId,
   playlistTitle,
   playlistAuthorId,
-}: Props) => {
+}) => {
   const classes = useStyles();
   const queryClient = useQueryClient();
 
   const { isLogged, user } = useAuthState();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);

@@ -25,7 +25,7 @@ const VideoRatingButtons: React.FC<Props> = ({
   video,
   likesCount,
   dislikesCount,
-}: Props) => {
+}) => {
   const { user, isLogged } = useAuthState();
 
   const [isLiking, setIsLiking] = useState<boolean | null>(null);
@@ -43,7 +43,7 @@ const VideoRatingButtons: React.FC<Props> = ({
 
   useEffect(() => {
     if (data) {
-      data.forEach((rating: IVideoRating) => {
+      (data.results as IVideoRating[]).forEach((rating) => {
         if (rating.video === video) setIsLiking(rating.is_liking);
       });
     }
@@ -51,7 +51,7 @@ const VideoRatingButtons: React.FC<Props> = ({
 
   const likingMutation = useMutation(
     async () =>
-      await api.post('/video-ratings/', {
+      await api.post('/video-ratings', {
         video: video,
         user: user.id,
         is_liking: true,
@@ -65,7 +65,7 @@ const VideoRatingButtons: React.FC<Props> = ({
   );
   const dislikingMutation = useMutation(
     async () =>
-      await api.post('/video-ratings/', {
+      await api.post('/video-ratings', {
         video: video,
         user: user.id,
         is_liking: false,
@@ -91,7 +91,7 @@ const VideoRatingButtons: React.FC<Props> = ({
       {status === 'loading' ? (
         <div>loading...</div>
       ) : status === 'error' ? (
-        <div>{error.message}</div>
+        <div>{error?.message || error}</div>
       ) : (
         <>
           <Button

@@ -12,7 +12,7 @@ interface Props {
   channel: string;
 }
 
-const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
+const SubscribeButton: React.FC<Props> = ({ channel }) => {
   const { user, isLogged } = useAuthState();
 
   if (!isLogged || channel === user.id)
@@ -29,7 +29,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
 
   useEffect(() => {
     if (data) {
-      data.forEach((sub: ISubscription) => {
+      data.results.forEach((sub) => {
         if (sub.channel.id === channel)
           setSubState({ isSubscribing: true, sub: sub });
       });
@@ -72,7 +72,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
       {status === 'loading' ? (
         <Button variant="outlined">loading...</Button>
       ) : status === 'error' ? (
-        <Button variant="outlined">{error.message}</Button>
+        <Button variant="outlined">{error?.message || error}</Button>
       ) : subState.isSubscribing ? (
         <Button
           variant="outlined"

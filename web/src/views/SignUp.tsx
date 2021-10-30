@@ -54,8 +54,8 @@ const SignUp: React.FC = () => {
     password: '',
     password2: '',
   });
-  const [error, setError] = useState<string>('');
-  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState<boolean>(false);
+  const [error, setError] = useState('');
+  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState(false);
 
   const { isLogged } = useAuthState();
 
@@ -76,9 +76,7 @@ const SignUp: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     await api
@@ -112,7 +110,6 @@ const SignUp: React.FC = () => {
     signUpDetails.last_name.length === 0 ||
     signUpDetails.username.length === 0 ||
     signUpDetails.password.length === 0 ||
-    signUpDetails.password2.length === 0 ||
     signUpDetails.password !== signUpDetails.password2;
 
   return (
@@ -235,7 +232,7 @@ const SignUp: React.FC = () => {
           variant="filled"
           onClose={handleCloseAlert}
           severity="error">
-          {JSON.stringify(error)}
+          {error}
         </MuiAlert>
       </Snackbar>
     </Container>

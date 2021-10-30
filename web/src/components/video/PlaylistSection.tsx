@@ -20,7 +20,7 @@ import {
 } from '@material-ui/core';
 import { ExpandLess, ExpandMore, PlayArrow } from '@material-ui/icons';
 
-import type { IPlaylistVideo } from '../../types/models';
+import type { IPlaylist } from '../../types/models';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,9 +41,9 @@ interface Props {
   videoId: string;
   playlistId: string;
   playlistVideoIndex: string;
-  status: any;
-  data: any;
-  error: any;
+  status: 'error' | 'idle' | 'loading' | 'success';
+  data: IPlaylist | undefined;
+  error: Error | null;
 }
 
 const PlaylistSection: React.FC<Props> = ({
@@ -53,19 +53,19 @@ const PlaylistSection: React.FC<Props> = ({
   status,
   data,
   error,
-}: Props) => {
+}) => {
   const classes = useStyles();
 
   const history = useHistory();
 
-  const [showPlaylistVideos, setShowPlaylistVideos] = useState<boolean>(true);
+  const [showPlaylistVideos, setShowPlaylistVideos] = useState(true);
 
   return (
     <>
       {playlistId && status === 'loading' ? (
         <h1>loading...</h1>
       ) : status === 'error' ? (
-        <h1>{error.message}</h1>
+        <h1>{error?.message || error}</h1>
       ) : data && playlistId.length > 0 ? (
         <Card className={classes.playlistRoot}>
           <CardHeader
@@ -89,7 +89,7 @@ const PlaylistSection: React.FC<Props> = ({
           {showPlaylistVideos && (
             <CardContent style={{ marginTop: '-30px' }}>
               <List>
-                {data.videos.map(({ id, video, position }: IPlaylistVideo) => (
+                {data.videos.map(({ id, video, position }) => (
                   <ListItem
                     button
                     key={id}

@@ -21,7 +21,6 @@ import { Add, Link, Lock, LockOpen, PlaylistAdd } from '@material-ui/icons';
 
 import { useAuthState } from '../auth';
 import { api } from '../api';
-import type { IPlaylist, IPlaylistVideo } from '../types/models';
 import { usePlaylists, useUserLibrary } from '../hooks';
 import PrivacySelectInput from './PrivacySelectInput';
 
@@ -39,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
+const AddToPlaylistButton: React.FC<Props> = ({ videoId }) => {
   const { isLogged, user } = useAuthState();
 
   if (!isLogged) return <Button startIcon={<PlaylistAdd />}>Save</Button>;
@@ -53,15 +52,15 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
 
   const [openForm, setOpenForm] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
-  const [title, setTitle] = useState<string>('');
+  const [title, setTitle] = useState('');
   const [privacyStatus, setPrivacyStatus] = useState('Private');
 
   useEffect(() => {
     const playlistIds: string[] = [];
 
     if (data) {
-      data.forEach((playlist: IPlaylist) => {
-        playlist.videos.forEach((video: IPlaylistVideo) => {
+      data.results.forEach((playlist) => {
+        playlist.videos.forEach((video) => {
           if (
             new String(video.video.id).valueOf() ===
             new String(videoId).valueOf()
@@ -88,8 +87,8 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
           position: 0,
         });
 
-        await api.put(`/libraries/${userLibraryData.id}/`, {
-          playlists_id: [...userLibraryData.playlists, res.data.id],
+        await api.put(`/libraries/${userLibraryData?.id}`, {
+          playlists_id: [...(userLibraryData?.playlists || []), res.data.id],
         });
       })
   );
@@ -153,9 +152,9 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
-          ) : data.length > 0 ? (
-            data.map(({ id, title, status: playlistStatus }: IPlaylist) => (
+            <h1>{error?.message || error}</h1>
+          ) : (
+            data?.results.map(({ id, title, status: playlistStatus }) => (
               <ListItem
                 button
                 onClick={() => {
@@ -181,7 +180,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
                 </ListItemSecondaryAction>
               </ListItem>
             ))
-          ) : null}
+          )}
           <Divider />
           {!openForm ? (
             <ListItem

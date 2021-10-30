@@ -33,7 +33,7 @@ import {
 import VideoWatchItemCard from '../../components/video/VideoWatchItemCard';
 import { api } from '../../api';
 import SubscribeButton from '../../components/SubscribeButton';
-import type { IVideo, IPlaylistVideo } from '../../types/models';
+import type { IVideo, IPage } from '../../types/models';
 import VideoRatingButtons from '../../components/ratingButtons/Video';
 import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import CommentSection from '../../components/video/CommentSection';
@@ -84,7 +84,7 @@ const Watch: React.FC = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery<any, any>(
+  } = useInfiniteQuery<IPage<IVideo>, Error>(
     ['videos', videoId],
     async ({ pageParam = 1 }) => {
       let page;
@@ -94,9 +94,12 @@ const Watch: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await api.get(
-        `/videos/?exclude=${videoId}&page=${page}`
-      );
+      const { data } = await api.get('/videos', {
+        params: {
+          page,
+          exclude: videoId,
+        },
+      });
 
       return data;
     },
@@ -105,7 +108,7 @@ const Watch: React.FC = () => {
     }
   );
 
-  const loadMoreVideosButtonRef = useRef<HTMLButtonElement | null>(null);
+  const loadMoreVideosButtonRef = useRef<HTMLButtonElement>(null);
 
   useIntersectionObserver({
     target: loadMoreVideosButtonRef,
@@ -119,8 +122,8 @@ const Watch: React.FC = () => {
     error: playlistError,
   } = usePlaylist(playlistId);
 
-  const [volume, setVolume] = useState<number>(1);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     const localStorageVolume = localStorage.getItem('volume');
@@ -133,12 +136,6 @@ const Watch: React.FC = () => {
     setIsMuted(localStorage.getItem('volume') === 'true');
   }, []);
 
-  const videoPlayerConfig = {
-    file: {
-      forceHLS: data ? data.is_stream : false,
-    },
-  };
-
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
@@ -146,7 +143,7 @@ const Watch: React.FC = () => {
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
+            <h1>{error?.message || error}</h1>
           ) : (
             <>
               <div className={classes.playerWrapper}>
@@ -155,45 +152,42 @@ const Watch: React.FC = () => {
                   width="100%"
                   height="100%"
                   // url="http://localhost:8001/live/afe6459a-878b-49f4-934d-81f8f688b5ac/index.m3u8"
-                  url={data.video}
+                  url={data?.video}
                   controls
-                  light={data.thumbnail}
+                  light={data?.thumbnail}
                   volume={volume}
                   muted={isMuted}
-                  config={videoPlayerConfig}
                   pip
                   onEnded={() => {
                     if (playlistId) {
                       let idx = 0;
-                      playlistData.videos.forEach(
-                        (video: IPlaylistVideo, index: number) => {
-                          if (video.video.id === videoId) idx = index;
-                        }
-                      );
+                      playlistData?.videos.forEach((video, index) => {
+                        if (video.video.id === videoId) idx = index;
+                      });
 
                       history.push(
                         // eslint-disable-next-line prettier/prettier
-                        `/watch?v=${playlistData.videos[idx + 1].video.id
+                        `/watch?v=${playlistData?.videos[idx + 1].video.id
                         }&list=${playlistId}`
                       );
                     }
                   }}>
-                  <source src={data.video} type="video/mp4" />
+                  <source src={data?.video} type="video/mp4" />
                 </ReactPlayer>
               </div>
               <List>
                 <ListItem>
                   <ListItemText
-                    primary={data.title}
-                    secondary={`${data.views_count} views • ${new Date(
-                      data.created_at
+                    primary={data?.title}
+                    secondary={`${data?.views_count} views • ${new Date(
+                      data?.created_at || ''
                     ).toLocaleDateString()}`}
                   />
                   <ListItemSecondaryAction>
                     <VideoRatingButtons
-                      video={data.id}
-                      likesCount={data.likes_count}
-                      dislikesCount={data.dislikes_count}
+                      video={data?.id || ''}
+                      likesCount={data?.likes_count || 0}
+                      dislikesCount={data?.dislikes_count || 0}
                     />
                     <Button startIcon={<Share />}>Share</Button>
                     <AddToPlaylistButton videoId={videoId} />
@@ -208,7 +202,7 @@ const Watch: React.FC = () => {
                 <ListItem>
                   <ListItemAvatar>
                     <Avatar
-                      src={data.author.avatar}
+                      src={data?.author.avatar}
                       style={{ width: '48px', height: '48px' }}
                       imgProps={{ loading: 'lazy' }}
                     />
@@ -217,15 +211,15 @@ const Watch: React.FC = () => {
                     primary={
                       <Link
                         component={RRLink}
-                        to={`/channel/${data.author.id}`}
+                        to={`/channel/${data?.author.id}`}
                         color="inherit">
-                        {data.author.username}
+                        {data?.author.username}
                       </Link>
                     }
-                    secondary={`${data.author.subscribers_count} subscribers`}
+                    secondary={`${data?.author.subscribers_count} subscribers`}
                   />
                   <ListItemSecondaryAction>
-                    <SubscribeButton channel={data.author.id} />
+                    <SubscribeButton channel={data?.author.id || ''} />
                     <IconButton>
                       <NotificationsNone />
                     </IconButton>
@@ -238,7 +232,7 @@ const Watch: React.FC = () => {
                   <ListItemText>
                     <Typography>
                       <ReactMarkdown plugins={[remarkGfm]}>
-                        {data.description}
+                        {data?.description || ''}
                       </ReactMarkdown>
                     </Typography>
                   </ListItemText>
@@ -262,12 +256,12 @@ const Watch: React.FC = () => {
             {videosStatus === 'loading' ? (
               <h1>loading...</h1>
             ) : videosStatus === 'error' ? (
-              <h1>{videosError.message}</h1>
+              <h1>{videosError?.message || videosError}</h1>
             ) : (
               <>
                 {videosData &&
-                  videosData.pages.map((page: any) => (
-                    <React.Fragment key={page.nextId}>
+                  videosData.pages.map((page, i) => (
+                    <React.Fragment key={i}>
                       {page.results.map(
                         ({
                           id,
@@ -276,7 +270,7 @@ const Watch: React.FC = () => {
                           views_count,
                           thumbnail,
                           author,
-                        }: IVideo) => (
+                        }) => (
                           <VideoWatchItemCard
                             key={id}
                             id={id}

@@ -25,7 +25,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
   replyComment,
   likesCount,
   dislikesCount,
-}: Props) => {
+}) => {
   const { user, isLogged } = useAuthState();
 
   const [isLiking, setIsLiking] = useState<boolean | null>(null);
@@ -43,7 +43,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
 
   useEffect(() => {
     if (data) {
-      data.forEach((rating: IReplyCommentRating) => {
+      (data.results as IReplyCommentRating[]).forEach((rating) => {
         if (rating.reply_comment === replyComment)
           setIsLiking(rating.is_liking);
       });
@@ -98,7 +98,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
       {status === 'loading' ? (
         <div>loading...</div>
       ) : status === 'error' ? (
-        <div>{error.message}</div>
+        <div>{error?.message || error}</div>
       ) : (
         <>
           <Button

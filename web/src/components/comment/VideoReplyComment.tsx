@@ -42,12 +42,12 @@ const VideoComment: React.FC<Props> = ({
   authorId,
   authorUsername,
   authorAvatar,
-}: Props) => {
+}) => {
   const queryClient = useQueryClient();
 
   const { isLogged, user } = useAuthState();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -59,7 +59,7 @@ const VideoComment: React.FC<Props> = ({
 
   const commentUpdateMutation = useMutation(
     async (comment: { content: string }) =>
-      await api.patch(`reply-comments/${replyId}/`, comment),
+      await api.patch(`reply-comments/${replyId}`, comment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -69,7 +69,7 @@ const VideoComment: React.FC<Props> = ({
   const handleEdit = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt()!;
+    let content = prompt() || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -81,7 +81,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    async () => await api.delete(`reply-comments/${replyId}/`),
+    async () => await api.delete(`reply-comments/${replyId}`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -91,9 +91,10 @@ const VideoComment: React.FC<Props> = ({
   const handleDelete = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt(
-      'Are you sure you want to delete that comment? Type y if you want.'
-    )!;
+    let content =
+      prompt(
+        'Are you sure you want to delete that comment? Type y if you want.'
+      ) || '';
 
     if (content) content = content.trim();
     else content = '';

@@ -49,8 +49,8 @@ const Login: React.FC = () => {
     username: '',
     password: '',
   });
-  const [error, setError] = useState<string>('');
-  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState<boolean>(false);
+  const [error, setError] = useState('');
+  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState(false);
 
   const dispatch = useAuthDispatch();
   const { isLogged, loading, errorMessage } = useAuthState();
@@ -82,9 +82,7 @@ const Login: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {

@@ -144,11 +144,11 @@ const Layout: React.FC = ({ children }) => {
   const classes = useStyles();
   const history = useHistory();
 
-  const [isOpen, setIsOpen] = useState<boolean>(
-    localStorage.getItem('drawerIsOpen')! === 'true' ? true : false
+  const [isOpen, setIsOpen] = useState(
+    localStorage.getItem('drawerIsOpen') === 'true' ? true : false
   );
 
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuOpen = !!anchorEl;

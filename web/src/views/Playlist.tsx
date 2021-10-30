@@ -33,13 +33,17 @@ import {
 
 import { usePlaylist } from '../hooks';
 import { useAuthState } from '../auth';
-import type { IPlaylistVideo } from '../types/models';
 import SubscribeButton from '../components/SubscribeButton';
 import { api } from '../api';
 import AddToLibraryButton from '../components/AddToLibraryButton';
 import PrivacySelectInput from '../components/PrivacySelectInput';
 import PlaylistEditInputForm from '../components/PlaylistEditInputFormProps';
 import PlaylistItem from '../components/PlaylistItem';
+
+type IPlaylistMutationData =
+  | { title: string }
+  | { status: string }
+  | { description: string };
 
 const Playlist: React.FC = () => {
   const queryClient = useQueryClient();
@@ -70,13 +74,8 @@ const Playlist: React.FC = () => {
   const [isDescriptionFormOpen, setIsDescriptionFormOpen] = useState(false);
   const [description, setDescription] = useState(data ? data.description : '');
 
-  type PlaylistMutationData =
-    | { title: string }
-    | { status: string }
-    | { description: string };
-
   const playlistMutation = useMutation(
-    async (newPlaylistData: PlaylistMutationData) =>
+    async (newPlaylistData: IPlaylistMutationData) =>
       await api.patch(`/playlists/${id}/`, newPlaylistData),
     {
       onSuccess: async () => {
@@ -88,13 +87,13 @@ const Playlist: React.FC = () => {
   );
 
   const updateTitle = async () => {
-    if (!isLogged || user.id !== data.author.id) return;
+    if (!isLogged || user.id !== data?.author.id) return;
 
     await playlistMutation.mutateAsync({ title: title });
   };
 
   const updateDescription = async () => {
-    if (!isLogged || user.id !== data.author.id) return;
+    if (!isLogged || user.id !== data?.author.id) return;
 
     await playlistMutation.mutateAsync({ description: description });
   };
@@ -102,7 +101,7 @@ const Playlist: React.FC = () => {
   const handlePrivacyStatusChange = async (
     event: React.ChangeEvent<{ value: unknown }>
   ) => {
-    if (!isLogged || user.id !== data.author.id) return;
+    if (!isLogged || user.id !== data?.author.id) return;
 
     setPrivacyStatus(event.target.value as string);
 
@@ -113,18 +112,19 @@ const Playlist: React.FC = () => {
     async () => await api.delete(`/playlists/${id}/`),
     {
       onSuccess: async () => {
-        await queryClient.invalidateQueries(['playlists', data.author.id]);
+        await queryClient.invalidateQueries(['playlists', data?.author?.id]);
         history.push('/');
       },
     }
   );
 
   const handleDelete = async () => {
-    if (!isLogged || user.id !== data.author.id) return;
+    if (!isLogged || user.id !== data?.author.id) return;
 
-    let content = prompt(
-      'Are you sure you want to delete this playlist? Type y if you want.'
-    )!;
+    let content =
+      prompt(
+        'Are you sure you want to delete this playlist? Type y if you want.'
+      ) || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -137,16 +137,16 @@ const Playlist: React.FC = () => {
       {status === 'loading' ? (
         <h1>loading...</h1>
       ) : status === 'error' ? (
-        <h1>{error.message}</h1>
+        <h1>{error?.message || error}</h1>
       ) : (
         <Grid container>
           <Grid item lg={2} md={4} sm={12}>
             <img
-              src={data.videos[0].video.thumbnail}
+              src={data?.videos?.[0].video.thumbnail}
               style={{ width: 'calc(100% - 10px)' }}
             />
             <RRLink
-              to={`/watch?v=${data.videos[0].video.id}&list=${id}&index=1`}>
+              to={`/watch?v=${data?.videos?.[0].video.id}&list=${id}&index=1`}>
               <Button fullWidth startIcon={<PlayArrow />}>
                 Play all
               </Button>
@@ -156,7 +156,7 @@ const Playlist: React.FC = () => {
                 isFormOpen={isTitleFormOpen}
                 setIsFormOpen={setIsTitleFormOpen}
                 label="Title"
-                displayValue={data.title}
+                displayValue={data?.title || ''}
                 value={title}
                 setValue={setTitle}
                 updateValue={updateTitle}
@@ -166,18 +166,18 @@ const Playlist: React.FC = () => {
               <ListItem>
                 <ListItemText
                   secondary={
-                    data.videos.length +
+                    data?.videos?.length +
                     ' videos · ' +
-                    data.views_count +
+                    data?.views_count +
                     ' · updated ' +
-                    new Date(data.updated_at).toLocaleDateString()
+                    new Date(data?.updated_at || '').toLocaleDateString()
                   }
                 />
               </ListItem>
               <ListItem>
                 <ListItemText
                   secondary={
-                    user.id === data.author.id ? (
+                    user.id === data?.author.id ? (
                       <PrivacySelectInput
                         value={privacyStatus}
                         handleChange={handlePrivacyStatusChange}
@@ -204,7 +204,7 @@ const Playlist: React.FC = () => {
               </ListItem>
               <ListItem>
                 <ListItemText>
-                  {user.id !== data.author.id && (
+                  {user.id !== data?.author.id && (
                     <AddToLibraryButton playlistId={id} />
                   )}
                   <IconButton>
@@ -222,7 +222,7 @@ const Playlist: React.FC = () => {
                     keepMounted
                     open={Boolean(anchorEl)}
                     onClose={handleClose}>
-                    {user.id === data.author.id ? (
+                    {user.id === data?.author.id ? (
                       <MenuItem
                         onClick={() => {
                           handleClose();
@@ -248,7 +248,7 @@ const Playlist: React.FC = () => {
                 isFormOpen={isDescriptionFormOpen}
                 setIsFormOpen={setIsDescriptionFormOpen}
                 label="Description"
-                displayValue={data.description}
+                displayValue={data?.description || ''}
                 value={description}
                 setValue={setDescription}
                 updateValue={updateDescription}
@@ -258,9 +258,9 @@ const Playlist: React.FC = () => {
               <Divider />
               <ListItem>
                 <ListItemAvatar>
-                  <RRLink to={`/channel/${data.author.id}`}>
+                  <RRLink to={`/channel/${data?.author.id}`}>
                     <Avatar
-                      src={data.author.avatar}
+                      src={data?.author.avatar}
                       style={{ width: '48px', height: '48px' }}
                       imgProps={{ loading: 'lazy' }}
                     />
@@ -270,12 +270,12 @@ const Playlist: React.FC = () => {
                   <Link
                     component={RRLink}
                     color="inherit"
-                    to={`/channel/${data.author.id}`}>
-                    {data.author.username}
+                    to={`/channel/${data?.author.id}`}>
+                    {data?.author.username}
                   </Link>
                 </ListItemText>
                 <ListItemSecondaryAction>
-                  <SubscribeButton channel={data.author.id} />
+                  <SubscribeButton channel={data?.author.id || ''} />
                 </ListItemSecondaryAction>
               </ListItem>
             </List>
@@ -283,19 +283,17 @@ const Playlist: React.FC = () => {
           <Grid item lg={10} md={8} sm={12}>
             <Container>
               <List>
-                {data.videos.map(
-                  ({ id: vId, video, position }: IPlaylistVideo) => (
-                    <PlaylistItem
-                      key={vId}
-                      objId={vId}
-                      video={video}
-                      position={position}
-                      playlistId={id}
-                      playlistTitle={data.title}
-                      playlistAuthorId={data.author.id}
-                    />
-                  )
-                )}
+                {data?.videos.map(({ id: vId, video, position }) => (
+                  <PlaylistItem
+                    key={vId}
+                    objId={vId}
+                    video={video}
+                    position={position}
+                    playlistId={id}
+                    playlistTitle={data.title}
+                    playlistAuthorId={data.author.id}
+                  />
+                ))}
               </List>
             </Container>
           </Grid>

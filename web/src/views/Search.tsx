@@ -5,7 +5,7 @@ import { Container } from '@material-ui/core';
 
 import { useIntersectionObserver, useQuery } from '../hooks';
 import VideoSearchCard from '../components/video/VideoSearchCard';
-import type { IVideo } from '../types/models';
+import type { IPage, IVideo } from '../types/models';
 import { api } from '../api';
 
 const Search: React.FC = () => {
@@ -18,7 +18,7 @@ const Search: React.FC = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery<any, any>(
+  } = useInfiniteQuery<IPage<IVideo>, Error>(
     'videos',
     async ({ pageParam = 1 }) => {
       let page;
@@ -28,7 +28,12 @@ const Search: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await api.get(`/videos/?page=${page}&search=${query}`);
+      const { data } = await api.get('/videos', {
+        params: {
+          page,
+          search: query,
+        },
+      });
       return data;
     },
     {
@@ -36,7 +41,7 @@ const Search: React.FC = () => {
     }
   );
 
-  const loadMoreVideosButtonRef = useRef<HTMLButtonElement | null>(null);
+  const loadMoreVideosButtonRef = useRef<HTMLButtonElement>(null);
 
   useIntersectionObserver({
     target: loadMoreVideosButtonRef,
@@ -53,12 +58,12 @@ const Search: React.FC = () => {
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
+            <h1>{error?.message || error}</h1>
           ) : (
             <>
               {data &&
-                data.pages.map((page: any) => (
-                  <React.Fragment key={page.nextId}>
+                data.pages.map((page, i) => (
+                  <React.Fragment key={i}>
                     {page.results.map(
                       ({
                         title,
@@ -68,7 +73,7 @@ const Search: React.FC = () => {
                         created_at,
                         author,
                         thumbnail,
-                      }: IVideo) => (
+                      }) => (
                         <VideoSearchCard
                           key={id}
                           title={title}

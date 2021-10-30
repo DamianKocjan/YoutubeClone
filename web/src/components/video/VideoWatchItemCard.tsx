@@ -64,7 +64,7 @@ const VideoWatchItemCard: React.FC<Props> = ({
   authorAvatar,
   authorId,
   authorName,
-}: Props) => {
+}) => {
   const classes = useStyles();
 
   return (

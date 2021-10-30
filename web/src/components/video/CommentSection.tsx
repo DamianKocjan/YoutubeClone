@@ -20,19 +20,19 @@ import { useIntersectionObserver } from '../../hooks';
 import { api } from '../../api';
 import { useAuthState } from '../../auth';
 import VideoComment from '../comment/VideoComment';
-import type { IVideoComment } from '../../types/models';
+import type { IPage, IVideoComment } from '../../types/models';
 
 interface Props {
   videoId: string;
 }
 
-const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
+const CommentSection: React.FC<Props> = ({ videoId }) => {
   const queryClient = useQueryClient();
   const { isLogged, user } = useAuthState();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [showButtons, setShowButtons] = useState<boolean>(false);
-  const [content, setContent] = useState<string>('');
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [showButtons, setShowButtons] = useState(false);
+  const [content, setContent] = useState('');
 
   const {
     status,
@@ -41,7 +41,7 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery<any, any>(
+  } = useInfiniteQuery<IPage<IVideoComment>, Error>(
     ['video_comments', videoId],
     async ({ pageParam = 1 }) => {
       let page;
@@ -51,9 +51,12 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await api.get(
-        `/comments/?video=${videoId}&page=${page}`
-      );
+      const { data } = await api.get('/comments', {
+        params: {
+          video: videoId,
+          page,
+        },
+      });
 
       return data;
     },
@@ -151,12 +154,12 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
         {status === 'loading' ? (
           <h1>loading...</h1>
         ) : status === 'error' ? (
-          <h1>{error.message}</h1>
+          <h1>{error?.message || error}</h1>
         ) : (
           <>
             {data &&
-              data.pages.map((page: any) => (
-                <React.Fragment key={page.nextId}>
+              data.pages.map((page, i) => (
+                <React.Fragment key={i}>
                   {page.results.map(
                     ({
                       id,
@@ -165,7 +168,7 @@ const CommentSection: React.FC<Props> = ({ videoId }: Props) => {
                       dislikes_count,
                       created_at,
                       author,
-                    }: IVideoComment) => (
+                    }) => (
                       <VideoComment
                         key={id}
                         commentId={id}

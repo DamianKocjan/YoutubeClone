@@ -62,10 +62,8 @@ const VideoSearchCard: React.FC<Props> = ({
   authorAvatar,
   authorId,
   authorName,
-}: Props) => {
+}) => {
   const classes = useStyles();
-
-  const now = new Date();
 
   return (
     <Card className={classes.root}>

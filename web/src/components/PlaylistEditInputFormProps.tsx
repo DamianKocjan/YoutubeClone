@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import Edit from '@material-ui/icons/Edit';
 
-import type { IChannel } from '../types/models';
+import type { IChannel, IPlaylist } from '../types/models';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -29,7 +29,7 @@ interface Props {
   setValue: (value: string) => void;
   updateValue: () => Promise<void>;
   user: IChannel;
-  data: any;
+  data: IPlaylist | undefined;
 }
 
 const PlaylistEditInputForm: React.FC<Props> = ({
@@ -42,13 +42,13 @@ const PlaylistEditInputForm: React.FC<Props> = ({
   updateValue,
   user,
   data,
-}: Props) => {
+}) => {
   const classes = useStyles();
 
   return (
     <ListItem>
       <ListItemText>
-        {isFormOpen && user.id === data.author.id ? (
+        {isFormOpen && user.id === data?.author.id ? (
           <>
             <TextField
               label={label}
@@ -73,7 +73,7 @@ const PlaylistEditInputForm: React.FC<Props> = ({
           <>{displayValue}</>
         )}
       </ListItemText>
-      {!isFormOpen && user.id === data.author.id && (
+      {!isFormOpen && user.id === data?.author.id && (
         <ListItemSecondaryAction>
           <IconButton
             onClick={() => {

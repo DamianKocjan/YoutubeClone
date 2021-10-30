@@ -12,7 +12,6 @@ import {
 } from '@material-ui/core';
 
 import { useChannelVideos } from '../../hooks';
-import type { IVideo } from '../../types/models';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -84,10 +83,10 @@ const Home: React.FC = () => {
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
-          ) : data.length > 0 ? (
-            data.map(
-              ({ title, id, created_at, thumbnail, duration }: IVideo) => (
+            <h1>{error?.message || error}</h1>
+          ) : (
+            data?.results.map(
+              ({ title, id, created_at, thumbnail, duration }) => (
                 <GridListTile component={Link} to={`/watch?v=${id}`} key={id}>
                   <img
                     loading="lazy"
@@ -108,7 +107,7 @@ const Home: React.FC = () => {
                 </GridListTile>
               )
             )
-          ) : null}
+          )}
         </GridList>
       </div>
     </>

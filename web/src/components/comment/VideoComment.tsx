@@ -27,7 +27,7 @@ import {
 
 import { api } from '../../api';
 import VideoReplyComment from './VideoReplyComment';
-import type { IVideoReplyComment } from '../../types/models';
+import type { IPage, IVideoReplyComment } from '../../types/models';
 import CommentRatingButtons from '../ratingButtons/Comment';
 import { useIntersectionObserver } from '../../hooks';
 import { useAuthState } from '../../auth';
@@ -52,7 +52,7 @@ const VideoComment: React.FC<Props> = ({
   authorId,
   authorUsername,
   authorAvatar,
-}: Props) => {
+}) => {
   const queryClient = useQueryClient();
 
   const {
@@ -62,7 +62,7 @@ const VideoComment: React.FC<Props> = ({
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery<any, any>(
+  } = useInfiniteQuery<IPage<IVideoReplyComment>, Error>(
     ['video_reply_comments', commentId],
     async ({ pageParam = 1 }) => {
       let page;
@@ -90,14 +90,14 @@ const VideoComment: React.FC<Props> = ({
     enabled: hasNextPage,
   });
 
-  const [showReplies, setShowReplies] = useState<boolean>(false);
+  const [showReplies, setShowReplies] = useState(false);
 
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [replyContent, setReplyContent] = useState<string>('');
+  const [showForm, setShowForm] = useState(false);
+  const [replyContent, setReplyContent] = useState('');
 
-  const [showButtons, setShowButtons] = useState<boolean>(false);
+  const [showButtons, setShowButtons] = useState(false);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const { isLogged, user } = useAuthState();
 
@@ -111,7 +111,7 @@ const VideoComment: React.FC<Props> = ({
 
   const commentUpdateMutation = useMutation(
     async (comment: { content: string }) =>
-      await api.patch(`comments/${commentId}/`, comment),
+      await api.patch(`comments/${commentId}`, comment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -121,7 +121,7 @@ const VideoComment: React.FC<Props> = ({
   const handleEdit = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt()!;
+    let content = prompt() || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -133,7 +133,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    async () => await api.delete(`comments/${commentId}/`),
+    async () => await api.delete(`comments/${commentId}`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -143,9 +143,10 @@ const VideoComment: React.FC<Props> = ({
   const handleDelete = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt(
-      'Are you sure you want to delete that comment? Type y if you want.'
-    )!;
+    let content =
+      prompt(
+        'Are you sure you want to delete that comment? Type y if you want.'
+      ) || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -155,7 +156,7 @@ const VideoComment: React.FC<Props> = ({
 
   const replyCommentMutation = useMutation(
     async (newReplyComment: { comment: string; content: string }) =>
-      await api.post('reply-comments/', newReplyComment),
+      await api.post('reply-comments', newReplyComment),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries([
@@ -283,12 +284,12 @@ const VideoComment: React.FC<Props> = ({
         (status === 'loading' ? (
           <h1>loading...</h1>
         ) : status === 'error' ? (
-          <h1>{error.message}</h1>
+          <h1>{error?.message || error}</h1>
         ) : (
           <>
             {data &&
-              data.pages.map((page: any) => (
-                <React.Fragment key={page.nextId}>
+              data.pages.map((page, i) => (
+                <React.Fragment key={i}>
                   {page.results.map(
                     ({
                       id,
@@ -297,7 +298,7 @@ const VideoComment: React.FC<Props> = ({
                       dislikes_count,
                       created_at,
                       author,
-                    }: IVideoReplyComment) => (
+                    }) => (
                       <VideoReplyComment
                         key={id}
                         replyId={id}

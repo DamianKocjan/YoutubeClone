@@ -15,7 +15,7 @@ interface Props {
   playlistId: string;
 }
 
-const AddToLibraryButton: React.FC<Props> = ({ playlistId }: Props) => {
+const AddToLibraryButton: React.FC<Props> = ({ playlistId }) => {
   const { isLogged, user } = useAuthState();
   const queryClient = useQueryClient();
 
@@ -30,8 +30,8 @@ const AddToLibraryButton: React.FC<Props> = ({ playlistId }: Props) => {
 
   const addToLibraryMutation = useMutation(
     async () =>
-      await api.put(`/libraries/${data.id}/`, {
-        playlists_id: [...data.playlists, playlistId],
+      await api.put(`/libraries/${data?.id}/`, {
+        playlists_id: [...data?.playlists || [], playlistId],
       }),
     {
       onSuccess: async () => {
@@ -47,11 +47,11 @@ const AddToLibraryButton: React.FC<Props> = ({ playlistId }: Props) => {
 
   const removeFromLibraryMutation = useMutation(
     async () =>
-      await api.put(`/libraries/${data.id}/`, {
+      await api.put(`/libraries/${data?.id}/`, {
         playlists_id: [
-          ...data.playlists.filter(
-            (playlist: IPlaylist) => String(playlist.id) !== String(playlistId)
-          ),
+          ...data?.playlists.filter(
+            (playlist) => String(playlist.id) !== String(playlistId)
+          ) || [],
         ],
       }),
     {
@@ -78,7 +78,7 @@ const AddToLibraryButton: React.FC<Props> = ({ playlistId }: Props) => {
       {status === 'loading' ? (
         <h1>loading...</h1>
       ) : status === 'error' ? (
-        <h1>{error.message}</h1>
+        <h1>{error?.message || error}</h1>
       ) : !isPlaylistInLibrary ? (
         <IconButton onClick={handleAddToLibrary}>
           <PlaylistAdd />

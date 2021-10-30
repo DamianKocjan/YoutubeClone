@@ -9,7 +9,7 @@ interface Props {
   title: string;
 }
 
-const DrawerListItem: React.FC<Props> = ({ to, icon, title }: Props) => {
+const DrawerListItem: React.FC<Props> = ({ to, icon, title }) => {
   return (
     <ListItem button component={Link} to={to}>
       <ListItemIcon>{icon}</ListItemIcon>

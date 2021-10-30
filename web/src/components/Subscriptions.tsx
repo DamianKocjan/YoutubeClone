@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core';
 import { ExpandLess, ExpandMore } from '@material-ui/icons';
 
-import type { IChannel, ISubscription } from '../types/models';
+import type { IChannel } from '../types/models';
 import { useSubscriptions } from '../hooks';
 
 interface Props {
@@ -23,9 +23,9 @@ interface Props {
   isOpen: boolean;
 }
 
-const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
+const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }) => {
   const { status, data, error } = useSubscriptions(user.id);
-  const [showMoreSubs, setShowMoreSubs] = useState<boolean>(false);
+  const [showMoreSubs, setShowMoreSubs] = useState(false);
 
   return (
     <>
@@ -46,15 +46,15 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
                   <ListItemAvatar>
                     <></>
                   </ListItemAvatar>
-                  <ListItemText primary={error.message} />
+                  <ListItemText primary={error?.message || error} />
                 </ListItem>
               ) : (
                 <>
-                  {data.length > 0 && (
+                  {data?.results && (
                     <ListSubheader color="inherit">Subscriptions</ListSubheader>
                   )}
                   {showMoreSubs
-                    ? data.map(({ id, channel }: ISubscription) => (
+                    ? data?.results.map(({ id, channel }) => (
                       <ListItem
                         key={id}
                         button
@@ -70,7 +70,7 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
                         <ListItemText primary={channel.username} />
                       </ListItem>
                     ))
-                    : data.slice(0, 8).map(({ id, channel }: ISubscription) => (
+                    : data?.results.slice(0, 8).map(({ id, channel }) => (
                       <ListItem
                         key={id}
                         button
@@ -86,7 +86,7 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
                         <ListItemText primary={channel.username} />
                       </ListItem>
                     ))}
-                  {data.length - 7 > 0 && (
+                  {(data?.results.length || 0) - 7 && (
                     <ListItem
                       button
                       onClick={() => {
@@ -100,7 +100,7 @@ const Subscriptions: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
                         primary={
                           showMoreSubs
                             ? 'Show less'
-                            : `Show ${data.length - 7} more`
+                            : `Show ${(data?.results.length || 0) - 7} more`
                         }
                       />
                     </ListItem>

@@ -24,9 +24,16 @@ export interface IPlaylist {
   author: IChannel;
   description: string;
   status: string;
-  videos: IPlaylistVideo[] | any[];
+  videos: IPlaylistVideo[];
+  views_count: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface ILibrary {
+  id: string;
+  user: string;
+  playlists: IPlaylist[];
 }
 
 export interface ISubscription {
@@ -40,11 +47,14 @@ export interface IVideo {
   id: string;
   title: string;
   description: string;
+  video: string; // URL
   duration: number;
   created_at: string;
   views_count: number;
   thumbnail: string;
   author: IChannel;
+  likes_count: number;
+  dislikes_count: number;
 }
 
 export interface IVideoComment {
@@ -64,4 +74,24 @@ export interface IVideoReplyComment {
   comment: string;
   author: IChannel;
   created_at: string;
+}
+
+export interface IRating {
+  id: string;
+  is_liking: boolean;
+  user: string;
+  created_at: string;
+  updated_at: string;
+
+  // if we search video ratings video (video id) will be in API response
+  video?: string;
+  comment?: string;
+  reply_comment?: string;
+}
+
+export interface IPage<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }
