@@ -345,7 +345,6 @@ const Layout: React.FC = ({ children }) => {
           </div>
         </List>
         <Subscriptions isLogged={isLogged} user={user} isOpen={isOpen} />
-        <Divider />
         <List>
           <div>
             <DrawerListItem to="/" icon={<SettingsIcon />} title="Settings" />

@@ -41,10 +41,10 @@ const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }) => {
             </ListItemAvatar>
             <ListItemText primary={error?.message || error} />
           </ListItem>
-        ) : (
+        ) : data && (
           <>
             {showMorePlaylists
-              ? data?.playlists.map(({ id, title }) => (
+              ? data.playlists.map(({ id, title }) => (
                 <DrawerListItem
                   key={id}
                   to={`/playlist/${id}`}
@@ -52,7 +52,7 @@ const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }) => {
                   title={title}
                 />
               ))
-              : data?.playlists
+              : data.playlists
                 .slice(0, 8)
                 .map(({ id, title }) => (
                   <DrawerListItem
@@ -62,7 +62,7 @@ const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }) => {
                     title={title}
                   />
                 ))}
-            {(data?.playlists?.length || 0) - 7 && (
+            {data.playlists.length - 7 > 0 && (
               <ListItem
                 button
                 onClick={() => {
@@ -76,7 +76,7 @@ const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }) => {
                   primary={
                     showMorePlaylists
                       ? 'Show less'
-                      : `Show ${(data?.playlists?.length || 0) - 7} more`
+                      : `Show ${data.playlists.length - 7} more`
                   }
                 />
               </ListItem>
