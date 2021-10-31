@@ -64,7 +64,7 @@ const PlaylistItem: React.FC<Props> = ({
   };
 
   const playlistVideoDeleteMutation = useMutation(
-    async () => await api.delete(`/playlists-video/${objId}/`),
+    async () => await api.delete(`playlists-video/${objId}/`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['playlist', playlistId]),

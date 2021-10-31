@@ -1,11 +1,11 @@
 import { useQuery } from 'react-query';
 import type { UseQueryResult } from 'react-query';
 import { api } from '../api';
-import { IPage, IVideo } from '../types/models';
+import { IVideo } from '../types/models';
 
 export function useChannelVideos(
   channel = ''
-): UseQueryResult<IPage<IVideo>, Error> {
+): UseQueryResult<IVideo[], Error> {
   return useQuery(['channel_videos', channel], async () => {
     const { data } = await api.get('videos/', {
       params: {
@@ -17,7 +17,7 @@ export function useChannelVideos(
 }
 
 const getVideoById = async (id: string) => {
-  const { data } = await api.get(`videos/${id}`);
+  const { data } = await api.get(`videos/${id}/`);
   return data;
 };
 

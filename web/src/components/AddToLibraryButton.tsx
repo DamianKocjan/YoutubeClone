@@ -30,7 +30,7 @@ const AddToLibraryButton: React.FC<Props> = ({ playlistId }) => {
 
   const addToLibraryMutation = useMutation(
     async () =>
-      await api.put(`/libraries/${data?.id}/`, {
+      await api.put(`libraries/${data?.id}/`, {
         playlists_id: [...data?.playlists || [], playlistId],
       }),
     {
@@ -47,7 +47,7 @@ const AddToLibraryButton: React.FC<Props> = ({ playlistId }) => {
 
   const removeFromLibraryMutation = useMutation(
     async () =>
-      await api.put(`/libraries/${data?.id}/`, {
+      await api.put(`libraries/${data?.id}/`, {
         playlists_id: [
           ...data?.playlists.filter(
             (playlist) => String(playlist.id) !== String(playlistId)

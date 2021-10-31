@@ -38,7 +38,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }) => {
 
   const subscribeMutation = useMutation(
     async (channelId: string) =>
-      await api.post('/subscriptions/', {
+      await api.post('subscriptions/', {
         channel_id: channelId,
         user: user.id,
       }),
@@ -50,7 +50,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }) => {
     }
   );
   const unsubscribeMutation = useMutation(
-    async (subId: string) => await api.delete(`/subscriptions/${subId}`),
+    async (subId: string) => await api.delete(`subscriptions/${subId}/`),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries(['subscriptions_user', user.id]);

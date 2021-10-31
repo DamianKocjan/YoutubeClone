@@ -94,7 +94,7 @@ const Watch: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await api.get('/videos', {
+      const { data } = await api.get('videos/', {
         params: {
           page,
           exclude: videoId,

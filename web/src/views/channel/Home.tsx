@@ -3,9 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 
 import {
   createStyles,
-  GridList,
-  GridListTile,
-  GridListTileBar,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
   makeStyles,
   Theme,
   Typography,
@@ -79,36 +79,35 @@ const Home: React.FC = () => {
     <>
       <Typography variant="h5">Uploads</Typography>
       <div className={classes.root}>
-        <GridList className={classes.gridList} cols={2.5}>
+        <ImageList className={classes.gridList} cols={2.5}>
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
             <h1>{error?.message || error}</h1>
           ) : (
-            data?.results.map(
-              ({ title, id, created_at, thumbnail, duration }) => (
-                <GridListTile component={Link} to={`/watch?v=${id}`} key={id}>
-                  <img
-                    loading="lazy"
-                    src={thumbnail}
-                    alt={title}
-                    className={classes.thumbnail}
-                  />
-                  <GridListTileBar
-                    title={title}
-                    subtitle={new Date(created_at).toLocaleDateString()}
-                    classes={{ root: classes.titleBar }}
-                    actionIcon={
-                      <Typography style={{ color: '#fff' }}>
-                        {convertDuration(duration)}
-                      </Typography>
-                    }
-                  />
-                </GridListTile>
-              )
-            )
+            data &&
+            data.map(({ title, id, created_at, thumbnail, duration }) => (
+              <ImageListItem component={Link} to={`/watch?v=${id}`} key={id}>
+                <img
+                  loading="lazy"
+                  src={thumbnail}
+                  alt={title}
+                  className={classes.thumbnail}
+                />
+                <ImageListItemBar
+                  title={title}
+                  subtitle={new Date(created_at).toLocaleDateString()}
+                  classes={{ root: classes.titleBar }}
+                  actionIcon={
+                    <Typography style={{ color: '#fff' }}>
+                      {convertDuration(duration)}
+                    </Typography>
+                  }
+                />
+              </ImageListItem>
+            ))
           )}
-        </GridList>
+        </ImageList>
       </div>
     </>
   );

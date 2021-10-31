@@ -111,11 +111,6 @@ const useStyles = makeStyles((theme: Theme) =>
     content: {
       flexGrow: 1,
       minHeight: '100vh',
-      maxHeight: '100vh',
-      overflowY: 'scroll',
-    },
-    container: {
-      paddingBottom: theme.spacing(4),
     },
     paper: {
       padding: theme.spacing(2),
@@ -353,7 +348,7 @@ const Layout: React.FC = ({ children }) => {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <div className={classes.container}>{children}</div>
+        <div>{children}</div>
       </main>
     </div>
   );

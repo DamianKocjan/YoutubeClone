@@ -51,7 +51,7 @@ const CommentSection: React.FC<Props> = ({ videoId }) => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await api.get('/comments', {
+      const { data } = await api.get('comments/', {
         params: {
           video: videoId,
           page,
@@ -75,7 +75,7 @@ const CommentSection: React.FC<Props> = ({ videoId }) => {
 
   const commentMutation = useMutation(
     async (newComment: { video: string; content: string }) =>
-      await api.post('/comments/', newComment),
+      await api.post('comments/', newComment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', videoId]),

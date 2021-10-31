@@ -52,7 +52,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
 
   const likingMutation = useMutation(
     async () =>
-      await api.post('/reply-comment-ratings/', {
+      await api.post('reply-comment-ratings/', {
         reply_comment: replyComment,
         user: user.id,
         is_liking: true,
@@ -69,7 +69,7 @@ const ReplyCommentRatingButtons: React.FC<Props> = ({
   );
   const dislikingMutation = useMutation(
     async () =>
-      await api.post('/reply-comment-ratings/', {
+      await api.post('reply-comment-ratings/', {
         reply_comment: replyComment,
         user: user.id,
         is_liking: false,

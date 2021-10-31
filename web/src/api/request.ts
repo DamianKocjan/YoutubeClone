@@ -49,7 +49,7 @@ api.interceptors.response.use(
 
         if (tokenParts.exp > now) {
           try {
-            const response = await api.post('/token/refresh/', {
+            const response = await api.post('token/refresh/', {
               refresh: refreshToken,
             });
 

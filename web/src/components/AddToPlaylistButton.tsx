@@ -80,14 +80,14 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }) => {
       description: string;
       status: string;
     }) =>
-      await api.post('/playlists/', newPlaylist).then(async (res) => {
-        await api.post('/playlists-video/', {
+      await api.post('playlists/', newPlaylist).then(async (res) => {
+        await api.post('playlists-video/', {
           playlist_id: res.data.id,
           video_id: videoId,
           position: 0,
         });
 
-        await api.put(`/libraries/${userLibraryData?.id}`, {
+        await api.put(`libraries/${userLibraryData?.id}/`, {
           playlists_id: [...(userLibraryData?.playlists || []), res.data.id],
         });
       })
@@ -114,7 +114,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }) => {
     setOpen(false);
 
     selected.forEach(async (id, index) => {
-      await api.post('/playlists-video/', {
+      await api.post('playlists-video/', {
         playlist_id: id,
         video_id: videoId,
         position: index,

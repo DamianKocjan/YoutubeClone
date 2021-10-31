@@ -52,7 +52,7 @@ const Videos: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await api.get(`/videos/?page=${page}&author=${id}`);
+      const { data } = await api.get(`videos/?page=${page}&author=${id}`);
       return data;
     },
     {

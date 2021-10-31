@@ -76,7 +76,7 @@ const Playlist: React.FC = () => {
 
   const playlistMutation = useMutation(
     async (newPlaylistData: IPlaylistMutationData) =>
-      await api.patch(`/playlists/${id}/`, newPlaylistData),
+      await api.patch(`playlists/${id}/`, newPlaylistData),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries(['playlist', id]);
@@ -109,7 +109,7 @@ const Playlist: React.FC = () => {
   };
 
   const playlistDeleteMutation = useMutation(
-    async () => await api.delete(`/playlists/${id}/`),
+    async () => await api.delete(`playlists/${id}/`),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries(['playlists', data?.author?.id]);

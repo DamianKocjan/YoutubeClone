@@ -111,7 +111,7 @@ const VideoComment: React.FC<Props> = ({
 
   const commentUpdateMutation = useMutation(
     async (comment: { content: string }) =>
-      await api.patch(`comments/${commentId}`, comment),
+      await api.patch(`comments/${commentId}/`, comment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -133,7 +133,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    async () => await api.delete(`comments/${commentId}`),
+    async () => await api.delete(`comments/${commentId}/`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -156,7 +156,7 @@ const VideoComment: React.FC<Props> = ({
 
   const replyCommentMutation = useMutation(
     async (newReplyComment: { comment: string; content: string }) =>
-      await api.post('reply-comments', newReplyComment),
+      await api.post('reply-comments/', newReplyComment),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries([

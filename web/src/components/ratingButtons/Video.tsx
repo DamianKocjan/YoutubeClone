@@ -51,7 +51,7 @@ const VideoRatingButtons: React.FC<Props> = ({
 
   const likingMutation = useMutation(
     async () =>
-      await api.post('/video-ratings', {
+      await api.post('video-ratings/', {
         video: video,
         user: user.id,
         is_liking: true,
@@ -65,7 +65,7 @@ const VideoRatingButtons: React.FC<Props> = ({
   );
   const dislikingMutation = useMutation(
     async () =>
-      await api.post('/video-ratings', {
+      await api.post('video-ratings/', {
         video: video,
         user: user.id,
         is_liking: false,
