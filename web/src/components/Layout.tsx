@@ -167,11 +167,11 @@ const Layout: React.FC = ({ children }) => {
 
   const handleDrawerOpen = () => {
     setIsOpen(true);
-    localStorage.setItem('drawerIsOpen', String(true));
+    localStorage.setItem('drawerIsOpen', 'true');
   };
   const handleDrawerClose = () => {
     setIsOpen(false);
-    localStorage.setItem('drawerIsOpen', String(false));
+    localStorage.setItem('drawerIsOpen', 'false');
   };
 
   const handleMenuClick = (
