@@ -14,11 +14,13 @@ def get_user_upload_to(instance, filename: str) -> str:
 
 
 class User(AbstractUser):
-    avatar      = models.ImageField('avatar', upload_to=get_user_upload_to, blank=True, null=True)
-    background  = models.ImageField('background', upload_to=get_user_upload_to, blank=True, null=True)
+    avatar = models.ImageField(
+        'avatar', upload_to=get_user_upload_to, blank=True, null=True)
+    background = models.ImageField(
+        'background', upload_to=get_user_upload_to, blank=True, null=True)
     description = models.TextField(max_length=200, default='')
-    location    = CountryField(blank=True)
-    stream_key  = models.UUIDField(default=uuid.uuid4)
+    location = CountryField(blank=True)
+    stream_key = models.UUIDField(default=uuid.uuid4)
 
     class Meta:
         db_table = 'auth_user'
@@ -27,7 +29,8 @@ class User(AbstractUser):
         super(User, self).save(*args, **kwargs)
 
         if self.avatar:
-            self.avatar = self.rename_file(str(self.avatar), name='avatar').replace('/', '\\')
+            self.avatar = self.rename_file(
+                str(self.avatar), name='avatar').replace('/', '\\')
             super().save()
 
             avatar = Image.open(self.avatar)
@@ -36,7 +39,8 @@ class User(AbstractUser):
             avatar.save(self.avatar.path, quality=90)
 
         if self.background:
-            self.background = self.rename_file(str(self.background), name='background').replace('/', '\\')
+            self.background = self.rename_file(
+                str(self.background), name='background').replace('/', '\\')
             super().save()
 
             background = Image.open(self.background)
@@ -62,8 +66,10 @@ class User(AbstractUser):
 
 
 class Subscription(models.Model):
-    channel    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_channel')
-    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_user')
+    channel = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='subscription_channel')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='subscription_user')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

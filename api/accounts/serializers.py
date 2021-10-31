@@ -15,7 +15,8 @@ class UserSerializer(CountryFieldMixin, ModelSerializer):
     class Meta:
         model = User
         read_only_fields = ['subscribers_count']
-        exclude = ['password', 'user_permissions', 'groups', 'last_login', 'is_superuser', 'is_staff', 'is_active']
+        exclude = ['password', 'user_permissions', 'groups',
+                   'last_login', 'is_superuser', 'is_staff', 'is_active']
 
 
 class SubscriptionUserSerializer(ModelSerializer):
@@ -28,7 +29,8 @@ class SubscriptionUserSerializer(ModelSerializer):
 
 class SubscriptionSerializer(ModelSerializer):
     channel = SubscriptionUserSerializer(many=False, read_only=True)
-    channel_id = PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
+    channel_id = PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True)
 
     class Meta:
         model = Subscription
@@ -39,5 +41,6 @@ class SubscriptionSerializer(ModelSerializer):
         if validated_data['channel_id'] == validated_data['user']:
             return Response(status=status.HTTP_409_CONFLICT)
 
-        subscription, created = Subscription.objects.get_or_create(channel=validated_data['channel_id'], user=validated_data['user'])
+        subscription, created = Subscription.objects.get_or_create(
+            channel=validated_data['channel_id'], user=validated_data['user'])
         return subscription

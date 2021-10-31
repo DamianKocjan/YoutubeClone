@@ -25,7 +25,8 @@ class PlaylistViews(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         if not request.user.is_anonymous:
-            view = PlaylistView.objects.create(user=request.user, playlist=self.get_object())
+            view = PlaylistView.objects.create(
+                user=request.user, playlist=self.get_object())
             view.save()
         else:
             view = PlaylistView.objects.create(playlist=self.get_object())

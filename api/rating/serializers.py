@@ -16,7 +16,8 @@ class CommentRatingSerializer(RatingBaseSerializer):
         model = CommentRating
 
     def create(self, validated_data):
-        rating, created = CommentRating.objects.get_or_create(user=validated_data['user'], comment=validated_data['comment'])
+        rating, created = CommentRating.objects.get_or_create(
+            user=validated_data['user'], comment=validated_data['comment'])
         rating.is_liking = validated_data['is_liking']
         rating.save()
 
@@ -28,7 +29,8 @@ class ReplyCommentRatingSerializer(RatingBaseSerializer):
         model = ReplyCommentRating
 
     def create(self, validated_data):
-        rating, created = ReplyCommentRating.objects.get_or_create(user=validated_data['user'], reply_comment=validated_data['reply_comment'])
+        rating, created = ReplyCommentRating.objects.get_or_create(
+            user=validated_data['user'], reply_comment=validated_data['reply_comment'])
         rating.is_liking = validated_data['is_liking']
         rating.save()
 
@@ -40,7 +42,8 @@ class VideoRatingSerializer(RatingBaseSerializer):
         model = VideoRating
 
     def create(self, validated_data):
-        rating, created = VideoRating.objects.get_or_create(user=validated_data['user'], video=validated_data['video'])
+        rating, created = VideoRating.objects.get_or_create(
+            user=validated_data['user'], video=validated_data['video'])
         rating.is_liking = validated_data['is_liking']
         rating.save()
 

@@ -1,5 +1,6 @@
 import random
 
+
 class Markov(object):
     def __init__(self, open_file):
         self.cache = {}
@@ -22,7 +23,7 @@ class Markov(object):
         """
 
         if len(self.words) < 3:
-          return
+            return
 
         for i in range(len(self.words) - 2):
             yield (self.words[i], self.words[i+1], self.words[i+2])
