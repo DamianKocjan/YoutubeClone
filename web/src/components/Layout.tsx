@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme: Theme) =>
       lineHeight: '100%',
     },
     drawerPaper: {
-      position: 'relative',
+      position: 'fixed',
       whiteSpace: 'nowrap',
       width: drawerWidth,
       transition: theme.transitions.create('width', {
@@ -131,6 +131,20 @@ const useStyles = makeStyles((theme: Theme) =>
     searchContainer: {
       flexGrow: 1,
       alignItems: 'center',
+    },
+    container1: {
+      marginLeft: drawerWidth,
+      transition: theme.transitions.create('margin-left', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    container2: {
+      marginLeft: theme.spacing(9),
+      transition: theme.transitions.create('margin-left', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
     },
   })
 );
@@ -348,7 +362,9 @@ const Layout: React.FC = ({ children }) => {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <div>{children}</div>
+        <div className={clsx(isOpen ? classes.container1 : classes.container2)}>
+          {children}
+        </div>
       </main>
     </div>
   );
