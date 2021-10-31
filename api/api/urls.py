@@ -3,6 +3,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import LogoutAndBlacklistRefreshTokenForUserView
+from .views import TokenObtainPairView
 from .views import SignUpView
 from accounts.views.subscription_views import SubscriptionViews
 from accounts.views.user_views import UserViews
@@ -36,6 +37,8 @@ for route in routes:
     router.register(route['url'], route['view'])
 
 urlpatterns = [
+    path('token/',
+         TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/blacklist/',
          LogoutAndBlacklistRefreshTokenForUserView.as_view(), name='blacklist'),
     path('signup/', SignUpView.as_view(), name='signup'),

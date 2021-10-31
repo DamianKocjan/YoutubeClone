@@ -15,10 +15,3 @@ export const createRefreshTokenCookie = (value: string): void => {
     expires: new Date(Date.now() + 1209600 * 1000), // 14 days
   });
 };
-
-export const createUserCookie = (value: string): void => {
-  cookies.set('user', value, {
-    path: '/',
-    expires: new Date(Date.now() + 604800 * 1000), // 7 days
-  });
-};

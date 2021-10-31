@@ -15,8 +15,9 @@ import {
 import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
 import MovieIcon from '@material-ui/icons/Movie';
 
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 import { useAuthState } from '../../auth';
+import { IVideo } from '../../types/models';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -54,42 +55,40 @@ const Create: React.FC = () => {
   const history = useHistory();
 
   const mutation = useMutation(
-    async (newVideo: FormData) => await axiosInstance.post('videos/', newVideo)
+    async (newVideo: IVideo) => await api.post('videos/', newVideo)
   );
 
   const { isLogged } = useAuthState();
 
-  const thumbnailRef = useRef<HTMLElement | any>();
-  const videoRef = useRef<HTMLElement | any>();
+  const thumbnailRef = useRef<HTMLImageElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  const [hasUploadedVideo, setHasUploadedVideo] = useState<boolean>(false);
-  const [hasUploadedThumbnail, setHasUploadedThumbnail] = useState<boolean>(
-    false
-  );
+  const [hasUploadedVideo, setHasUploadedVideo] = useState(false);
+  const [hasUploadedThumbnail, setHasUploadedThumbnail] = useState(false);
 
   if (!isLogged) return <Redirect to="/login/" />;
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     if (!isLogged) return;
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.target as HTMLFormElement);
     formData.append('duration', '1');
 
-    await mutation.mutateAsync(formData);
+    await mutation.mutateAsync(formData as unknown as IVideo);
 
     if (mutation.isSuccess && mutation.isError === false)
       history.push(`/watch?v=${'id'}`);
   };
 
   const handleThumbnail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const thumbnail = e.target.files![0];
+    const thumbnail = e.target.files?.[0];
     const reader = new FileReader();
 
     if (thumbnail) {
       setHasUploadedThumbnail(true);
-      reader.onload = (e: any) => {
-        thumbnailRef.current.src = e.target.result;
+      reader.onload = (e) => {
+        thumbnailRef!.current!.src = e.target?.result as string;
       };
 
       reader.readAsDataURL(thumbnail);
@@ -97,17 +96,15 @@ const Create: React.FC = () => {
   };
 
   const handleVideo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const video = e.target.files![0];
+    const video = e.target.files?.[0];
 
     if (video) {
       setHasUploadedVideo(true);
       const fileUrl = URL.createObjectURL(video);
-      videoRef.current.src = fileUrl;
+      videoRef!.current!.src = fileUrl;
       // videoRef.current.load();
     }
   };
-
-  const error = mutation.error as any;
 
   return (
     <form
@@ -115,8 +112,7 @@ const Create: React.FC = () => {
       onSubmit={handleSubmit}
       encType="multipart/form-data"
       method="POST"
-      action=""
-    >
+      action="">
       <Grid container spacing={3}>
         <Grid item xs={6}>
           <Paper className={classes.paper}>
@@ -153,8 +149,7 @@ const Create: React.FC = () => {
               variant="contained"
               component="label"
               className={classes.button}
-              startIcon={<AddPhotoAlternateIcon />}
-            >
+              startIcon={<AddPhotoAlternateIcon />}>
               Upload thumbnail
               <input
                 type="file"
@@ -176,7 +171,9 @@ const Create: React.FC = () => {
             </Button>
             <Typography>
               {mutation.isError ? (
-                <div>An error occurred: {error.message}</div>
+                <div>
+                  An error occurred: {(mutation?.error as Error).message}
+                </div>
               ) : null}
 
               {mutation.isSuccess ? <div>Video added!</div> : null}
@@ -189,8 +186,7 @@ const Create: React.FC = () => {
               variant="contained"
               component="label"
               className={classes.button}
-              startIcon={<MovieIcon />}
-            >
+              startIcon={<MovieIcon />}>
               Upload video
               <input
                 type="file"

@@ -12,7 +12,6 @@ import {
 } from '@material-ui/core';
 
 import { usePlaylists } from '../../hooks';
-import { IPlaylist } from '../../types/playlist';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,9 +52,9 @@ const Playlists: React.FC = () => {
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
-          ) : data.length > 0 ? (
-            data.map(({ title, id, videos, created_at }: IPlaylist) => (
+            <h1>{error?.message || error}</h1>
+          ) : data?.results?.length ? (
+            data?.results.map(({ title, id, videos, created_at }) => (
               <GridListTile component={Link} to={`/playlist/${id}`} key={id}>
                 <img
                   loading="lazy"

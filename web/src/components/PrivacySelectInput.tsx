@@ -28,10 +28,7 @@ interface Props {
   ) => Promise<void> | void;
 }
 
-const PrivacySelectInput: React.FC<Props> = ({
-  value,
-  handleChange,
-}: Props) => {
+const PrivacySelectInput: React.FC<Props> = ({ value, handleChange }) => {
   const classes = useStyles();
 
   return (
@@ -41,8 +38,7 @@ const PrivacySelectInput: React.FC<Props> = ({
         value={value}
         onChange={handleChange}
         renderValue={(value) => `${value}`}
-        fullWidth
-      >
+        fullWidth>
         <MenuItem value="Public">
           <ListItemIcon>
             <Public />

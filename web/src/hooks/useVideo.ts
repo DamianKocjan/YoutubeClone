@@ -1,9 +1,13 @@
 import { useQuery } from 'react-query';
-import axiosInstance from '../utils/axiosInstance';
+import type { UseQueryResult } from 'react-query';
+import { api } from '../api';
+import { IVideo } from '../types/models';
 
-export function useChannelVideos(channel = ''): any {
+export function useChannelVideos(
+  channel = ''
+): UseQueryResult<IVideo[], Error> {
   return useQuery(['channel_videos', channel], async () => {
-    const { data } = await axiosInstance.get('videos/', {
+    const { data } = await api.get('videos/', {
       params: {
         author: channel,
       },
@@ -13,11 +17,11 @@ export function useChannelVideos(channel = ''): any {
 }
 
 const getVideoById = async (id: string) => {
-  const { data } = await axiosInstance.get(`videos/${id}`);
+  const { data } = await api.get(`videos/${id}/`);
   return data;
 };
 
-export function useVideo(videoId: string): any {
+export function useVideo(videoId: string): UseQueryResult<IVideo, Error> {
   return useQuery(['video', videoId], async () => await getVideoById(videoId), {
     enabled: !!videoId,
   });

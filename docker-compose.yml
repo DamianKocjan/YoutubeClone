@@ -13,9 +13,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
-  # redis:
-  #   image: redis
-
   api:
     build: api
     restart: always
@@ -24,30 +21,17 @@ services:
       - .:/home/api
     ports:
       - "8000:8000"
-    links:
-      - db
     depends_on:
       - db
-      # - redis
-
-  rtmp:
-    build: rtmp
-    restart: always
-    ports:
-      - "1935:1935"
-      - "8001:8001"
-    links:
-      - db
-    depends_on:
-      - api
-      - db
-      # - redis
 
   web:
-    build: web
-    restart: always
+    build:
+      context: web
+      dockerfile: Dockerfile
+    volumes:
+      - ".:/app"
+      - "/app/node_modules"
     ports:
       - "3000:3000"
     depends_on:
       - api
-      - rtmp

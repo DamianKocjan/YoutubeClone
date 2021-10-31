@@ -16,7 +16,7 @@ const About: React.FC<Props> = ({
   location,
   email,
   joinedDate,
-}: Props) => {
+}) => {
   return (
     <Container>
       <Grid container spacing={3}>

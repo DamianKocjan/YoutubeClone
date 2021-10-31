@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import TimeAgo from 'javascript-time-ago';
+
+const timeAgo = new TimeAgo('en-US');
 
 import {
   Avatar,
@@ -14,11 +17,10 @@ import {
 } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
 
-import timeDifference from '../../utils/timeDifference';
 import ReplyCommentRatingButtons from '../ratingButtons/ReplyComment';
 import { useAuthState } from '../../auth';
 import { useMutation, useQueryClient } from 'react-query';
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 
 interface Props {
   replyId: string;
@@ -40,12 +42,12 @@ const VideoComment: React.FC<Props> = ({
   authorId,
   authorUsername,
   authorAvatar,
-}: Props) => {
+}) => {
   const queryClient = useQueryClient();
 
   const { isLogged, user } = useAuthState();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -57,7 +59,7 @@ const VideoComment: React.FC<Props> = ({
 
   const commentUpdateMutation = useMutation(
     async (comment: { content: string }) =>
-      await axiosInstance.patch(`reply-comments/${replyId}/`, comment),
+      await api.patch(`reply-comments/${replyId}/`, comment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -67,7 +69,7 @@ const VideoComment: React.FC<Props> = ({
   const handleEdit = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt()!;
+    let content = prompt() || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -79,7 +81,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    async () => await axiosInstance.delete(`reply-comments/${replyId}/`),
+    async () => await api.delete(`reply-comments/${replyId}/`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_reply_comments', replyId]),
@@ -89,9 +91,10 @@ const VideoComment: React.FC<Props> = ({
   const handleDelete = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt(
-      'Are you sure you want to delete that comment? Type y if you want.'
-    )!;
+    let content =
+      prompt(
+        'Are you sure you want to delete that comment? Type y if you want.'
+      ) || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -108,7 +111,7 @@ const VideoComment: React.FC<Props> = ({
         primary={
           <Typography>
             <Link to={`/channel/${authorId}/`}>{authorUsername}</Link>{' '}
-            {timeDifference(new Date(), new Date(createdAt))}
+            {timeAgo.format(new Date(createdAt))}
           </Typography>
         }
         secondary={<Typography variant="inherit">{content}</Typography>}
@@ -129,22 +132,19 @@ const VideoComment: React.FC<Props> = ({
               anchorEl={anchorEl}
               keepMounted
               open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
+              onClose={handleClose}>
               <MenuItem
                 onClick={() => {
                   handleClose();
                   handleEdit();
-                }}
-              >
+                }}>
                 Edit
               </MenuItem>
               <MenuItem
                 onClick={() => {
                   handleClose();
                   handleDelete();
-                }}
-              >
+                }}>
                 Delete
               </MenuItem>
             </Menu>

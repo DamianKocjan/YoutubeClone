@@ -6,9 +6,10 @@ from rating.models import ReplyCommentRating
 
 
 class CommentBase(models.Model):
-    author     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_author')
-    content    = models.CharField(max_length=500)
-    is_edited  = models.BooleanField(default=False)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_author')
+    content = models.CharField(max_length=500)
+    is_edited = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -17,7 +18,8 @@ class CommentBase(models.Model):
 
 
 class Comment(CommentBase):
-    video = models.ForeignKey('video.Video', on_delete=models.CASCADE, related_name='comment_video')
+    video = models.ForeignKey(
+        'video.Video', on_delete=models.CASCADE, related_name='comment_video')
 
     class Meta:
         verbose_name = 'Comment'
@@ -37,7 +39,8 @@ class Comment(CommentBase):
 
 
 class ReplyComment(CommentBase):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replycomment_comment')
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, related_name='replycomment_comment')
 
     class Meta:
         verbose_name = 'Reply Comment'

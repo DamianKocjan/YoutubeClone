@@ -66,7 +66,7 @@ const Channel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { status, data, error } = useChannel(id);
 
-  const [value, setValue] = useState<number>(0);
+  const [value, setValue] = useState(0);
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -78,14 +78,14 @@ const Channel: React.FC = () => {
       {status === 'loading' ? (
         <h1>loading...</h1>
       ) : status === 'error' ? (
-        <h1>{error.message}</h1>
+        <h1>{error?.message || error}</h1>
       ) : (
         <>
           <div
             className={classes.banner}
             style={{
-              backgroundImage: data.background
-                ? `url(${data.background})`
+              backgroundImage: data?.background
+                ? `url(${data?.background})`
                 : 'url(https://i.ytimg.com/vi/8GQkEMyMLDI/maxresdefault.jpg)',
             }}
           />
@@ -94,18 +94,18 @@ const Channel: React.FC = () => {
               <ListItem>
                 <ListItemAvatar>
                   <Avatar
-                    src={data.avatar}
+                    src={data?.avatar}
                     style={{ width: '80px', height: '80px' }}
                     imgProps={{ loading: 'lazy' }}
                   />
                 </ListItemAvatar>
                 <ListItemText
-                  primary={data.username}
-                  secondary={`${data.subscribers_count} subscribers`}
+                  primary={data?.username}
+                  secondary={`${data?.subscribers_count} subscribers`}
                   className={classes.avatarMl}
                 />
                 <ListItemSecondaryAction>
-                  <SubscribeButton channel={data.id} />
+                  <SubscribeButton channel={data?.id || ''} />
                   <IconButton>
                     <NotificationsNone />
                   </IconButton>
@@ -117,8 +117,7 @@ const Channel: React.FC = () => {
                     value={value}
                     indicatorColor="primary"
                     textColor="primary"
-                    onChange={handleChange}
-                  >
+                    onChange={handleChange}>
                     <Tab label="Home" component={Link} to={`${url}`} />
                     <Tab label="Videos" component={Link} to={`${url}/videos`} />
                     <Tab
@@ -145,10 +144,10 @@ const Channel: React.FC = () => {
                 path={`${path}/about`}
                 component={() => (
                   <About
-                    description={data.description}
-                    joinedDate={data.date_joined}
-                    email={data.email}
-                    location={data.location}
+                    description={data?.description || ''}
+                    joinedDate={data?.date_joined || ''}
+                    email={data?.email || ''}
+                    location={data?.location || ''}
                   />
                 )}
               />

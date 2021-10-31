@@ -12,14 +12,16 @@ from rating.models import VideoRating
 
 
 class ViewBase(models.Model):
-    user  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_user', blank=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_user', blank=True)
 
     class Meta:
         abstract = True
 
 
 class VideoView(ViewBase):
-    video = models.ForeignKey('Video', on_delete=models.CASCADE, related_name='video_view_video')
+    video = models.ForeignKey(
+        'Video', on_delete=models.CASCADE, related_name='video_view_video')
 
     class Meta:
         verbose_name = 'Video View'
@@ -47,16 +49,19 @@ def handle_uploaded_thumbnail_file(instance, filename: str) -> str:
 
 
 class Video(models.Model):
-    title       = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
     description = models.TextField(max_length=5000, blank=True)
-    video       = models.FileField(upload_to=handle_uploaded_video_file)
-    thumbnail   = models.ImageField(upload_to=handle_uploaded_thumbnail_file)
-    duration    = models.PositiveSmallIntegerField(default=0)
-    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='video_author')
-    category    = models.ForeignKey('Subcategory', on_delete=models.SET(''), null=True, blank=True, related_name='video_subcategory')
-    status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+    video = models.FileField(upload_to=handle_uploaded_video_file)
+    thumbnail = models.ImageField(upload_to=handle_uploaded_thumbnail_file)
+    duration = models.PositiveSmallIntegerField(default=0)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='video_author')
+    category = models.ForeignKey('Subcategory', on_delete=models.SET(
+        ''), null=True, blank=True, related_name='video_subcategory')
+    status = models.CharField(
+        max_length=8, choices=STATUS_TYPES, default='Public')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Video'
@@ -68,8 +73,10 @@ class Video(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        self.video = self.rename_file(str(self.video), 'videos').replace('/', '\\')
-        self.thumbnail = self.rename_file(str(self.thumbnail), 'thumbnails').replace('/', '\\')
+        self.video = self.rename_file(
+            str(self.video), 'videos').replace('/', '\\')
+        self.thumbnail = self.rename_file(
+            str(self.thumbnail), 'thumbnails').replace('/', '\\')
         self.duration = self.get_video_duration()
 
         super().save()
@@ -99,12 +106,14 @@ class Video(models.Model):
         return path
 
     def get_video_duration(self) -> int:
-        video = TinyTag.get(os.path.join(settings.MEDIA_ROOT + str(self.video)))
+        video = TinyTag.get(os.path.join(
+            settings.MEDIA_ROOT + str(self.video)))
         return int(video.duration)
 
 
 class PlaylistView(ViewBase):
-    playlist = models.ForeignKey('Playlist', on_delete=models.CASCADE, related_name='playlist_view_playlist')
+    playlist = models.ForeignKey(
+        'Playlist', on_delete=models.CASCADE, related_name='playlist_view_playlist')
 
     class Meta:
         verbose_name = 'Playlist View'
@@ -114,9 +123,11 @@ class PlaylistView(ViewBase):
         return f'Playlist View {self.id}, {self.user}, {self.playlist}'
 
 
-class PlaylistVideo(models.Model): # M2M between playlist and video
-    playlist = models.ForeignKey('Playlist', on_delete=models.CASCADE, related_name='playlist_video_playlist')
-    video    = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='playlist_video_video')
+class PlaylistVideo(models.Model):  # M2M between playlist and video
+    playlist = models.ForeignKey(
+        'Playlist', on_delete=models.CASCADE, related_name='playlist_video_playlist')
+    video = models.ForeignKey(
+        Video, on_delete=models.CASCADE, related_name='playlist_video_video')
     position = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -129,12 +140,14 @@ class PlaylistVideo(models.Model): # M2M between playlist and video
 
 
 class Playlist(models.Model):
-    title       = models.CharField(max_length=50)
-    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='playlist_author')
+    title = models.CharField(max_length=50)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='playlist_author')
     description = models.CharField(max_length=200, blank=True)
-    status      = models.CharField(max_length=8, choices=STATUS_TYPES, default='Public')
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=8, choices=STATUS_TYPES, default='Public')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Playlist'
@@ -153,7 +166,7 @@ class Playlist(models.Model):
 
 
 class Library(models.Model):
-    user      = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     playlists = models.ManyToManyField(Playlist, blank=True)
 
     class Meta:
@@ -175,8 +188,8 @@ def auto_create_library_on_user_creation(sender, instance, created, **kwargs):
 
 
 class CategoryBase(models.Model):
-    name       = models.CharField(max_length=50, db_index=True)
-    slug       = models.SlugField(max_length=50, unique=True, db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
+    slug = models.SlugField(max_length=50, unique=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -200,7 +213,8 @@ class Category(CategoryBase):
 
 
 class Subcategory(CategoryBase):
-    category   = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategory_category')
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name='subcategory_category')
 
     class Meta:
         verbose_name = 'Subcategory'

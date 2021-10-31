@@ -44,11 +44,13 @@ class Command(BaseCommand):
             for _ in range(count):
                 with open(os.path.join(sys.path[0], self.my_path, random.choice(thumbs_paths)), 'rb') as thumb:
                     video = Video.objects.create(
-                        title = markov.generate_markov_text(10),
-                        description = markov.generate_markov_text(),
-                        author = random.choice(users),
-                        video = File(vid_file, name=os.path.basename(vid_file.name)),
-                        thumbnail = File(thumb, name=os.path.basename(thumb.name)),
+                        title=markov.generate_markov_text(10),
+                        description=markov.generate_markov_text(),
+                        author=random.choice(users),
+                        video=File(
+                            vid_file, name=os.path.basename(vid_file.name)),
+                        thumbnail=File(
+                            thumb, name=os.path.basename(thumb.name)),
                     )
                     video.save()
                     thumb.close()
@@ -56,18 +58,18 @@ class Command(BaseCommand):
                 # generate comments
                 for __ in range(random.randint(1, 20)):
                     video_comment = Comment.objects.create(
-                        author = random.choice(users),
-                        content = markov.generate_markov_text(15),
-                        video = video,
+                        author=random.choice(users),
+                        content=markov.generate_markov_text(15),
+                        video=video,
                     )
                     video_comment.save()
 
                     # generate replies for comment
                     for ___ in range(random.randint(1, 10)):
                         reply_comment = ReplyComment.objects.create(
-                            author = random.choice(users),
-                            content = markov.generate_markov_text(15),
-                            comment = video_comment,
+                            author=random.choice(users),
+                            content=markov.generate_markov_text(15),
+                            comment=video_comment,
                         )
                         reply_comment.save()
             vid_file.close()

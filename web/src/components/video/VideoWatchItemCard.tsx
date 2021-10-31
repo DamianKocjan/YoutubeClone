@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link as RRLink } from 'react-router-dom';
+import TimeAgo from 'javascript-time-ago';
+
+const timeAgo = new TimeAgo('en-US');
 
 import {
   Avatar,
@@ -14,8 +17,6 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core';
-
-import timeDifference from '../../utils/timeDifference';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,10 +64,8 @@ const VideoWatchItemCard: React.FC<Props> = ({
   authorAvatar,
   authorId,
   authorName,
-}: Props) => {
+}) => {
   const classes = useStyles();
-
-  const now = new Date();
 
   return (
     <Card className={classes.root}>
@@ -98,16 +97,12 @@ const VideoWatchItemCard: React.FC<Props> = ({
                     component={RRLink}
                     to={`/channel/${authorId}`}
                     color="inherit"
-                    className={classes.channelName}
-                  >
+                    className={classes.channelName}>
                     {authorName}
                   </Link>
                 </div>
                 <Typography variant="subtitle2" color="textSecondary">
-                  {`${views} views · ${timeDifference(
-                    now,
-                    new Date(createdAt)
-                  )}`}
+                  {`${views} views · ${timeAgo.format(new Date(createdAt))}`}
                 </Typography>
               </Box>
             }

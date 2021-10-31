@@ -10,9 +10,8 @@ import {
 import { ExpandLess, ExpandMore, PlaylistPlay } from '@material-ui/icons';
 
 import DrawerListItem from './DrawerListItem';
-import { IPlaylist } from '../types/playlist';
+import type { IChannel } from '../types/models';
 import { useUserLibrary } from '../hooks';
-import { IChannel } from '../types/channel';
 
 interface Props {
   isLogged: boolean;
@@ -20,9 +19,9 @@ interface Props {
   isOpen: boolean;
 }
 
-const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
+const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }) => {
   const { status, data, error } = useUserLibrary(user.id);
-  const [showMorePlaylists, setShowMorePlaylists] = useState<boolean>(false);
+  const [showMorePlaylists, setShowMorePlaylists] = useState(false);
 
   return (
     <>
@@ -40,12 +39,12 @@ const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
             <ListItemAvatar>
               <></>
             </ListItemAvatar>
-            <ListItemText primary={error.message} />
+            <ListItemText primary={error?.message || error} />
           </ListItem>
-        ) : (
+        ) : data && (
           <>
             {showMorePlaylists
-              ? data.playlists.map(({ id, title }: IPlaylist) => (
+              ? data.playlists.map(({ id, title }) => (
                 <DrawerListItem
                   key={id}
                   to={`/playlist/${id}`}
@@ -55,7 +54,7 @@ const UserLibrary: React.FC<Props> = ({ isLogged, user, isOpen }: Props) => {
               ))
               : data.playlists
                 .slice(0, 8)
-                .map(({ id, title }: IPlaylist) => (
+                .map(({ id, title }) => (
                   <DrawerListItem
                     key={id}
                     to={`/playlist/${id}`}

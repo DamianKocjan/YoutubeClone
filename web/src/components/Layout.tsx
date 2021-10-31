@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme: Theme) =>
       lineHeight: '100%',
     },
     drawerPaper: {
-      position: 'relative',
+      position: 'fixed',
       whiteSpace: 'nowrap',
       width: drawerWidth,
       transition: theme.transitions.create('width', {
@@ -111,11 +111,6 @@ const useStyles = makeStyles((theme: Theme) =>
     content: {
       flexGrow: 1,
       minHeight: '100vh',
-      maxHeight: '100vh',
-      overflowY: 'scroll',
-    },
-    container: {
-      paddingBottom: theme.spacing(4),
     },
     paper: {
       padding: theme.spacing(2),
@@ -137,22 +132,32 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
       alignItems: 'center',
     },
+    container1: {
+      marginLeft: drawerWidth,
+      transition: theme.transitions.create('margin-left', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    container2: {
+      marginLeft: theme.spacing(9),
+      transition: theme.transitions.create('margin-left', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
   })
 );
 
-interface Props {
-  children: React.ReactChild;
-}
-
-const Layout: React.FC<Props> = ({ children }: Props) => {
+const Layout: React.FC = ({ children }) => {
   const classes = useStyles();
   const history = useHistory();
 
-  const [isOpen, setIsOpen] = useState<boolean>(
-    localStorage.getItem('drawerIsOpen')! === 'true' ? true : false
+  const [isOpen, setIsOpen] = useState(
+    localStorage.getItem('drawerIsOpen') === 'true' ? true : false
   );
 
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuOpen = !!anchorEl;
@@ -162,11 +167,11 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
 
   const handleDrawerOpen = () => {
     setIsOpen(true);
-    localStorage.setItem('drawerIsOpen', String(true));
+    localStorage.setItem('drawerIsOpen', 'true');
   };
   const handleDrawerClose = () => {
     setIsOpen(false);
-    localStorage.setItem('drawerIsOpen', String(false));
+    localStorage.setItem('drawerIsOpen', 'false');
   };
 
   const handleMenuClick = (
@@ -180,6 +185,8 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
   };
 
   const handleSearch = () => {
+    setSearchQuery(searchQuery.trim());
+
     if (searchQuery.length > 0)
       history.push(`/search?search_query=${searchQuery}`);
   };
@@ -195,8 +202,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
       <AppBar
         position="fixed"
         className={clsx(classes.appBar, isOpen && classes.appBarShift)}
-        color="inherit"
-      >
+        color="inherit">
         <Toolbar className={classes.toolbar}>
           <IconButton
             edge="start"
@@ -206,8 +212,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
             className={clsx(
               classes.menuButton,
               isOpen && classes.menuButtonHidden
-            )}
-          >
+            )}>
             <MenuIcon />
           </IconButton>
           <Typography
@@ -215,8 +220,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
             variant="h6"
             color="inherit"
             noWrap
-            className={classes.title}
-          >
+            className={classes.title}>
             <Link to="/">
               <img src={Logo} height="50" />
             </Link>
@@ -244,8 +248,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
               type="submit"
               className={classes.iconButton}
               aria-label="search"
-              onClick={handleSearch}
-            >
+              onClick={handleSearch}>
               <SearchIcon />
             </IconButton>
           </div>
@@ -267,8 +270,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
                 onClick={handleMenuClick}
-                color="inherit"
-              >
+                color="inherit">
                 <Avatar src={user.avatar} imgProps={{ loading: 'lazy' }} />
               </IconButton>
               <Menu
@@ -284,13 +286,11 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                   horizontal: 'right',
                 }}
                 open={menuOpen}
-                onClose={handleMenuClose}
-              >
+                onClose={handleMenuClose}>
                 <MenuItem
                   onClick={handleMenuClose}
                   component={Link}
-                  to={`/channel/${user.id}`}
-                >
+                  to={`/channel/${user.id}`}>
                   My channel
                 </MenuItem>
                 <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
@@ -298,8 +298,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
                   onClick={() => {
                     handleLogout();
                     handleMenuClose();
-                  }}
-                >
+                  }}>
                   Logout
                 </MenuItem>
               </Menu>
@@ -316,8 +315,7 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
         classes={{
           paper: clsx(classes.drawerPaper, !isOpen && classes.drawerPaperClose),
         }}
-        open={isOpen}
-      >
+        open={isOpen}>
         <div className={classes.toolbarIcon}>
           <IconButton onClick={handleDrawerClose}>
             <ChevronLeftIcon />
@@ -356,7 +354,6 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
           </div>
         </List>
         <Subscriptions isLogged={isLogged} user={user} isOpen={isOpen} />
-        <Divider />
         <List>
           <div>
             <DrawerListItem to="/" icon={<SettingsIcon />} title="Settings" />
@@ -365,7 +362,9 @@ const Layout: React.FC<Props> = ({ children }: Props) => {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <div className={classes.container}>{children}</div>
+        <div className={clsx(isOpen ? classes.container1 : classes.container2)}>
+          {children}
+        </div>
       </main>
     </div>
   );

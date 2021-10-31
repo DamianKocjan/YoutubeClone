@@ -19,6 +19,8 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   makeStyles,
+  Snackbar,
+  SnackbarCloseReason,
   Theme,
   Typography,
 } from '@material-ui/core';
@@ -31,14 +33,13 @@ import {
   useVideo,
 } from '../../hooks';
 import VideoWatchItemCard from '../../components/video/VideoWatchItemCard';
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 import SubscribeButton from '../../components/SubscribeButton';
-import { IVideo } from '../../types/video';
+import type { IVideo, IPage } from '../../types/models';
 import VideoRatingButtons from '../../components/ratingButtons/Video';
 import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import CommentSection from '../../components/video/CommentSection';
 import PlaylistSection from '../../components/video/PlaylistSection';
-import { IPlaylistVideo } from '../../types/playlist';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -58,6 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
     playerWrapper: {
       position: 'relative',
       paddingTop: '56.25%',
+      background: '#000',
     },
     reactPlayer: {
       position: 'absolute',
@@ -77,6 +79,7 @@ const Watch: React.FC = () => {
   const history = useHistory();
 
   const { status, data, error } = useVideo(videoId);
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
 
   const {
     status: videosStatus,
@@ -85,7 +88,7 @@ const Watch: React.FC = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery<any, any>(
+  } = useInfiniteQuery<IPage<IVideo>, Error>(
     ['videos', videoId],
     async ({ pageParam = 1 }) => {
       let page;
@@ -95,9 +98,12 @@ const Watch: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(
-        `/videos/?exclude=${videoId}&page=${page}`
-      );
+      const { data } = await api.get('videos/', {
+        params: {
+          page,
+          exclude: videoId,
+        },
+      });
 
       return data;
     },
@@ -106,7 +112,7 @@ const Watch: React.FC = () => {
     }
   );
 
-  const loadMoreVideosButtonRef = useRef<HTMLButtonElement | null>(null);
+  const loadMoreVideosButtonRef = useRef<HTMLButtonElement>(null);
 
   useIntersectionObserver({
     target: loadMoreVideosButtonRef,
@@ -120,10 +126,12 @@ const Watch: React.FC = () => {
     error: playlistError,
   } = usePlaylist(playlistId);
 
-  const [volume, setVolume] = useState<number>(1);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
+    if (!videoId) return history.push('/');
+
     const localStorageVolume = localStorage.getItem('volume');
 
     if (localStorageVolume) {
@@ -134,122 +142,142 @@ const Watch: React.FC = () => {
     setIsMuted(localStorage.getItem('volume') === 'true');
   }, []);
 
-  const videoPlayerConfig = {
-    file: {
-      forceHLS: data ? data.is_stream : false,
-    },
+  const shareVideo = () => {
+    window.navigator.clipboard.writeText(window.location.href).then(() => {
+      setIsSnackbarOpen(true);
+    });
+  };
+
+  const closeSnackbar = (
+    event: React.SyntheticEvent<unknown, Event>,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setIsSnackbarOpen(false);
   };
 
   return (
     <div className={classes.root}>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        open={isSnackbarOpen}
+        autoHideDuration={2500}
+        onClose={closeSnackbar}
+        message="Link copied to clipboard"
+      />
+
       <Grid container spacing={3}>
         <Grid item lg={8} md={12} sm={12}>
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
+            <h1>{error?.message || error}</h1>
           ) : (
-            <>
-              <div className={classes.playerWrapper}>
-                <ReactPlayer
-                  className={classes.reactPlayer}
-                  width="100%"
-                  height="100%"
-                  // url="http://localhost:8001/live/afe6459a-878b-49f4-934d-81f8f688b5ac/index.m3u8"
-                  url={data.video}
-                  controls
-                  light={data.thumbnail}
-                  volume={volume}
-                  muted={isMuted}
-                  config={videoPlayerConfig}
-                  pip
-                  onEnded={() => {
-                    if (playlistId) {
-                      let idx = 0;
-                      playlistData.videos.forEach(
-                        (video: IPlaylistVideo, index: number) => {
+            data && (
+              <>
+                <div className={classes.playerWrapper}>
+                  <ReactPlayer
+                    className={classes.reactPlayer}
+                    width="100%"
+                    height="100%"
+                    url={data.video}
+                    controls
+                    light={data.thumbnail}
+                    volume={volume}
+                    muted={isMuted}
+                    pip
+                    onEnded={() => {
+                      if (playlistId) {
+                        let idx = 0;
+                        playlistData?.videos.forEach((video, index) => {
                           if (video.video.id === videoId) idx = index;
-                        }
-                      );
+                        });
 
-                      history.push(
-                        // eslint-disable-next-line prettier/prettier
-                        `/watch?v=${playlistData.videos[idx + 1].video.id
-                        }&list=${playlistId}`
-                      );
-                    }
-                  }}
-                >
-                  <source src={data.video} type="video/mp4" />
-                </ReactPlayer>
-              </div>
-              <List>
-                <ListItem>
-                  <ListItemText
-                    primary={data.title}
-                    secondary={`${data.views_count} views • ${new Date(
-                      data.created_at
-                    ).toLocaleDateString()}`}
-                  />
-                  <ListItemSecondaryAction>
-                    <VideoRatingButtons
-                      video={data.id}
-                      likesCount={data.likes_count}
-                      dislikesCount={data.dislikes_count}
+                        history.push(
+                          // eslint-disable-next-line prettier/prettier
+                          `/watch?v=${playlistData?.videos[idx + 1].video.id
+                          }&list=${playlistId}`
+                        );
+                      }
+                    }}>
+                    <source src={data.video} type="video/mp4" />
+                  </ReactPlayer>
+                </div>
+                <List>
+                  <ListItem>
+                    <ListItemText
+                      primary={data.title}
+                      secondary={`${data.views_count} views • ${new Date(
+                        data.created_at
+                      ).toLocaleDateString()}`}
                     />
-                    <Button startIcon={<Share />}>Share</Button>
-                    <AddToPlaylistButton videoId={videoId} />
-                    <IconButton>
-                      <MoreHoriz />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              </List>
-              <Divider />
-              <List>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar
-                      src={data.author.avatar}
-                      style={{ width: '48px', height: '48px' }}
-                      imgProps={{ loading: 'lazy' }}
+                    <ListItemSecondaryAction>
+                      <VideoRatingButtons
+                        video={data.id}
+                        likesCount={data.likes_count}
+                        dislikesCount={data.dislikes_count}
+                      />
+                      <Button startIcon={<Share />} onClick={shareVideo}>
+                        Share
+                      </Button>
+                      <AddToPlaylistButton videoId={videoId} />
+                      <IconButton>
+                        <MoreHoriz />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                </List>
+                <Divider />
+                <List>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar
+                        src={data.author.avatar}
+                        style={{ width: '48px', height: '48px' }}
+                        imgProps={{ loading: 'lazy' }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Link
+                          component={RRLink}
+                          to={`/channel/${data.author.id}`}
+                          color="inherit">
+                          {data.author.username}
+                        </Link>
+                      }
+                      secondary={`${data.author.subscribers_count} subscribers`}
                     />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Link
-                        component={RRLink}
-                        to={`/channel/${data.author.id}`}
-                        color="inherit"
-                      >
-                        {data.author.username}
-                      </Link>
-                    }
-                    secondary={`${data.author.subscribers_count} subscribers`}
-                  />
-                  <ListItemSecondaryAction>
-                    <SubscribeButton channel={data.author.id} />
-                    <IconButton>
-                      <NotificationsNone />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <ListItem>
-                  <ListItemAvatar>
-                    <></>
-                  </ListItemAvatar>
-                  <ListItemText>
-                    <Typography>
-                      <ReactMarkdown plugins={[remarkGfm]}>
-                        {data.description}
-                      </ReactMarkdown>
-                    </Typography>
-                  </ListItemText>
-                </ListItem>
-              </List>
-              <Divider />
-              <CommentSection videoId={videoId} />
-            </>
+                    <ListItemSecondaryAction>
+                      <SubscribeButton channel={data.author.id} />
+                      <IconButton>
+                        <NotificationsNone />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <></>
+                    </ListItemAvatar>
+                    <ListItemText>
+                      <Typography>
+                        <ReactMarkdown plugins={[remarkGfm]}>
+                          {data.description}
+                        </ReactMarkdown>
+                      </Typography>
+                    </ListItemText>
+                  </ListItem>
+                </List>
+                <Divider />
+                <CommentSection videoId={videoId} />
+              </>
+            )
           )}
         </Grid>
         <Grid item lg={4} md={12} sm={12}>
@@ -265,12 +293,12 @@ const Watch: React.FC = () => {
             {videosStatus === 'loading' ? (
               <h1>loading...</h1>
             ) : videosStatus === 'error' ? (
-              <h1>{videosError.message}</h1>
+              <h1>{videosError?.message || videosError}</h1>
             ) : (
-              <>
-                {videosData &&
-                  videosData.pages.map((page: any) => (
-                    <React.Fragment key={page.nextId}>
+              videosData && (
+                <>
+                  {videosData.pages.map((page, i) => (
+                    <React.Fragment key={i}>
                       {page.results.map(
                         ({
                           id,
@@ -279,7 +307,7 @@ const Watch: React.FC = () => {
                           views_count,
                           thumbnail,
                           author,
-                        }: IVideo) => (
+                        }) => (
                           <VideoWatchItemCard
                             key={id}
                             id={id}
@@ -295,13 +323,14 @@ const Watch: React.FC = () => {
                       )}
                     </React.Fragment>
                   ))}
-                <button
-                  ref={loadMoreVideosButtonRef}
-                  onClick={() => fetchNextPage()}
-                  disabled={!hasNextPage || isFetchingNextPage}
-                  style={{ visibility: 'hidden' }}
-                />
-              </>
+                  <button
+                    ref={loadMoreVideosButtonRef}
+                    onClick={() => fetchNextPage()}
+                    disabled={!hasNextPage || isFetchingNextPage}
+                    style={{ visibility: 'hidden' }}
+                  />
+                </>
+              )
             )}
           </List>
         </Grid>

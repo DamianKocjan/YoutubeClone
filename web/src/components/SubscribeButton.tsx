@@ -5,14 +5,14 @@ import { useAuthState } from '../auth';
 import { Button } from '@material-ui/core';
 
 import { useSubscriptions } from '../hooks';
-import axiosInstance from '../utils/axiosInstance';
-import { ISubscription } from '../types/subscription';
+import { api } from '../api';
+import type { ISubscription } from '../types/models';
 
 interface Props {
   channel: string;
 }
 
-const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
+const SubscribeButton: React.FC<Props> = ({ channel }) => {
   const { user, isLogged } = useAuthState();
 
   if (!isLogged || channel === user.id)
@@ -29,7 +29,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
 
   useEffect(() => {
     if (data) {
-      data.forEach((sub: ISubscription) => {
+      data.forEach((sub) => {
         if (sub.channel.id === channel)
           setSubState({ isSubscribing: true, sub: sub });
       });
@@ -38,7 +38,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
 
   const subscribeMutation = useMutation(
     async (channelId: string) =>
-      await axiosInstance.post('/subscriptions/', {
+      await api.post('subscriptions/', {
         channel_id: channelId,
         user: user.id,
       }),
@@ -50,8 +50,7 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
     }
   );
   const unsubscribeMutation = useMutation(
-    async (subId: string) =>
-      await axiosInstance.delete(`/subscriptions/${subId}`),
+    async (subId: string) => await api.delete(`subscriptions/${subId}/`),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries(['subscriptions_user', user.id]);
@@ -73,14 +72,13 @@ const SubscribeButton: React.FC<Props> = ({ channel }: Props) => {
       {status === 'loading' ? (
         <Button variant="outlined">loading...</Button>
       ) : status === 'error' ? (
-        <Button variant="outlined">{error.message}</Button>
+        <Button variant="outlined">{error?.message || error}</Button>
       ) : subState.isSubscribing ? (
         <Button
           variant="outlined"
           onClick={() => {
             handleUnSubscribe(subState?.sub?.id as string);
-          }}
-        >
+          }}>
           Subscribed
         </Button>
       ) : (

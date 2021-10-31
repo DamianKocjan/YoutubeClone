@@ -19,7 +19,8 @@ class VideoViews(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         if not request.user.is_anonymous:
-            view = VideoView.objects.create(user=request.user, video=self.get_object())
+            view = VideoView.objects.create(
+                user=request.user, video=self.get_object())
             view.save()
         else:
             view = VideoView.objects.create(video=self.get_object())

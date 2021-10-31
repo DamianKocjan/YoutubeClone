@@ -49,8 +49,8 @@ const Login: React.FC = () => {
     username: '',
     password: '',
   });
-  const [error, setError] = useState<string>('');
-  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState<boolean>(false);
+  const [error, setError] = useState('');
+  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState(false);
 
   const dispatch = useAuthDispatch();
   const { isLogged, loading, errorMessage } = useAuthState();
@@ -82,9 +82,7 @@ const Login: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -97,7 +95,7 @@ const Login: React.FC = () => {
 
       if (!res) return;
     } catch (err) {
-      setError(err);
+      setError(err as string);
       setErrorAlertIsOpen(true);
     }
   };
@@ -152,8 +150,7 @@ const Login: React.FC = () => {
             variant="contained"
             color="primary"
             className={classes.submit}
-            disabled={isDisabled}
-          >
+            disabled={isDisabled}>
             Sign In
           </Button>
           <Grid container>
@@ -173,14 +170,12 @@ const Login: React.FC = () => {
       <Snackbar
         open={errorAlertIsOpen}
         autoHideDuration={6000}
-        onClose={handleCloseAlert}
-      >
+        onClose={handleCloseAlert}>
         <MuiAlert
           elevation={6}
           variant="filled"
           onClose={handleCloseAlert}
-          severity="error"
-        >
+          severity="error">
           {error}
         </MuiAlert>
       </Snackbar>

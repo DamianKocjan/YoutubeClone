@@ -36,8 +36,7 @@ const NotFound: React.FC = () => {
       flexDirection="column"
       height="100%"
       justifyContent="center"
-      className={classes.root}
-    >
+      className={classes.root}>
       <Container maxWidth="md">
         <Typography align="center" color="textPrimary" variant="h1">
           404: The page you are looking for isn’t here

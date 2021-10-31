@@ -17,7 +17,7 @@ import {
 import MuiAlert from '@material-ui/lab/Alert';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 
-import axiosInstance from '../utils/axiosInstance';
+import { api } from '../api';
 import { useAuthState } from '../auth';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,8 +54,8 @@ const SignUp: React.FC = () => {
     password: '',
     password2: '',
   });
-  const [error, setError] = useState<string>('');
-  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState<boolean>(false);
+  const [error, setError] = useState('');
+  const [errorAlertIsOpen, setErrorAlertIsOpen] = useState(false);
 
   const { isLogged } = useAuthState();
 
@@ -76,12 +76,10 @@ const SignUp: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    await axiosInstance
+    await api
       .post('/signup/', signUpDetails)
       .then(() => {
         history.push('/login/');
@@ -112,7 +110,6 @@ const SignUp: React.FC = () => {
     signUpDetails.last_name.length === 0 ||
     signUpDetails.username.length === 0 ||
     signUpDetails.password.length === 0 ||
-    signUpDetails.password2.length === 0 ||
     signUpDetails.password !== signUpDetails.password2;
 
   return (
@@ -214,8 +211,7 @@ const SignUp: React.FC = () => {
             variant="contained"
             color="primary"
             className={classes.submit}
-            disabled={isDisabled}
-          >
+            disabled={isDisabled}>
             Sign Up
           </Button>
           <Grid container justify="flex-end">
@@ -230,15 +226,13 @@ const SignUp: React.FC = () => {
       <Snackbar
         open={errorAlertIsOpen}
         autoHideDuration={6000}
-        onClose={handleCloseAlert}
-      >
+        onClose={handleCloseAlert}>
         <MuiAlert
           elevation={6}
           variant="filled"
           onClose={handleCloseAlert}
-          severity="error"
-        >
-          {JSON.stringify(error)}
+          severity="error">
+          {error}
         </MuiAlert>
       </Snackbar>
     </Container>

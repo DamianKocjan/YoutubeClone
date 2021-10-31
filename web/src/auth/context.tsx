@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import { Cookies } from 'react-cookie';
 
-import { IChannel } from '../types/channel';
-import { AuthAction, AuthReducer, IAuthState, initialState } from './reducer';
+import type { IChannel } from '../types/models';
+import type { IAuthAction, IAuthState } from './reducer';
+import { AuthReducer, initialState } from './reducer';
 
 const cookies = new Cookies();
 
@@ -35,7 +36,9 @@ const AuthStateContext = createContext<IAuthState>({
     !!refreshTokenCookie === true &&
     !!userCookie === true,
 });
-const AuthDispatchContext = createContext<React.Dispatch<AuthAction> | any>({});
+const AuthDispatchContext = createContext<React.Dispatch<IAuthAction> | any>(
+  {}
+);
 
 export function useAuthState(): IAuthState {
   const context = useContext(AuthStateContext);
@@ -46,7 +49,7 @@ export function useAuthState(): IAuthState {
   return context;
 }
 
-export function useAuthDispatch(): React.Dispatch<AuthAction> {
+export function useAuthDispatch(): React.Dispatch<IAuthAction> {
   const context = useContext(AuthDispatchContext);
   if (context === undefined) {
     throw new Error('useAuthDispatch must be used within a AuthProvider');
@@ -55,13 +58,7 @@ export function useAuthDispatch(): React.Dispatch<AuthAction> {
   return context;
 }
 
-interface IAuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<IAuthProviderProps> = ({
-  children,
-}: IAuthProviderProps) => {
+export const AuthProvider: React.FC = ({ children }) => {
   const [user, dispatch] = useReducer(AuthReducer, initialState);
 
   return (

@@ -3,8 +3,9 @@ from django.db import models
 
 
 class RatingBase(models.Model):
-    user       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_user')
-    is_liking  = models.BooleanField(default=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='%(class)s_user')
+    is_liking = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -16,7 +17,8 @@ class RatingBase(models.Model):
 
 
 class VideoRating(RatingBase):
-    video = models.ForeignKey('video.Video', on_delete=models.CASCADE, related_name='rating_video_video')
+    video = models.ForeignKey(
+        'video.Video', on_delete=models.CASCADE, related_name='rating_video_video')
 
     class Meta:
         verbose_name = 'Video Rating'
@@ -24,7 +26,8 @@ class VideoRating(RatingBase):
 
 
 class CommentRating(RatingBase):
-    comment = models.ForeignKey('comments.Comment', on_delete=models.CASCADE, related_name='rating_comment_comment')
+    comment = models.ForeignKey(
+        'comments.Comment', on_delete=models.CASCADE, related_name='rating_comment_comment')
 
     class Meta:
         verbose_name = 'Comment Rating'
@@ -32,7 +35,8 @@ class CommentRating(RatingBase):
 
 
 class ReplyCommentRating(RatingBase):
-    reply_comment = models.ForeignKey('comments.ReplyComment', on_delete=models.CASCADE, related_name='rating_reply_comment_reply_comment')
+    reply_comment = models.ForeignKey(
+        'comments.ReplyComment', on_delete=models.CASCADE, related_name='rating_reply_comment_reply_comment')
 
     class Meta:
         verbose_name = 'Reply Comment Rating'

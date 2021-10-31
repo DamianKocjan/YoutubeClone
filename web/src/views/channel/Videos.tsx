@@ -10,9 +10,9 @@ import {
   Typography,
 } from '@material-ui/core';
 import { useIntersectionObserver } from '../../hooks';
-import { IVideo } from '../../types/video';
+import type { IPage, IVideo } from '../../types/models';
 import VideoHomeCard from '../../components/video/VideoHomeCard';
-import axiosInstance from '../../utils/axiosInstance';
+import { api } from '../../api';
 import { useInfiniteQuery } from 'react-query';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -42,7 +42,7 @@ const Videos: React.FC = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery<any, any>(
+  } = useInfiniteQuery<IPage<IVideo>, Error>(
     'videos',
     async ({ pageParam = 1 }) => {
       let page;
@@ -52,9 +52,7 @@ const Videos: React.FC = () => {
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(
-        `/videos/?page=${page}&author=${id}`
-      );
+      const { data } = await api.get(`videos/?page=${page}&author=${id}`);
       return data;
     },
     {
@@ -62,7 +60,7 @@ const Videos: React.FC = () => {
     }
   );
 
-  const loadMoreVideosButtonRef = useRef<HTMLButtonElement | null>(null);
+  const loadMoreVideosButtonRef = useRef<HTMLButtonElement>(null);
 
   useIntersectionObserver({
     target: loadMoreVideosButtonRef,
@@ -78,12 +76,12 @@ const Videos: React.FC = () => {
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
+            <h1>{error?.message || error}</h1>
           ) : (
             <>
               {data &&
-                data.pages.map((page: any) => (
-                  <React.Fragment key={page.nextId}>
+                data.pages.map((page, i) => (
+                  <React.Fragment key={i}>
                     {page.results.map(
                       ({
                         title,
@@ -92,15 +90,14 @@ const Videos: React.FC = () => {
                         views_count,
                         author,
                         thumbnail,
-                      }: IVideo) => (
+                      }) => (
                         <Grid
                           item
                           sm={12}
                           md={4}
                           lg={3}
                           key={id}
-                          className={(classes.paper, classes.spacing)}
-                        >
+                          className={(classes.paper, classes.spacing)}>
                           <VideoHomeCard
                             title={title}
                             id={id}

@@ -1,6 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInfiniteQuery, useMutation, useQueryClient } from 'react-query';
+import TimeAgo from 'javascript-time-ago';
+
+const timeAgo = new TimeAgo('en-US');
 
 import {
   Avatar,
@@ -22,10 +25,9 @@ import {
   MoreVert,
 } from '@material-ui/icons';
 
-import axiosInstance from '../../utils/axiosInstance';
-import timeDifference from '../../utils/timeDifference';
+import { api } from '../../api';
 import VideoReplyComment from './VideoReplyComment';
-import { IVideoReplyComment } from '../../types/videoReplyComment';
+import type { IPage, IVideoReplyComment } from '../../types/models';
 import CommentRatingButtons from '../ratingButtons/Comment';
 import { useIntersectionObserver } from '../../hooks';
 import { useAuthState } from '../../auth';
@@ -50,7 +52,7 @@ const VideoComment: React.FC<Props> = ({
   authorId,
   authorUsername,
   authorAvatar,
-}: Props) => {
+}) => {
   const queryClient = useQueryClient();
 
   const {
@@ -60,7 +62,7 @@ const VideoComment: React.FC<Props> = ({
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery<any, any>(
+  } = useInfiniteQuery<IPage<IVideoReplyComment>, Error>(
     ['video_reply_comments', commentId],
     async ({ pageParam = 1 }) => {
       let page;
@@ -70,7 +72,7 @@ const VideoComment: React.FC<Props> = ({
         page = pageParam.split('page=')[1];
       else page = pageParam;
 
-      const { data } = await axiosInstance.get(
+      const { data } = await api.get(
         `reply-comments/?comment=${commentId}&page=${page}`
       );
       return data;
@@ -88,14 +90,14 @@ const VideoComment: React.FC<Props> = ({
     enabled: hasNextPage,
   });
 
-  const [showReplies, setShowReplies] = useState<boolean>(false);
+  const [showReplies, setShowReplies] = useState(false);
 
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [replyContent, setReplyContent] = useState<string>('');
+  const [showForm, setShowForm] = useState(false);
+  const [replyContent, setReplyContent] = useState('');
 
-  const [showButtons, setShowButtons] = useState<boolean>(false);
+  const [showButtons, setShowButtons] = useState(false);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const { isLogged, user } = useAuthState();
 
@@ -109,7 +111,7 @@ const VideoComment: React.FC<Props> = ({
 
   const commentUpdateMutation = useMutation(
     async (comment: { content: string }) =>
-      await axiosInstance.patch(`comments/${commentId}/`, comment),
+      await api.patch(`comments/${commentId}/`, comment),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -119,7 +121,7 @@ const VideoComment: React.FC<Props> = ({
   const handleEdit = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt()!;
+    let content = prompt() || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -131,7 +133,7 @@ const VideoComment: React.FC<Props> = ({
   };
 
   const commentDeleteMutation = useMutation(
-    async () => await axiosInstance.delete(`comments/${commentId}/`),
+    async () => await api.delete(`comments/${commentId}/`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['video_comments', commentId]),
@@ -141,9 +143,10 @@ const VideoComment: React.FC<Props> = ({
   const handleDelete = async () => {
     if (!isLogged || user.id !== authorId) return;
 
-    let content = prompt(
-      'Are you sure you want to delete that comment? Type y if you want.'
-    )!;
+    let content =
+      prompt(
+        'Are you sure you want to delete that comment? Type y if you want.'
+      ) || '';
 
     if (content) content = content.trim();
     else content = '';
@@ -153,7 +156,7 @@ const VideoComment: React.FC<Props> = ({
 
   const replyCommentMutation = useMutation(
     async (newReplyComment: { comment: string; content: string }) =>
-      await axiosInstance.post('reply-comments/', newReplyComment),
+      await api.post('reply-comments/', newReplyComment),
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries([
@@ -186,7 +189,7 @@ const VideoComment: React.FC<Props> = ({
           primary={
             <Typography>
               <Link to={`/channel/${authorId}/`}>{authorUsername}</Link>{' '}
-              {timeDifference(new Date(), new Date(createdAt))}
+              {timeAgo.format(new Date(createdAt))}
             </Typography>
           }
           secondary={<Typography variant="inherit">{content}</Typography>}
@@ -197,16 +200,14 @@ const VideoComment: React.FC<Props> = ({
               onClick={() => {
                 setShowReplies(!showReplies);
                 if (showReplies === false) setShowForm(false);
-              }}
-            >
+              }}>
               {showReplies ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           )}
           <IconButton
             onClick={() => {
               setShowForm(true);
-            }}
-          >
+            }}>
             <AddComment />
           </IconButton>
           <CommentRatingButtons
@@ -227,22 +228,19 @@ const VideoComment: React.FC<Props> = ({
           anchorEl={anchorEl}
           keepMounted
           open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
+          onClose={handleClose}>
           <MenuItem
             onClick={() => {
               handleClose();
               handleEdit();
-            }}
-          >
+            }}>
             Edit
           </MenuItem>
           <MenuItem
             onClick={() => {
               handleClose();
               handleDelete();
-            }}
-          >
+            }}>
             Delete
           </MenuItem>
         </Menu>
@@ -272,8 +270,7 @@ const VideoComment: React.FC<Props> = ({
                   setShowButtons(false);
                   setReplyContent('');
                   setShowForm(false);
-                }}
-              >
+                }}>
                 Cancel
               </Button>
               <Button variant="outlined" onClick={handleCommentCreation}>
@@ -287,12 +284,12 @@ const VideoComment: React.FC<Props> = ({
         (status === 'loading' ? (
           <h1>loading...</h1>
         ) : status === 'error' ? (
-          <h1>{error.message}</h1>
+          <h1>{error?.message || error}</h1>
         ) : (
           <>
             {data &&
-              data.pages.map((page: any) => (
-                <React.Fragment key={page.nextId}>
+              data.pages.map((page, i) => (
+                <React.Fragment key={i}>
                   {page.results.map(
                     ({
                       id,
@@ -301,7 +298,7 @@ const VideoComment: React.FC<Props> = ({
                       dislikes_count,
                       created_at,
                       author,
-                    }: IVideoReplyComment) => (
+                    }) => (
                       <VideoReplyComment
                         key={id}
                         replyId={id}

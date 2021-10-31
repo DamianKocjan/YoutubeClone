@@ -20,8 +20,7 @@ import {
 import { Add, Link, Lock, LockOpen, PlaylistAdd } from '@material-ui/icons';
 
 import { useAuthState } from '../auth';
-import axiosInstance from '../utils/axiosInstance';
-import { IPlaylist, IPlaylistVideo } from '../types/playlist';
+import { api } from '../api';
 import { usePlaylists, useUserLibrary } from '../hooks';
 import PrivacySelectInput from './PrivacySelectInput';
 
@@ -39,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
+const AddToPlaylistButton: React.FC<Props> = ({ videoId }) => {
   const { isLogged, user } = useAuthState();
 
   if (!isLogged) return <Button startIcon={<PlaylistAdd />}>Save</Button>;
@@ -53,15 +52,15 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
 
   const [openForm, setOpenForm] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
-  const [title, setTitle] = useState<string>('');
+  const [title, setTitle] = useState('');
   const [privacyStatus, setPrivacyStatus] = useState('Private');
 
   useEffect(() => {
     const playlistIds: string[] = [];
 
     if (data) {
-      data.forEach((playlist: IPlaylist) => {
-        playlist.videos.forEach((video: IPlaylistVideo) => {
+      data.forEach((playlist) => {
+        playlist.videos.forEach((video) => {
           if (
             new String(video.video.id).valueOf() ===
             new String(videoId).valueOf()
@@ -81,15 +80,15 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
       description: string;
       status: string;
     }) =>
-      await axiosInstance.post('/playlists/', newPlaylist).then(async (res) => {
-        await axiosInstance.post('/playlists-video/', {
+      await api.post('playlists/', newPlaylist).then(async (res) => {
+        await api.post('playlists-video/', {
           playlist_id: res.data.id,
           video_id: videoId,
           position: 0,
         });
 
-        await axiosInstance.put(`/libraries/${userLibraryData.id}/`, {
-          playlists_id: [...userLibraryData.playlists, res.data.id],
+        await api.put(`libraries/${userLibraryData?.id}/`, {
+          playlists_id: [...(userLibraryData?.playlists || []), res.data.id],
         });
       })
   );
@@ -115,7 +114,7 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
     setOpen(false);
 
     selected.forEach(async (id, index) => {
-      await axiosInstance.post('/playlists-video/', {
+      await api.post('playlists-video/', {
         playlist_id: id,
         video_id: videoId,
         position: index,
@@ -153,16 +152,15 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
           {status === 'loading' ? (
             <h1>loading...</h1>
           ) : status === 'error' ? (
-            <h1>{error.message}</h1>
-          ) : data.length > 0 ? (
-            data.map(({ id, title, status: playlistStatus }: IPlaylist) => (
+            <h1>{error?.message || error}</h1>
+          ) : (
+            data?.map(({ id, title, status: playlistStatus }) => (
               <ListItem
                 button
                 onClick={() => {
                   handleToggle(id);
                 }}
-                key={id}
-              >
+                key={id}>
                 <ListItemIcon>
                   <Checkbox
                     checked={selected.indexOf(id) !== -1}
@@ -182,15 +180,14 @@ const AddToPlaylistButton: React.FC<Props> = ({ videoId }: Props) => {
                 </ListItemSecondaryAction>
               </ListItem>
             ))
-          ) : null}
+          )}
           <Divider />
           {!openForm ? (
             <ListItem
               button
               onClick={() => {
                 setOpenForm(true);
-              }}
-            >
+              }}>
               <ListItemIcon>
                 <Add />
               </ListItemIcon>

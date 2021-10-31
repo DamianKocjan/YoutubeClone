@@ -1,6 +1,6 @@
 import { Cookies } from 'react-cookie';
 
-import { IChannel } from '../types/channel';
+import type { IChannel } from '../types/models';
 
 const cookies = new Cookies();
 
@@ -13,22 +13,39 @@ export interface IAuthState {
   isLogged: boolean;
 }
 
-const userCookie = cookies.get('user') || {};
 const accessTokenCookie = cookies.get('access_token');
 const refreshTokenCookie = cookies.get('refresh_token');
 
+let userData = {
+  id: '',
+  first_name: '',
+  last_name: '',
+  username: '',
+  email: '',
+  avatar: '',
+  subscribers_count: 0,
+  background: '',
+  date_joined: '',
+  description: '',
+  location: '',
+};
+
+if (accessTokenCookie) {
+  userData = JSON.parse(atob(accessTokenCookie.split('.')[1]));
+}
+
 const user: IChannel = {
-  id: userCookie.id || '',
-  first_name: userCookie.first_name || '',
-  last_name: userCookie.last_name || '',
-  username: userCookie.username || '',
-  email: userCookie.email || '',
-  avatar: userCookie.avatar || '',
-  subscribers_count: userCookie.subscribers_count || 0,
-  background: userCookie.background || '',
-  date_joined: userCookie.date_joined || '',
-  description: userCookie.description || '',
-  location: userCookie.location || '',
+  id: userData.id,
+  first_name: userData.first_name,
+  last_name: userData.last_name,
+  username: userData.username,
+  email: userData.email,
+  avatar: userData.avatar,
+  subscribers_count: userData.subscribers_count || 0,
+  background: userData.background,
+  date_joined: userData.date_joined,
+  description: userData.description,
+  location: userData.location,
 };
 
 export const initialState: IAuthState = {
@@ -37,10 +54,7 @@ export const initialState: IAuthState = {
   refreshToken: refreshTokenCookie || '',
   loading: false,
   errorMessage: null,
-  isLogged:
-    !!accessTokenCookie === true &&
-    !!refreshTokenCookie === true &&
-    !!userCookie === true,
+  isLogged: !!accessTokenCookie === true && !!refreshTokenCookie === true,
 };
 
 export interface IAuthPayload {
@@ -49,14 +63,14 @@ export interface IAuthPayload {
   refreshToken: string;
 }
 
-export type AuthAction =
+export type IAuthAction =
   | { type: 'REQUEST_LOGIN' | 'LOGOUT' }
   | { type: 'LOGIN_SUCCESS'; payload: IAuthPayload }
   | { type: 'LOGIN_ERROR'; error: string };
 
 export const AuthReducer = (
   initialState: IAuthState,
-  action: AuthAction
+  action: IAuthAction
 ): IAuthState => {
   switch (action.type) {
     case 'REQUEST_LOGIN':

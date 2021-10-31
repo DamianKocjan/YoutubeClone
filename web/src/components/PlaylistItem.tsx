@@ -18,8 +18,8 @@ import {
 import { Delete, Flag, MoreVert } from '@material-ui/icons';
 
 import { useAuthState } from '../auth';
-import { IVideo } from '../types/video';
-import axiosInstance from '../utils/axiosInstance';
+import type { IVideo } from '../types/models';
+import { api } from '../api';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -47,13 +47,13 @@ const PlaylistItem: React.FC<Props> = ({
   playlistId,
   playlistTitle,
   playlistAuthorId,
-}: Props) => {
+}) => {
   const classes = useStyles();
   const queryClient = useQueryClient();
 
   const { isLogged, user } = useAuthState();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -64,7 +64,7 @@ const PlaylistItem: React.FC<Props> = ({
   };
 
   const playlistVideoDeleteMutation = useMutation(
-    async () => await axiosInstance.delete(`/playlists-video/${objId}/`),
+    async () => await api.delete(`playlists-video/${objId}/`),
     {
       onSuccess: async () =>
         await queryClient.invalidateQueries(['playlist', playlistId]),
@@ -81,8 +81,7 @@ const PlaylistItem: React.FC<Props> = ({
     <ListItem
       button
       component={RRLink}
-      to={`/watch?v=${video.id}&list=${playlistId}&index=${position + 1}`}
-    >
+      to={`/watch?v=${video.id}&list=${playlistId}&index=${position + 1}`}>
       <ListItemIcon>{position + 1}</ListItemIcon>
       <ListItemAvatar>
         <Avatar
@@ -102,15 +101,13 @@ const PlaylistItem: React.FC<Props> = ({
           anchorEl={anchorEl}
           keepMounted
           open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
+          onClose={handleClose}>
           {user.id === playlistAuthorId ? (
             <MenuItem
               onClick={() => {
                 handleClose();
                 handleDelete();
-              }}
-            >
+              }}>
               <ListItemIcon>
                 <Delete />
               </ListItemIcon>
