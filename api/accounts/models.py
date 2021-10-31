@@ -1,5 +1,4 @@
 import os
-import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -20,7 +19,6 @@ class User(AbstractUser):
         'background', upload_to=get_user_upload_to, blank=True, null=True)
     description = models.TextField(max_length=200, default='')
     location = CountryField(blank=True)
-    stream_key = models.UUIDField(default=uuid.uuid4)
 
     class Meta:
         db_table = 'auth_user'

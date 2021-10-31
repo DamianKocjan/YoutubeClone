@@ -9,7 +9,7 @@ from .models import User, Subscription
 class UserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'avatar',
-         'background', 'password', 'stream_key')}),
+         'background', 'password')}),
         (_('Personal info'), {'fields': ('first_name',
          'last_name', 'email', 'description', 'location')}),
         (_('Permissions'), {
